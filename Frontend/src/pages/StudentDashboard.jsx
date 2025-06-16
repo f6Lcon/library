@@ -69,6 +69,11 @@ const StudentDashboard = () => {
     }
   }
 
+  const truncateDescription = (description, maxLength = 100) => {
+    if (description.length <= maxLength) return description
+    return description.substring(0, maxLength) + "..."
+  }
+
   if (loading) return <div className="flex justify-center items-center h-64">Loading...</div>
 
   return (
@@ -135,11 +140,23 @@ const StudentDashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {books.map((book) => (
                 <div key={book._id} className="bg-white rounded-lg shadow-md overflow-hidden">
+                  {/* Book Image */}
+                  <div className="aspect-[3/4] overflow-hidden bg-gray-100">
+                    <img
+                      src={book.imageUrl || "/placeholder.svg?height=400&width=300"}
+                      alt={`${book.title} cover`}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.src = "/placeholder.svg?height=400&width=300"
+                      }}
+                    />
+                  </div>
+
                   <div className="p-6">
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">{book.title}</h3>
                     <p className="text-sm text-gray-600 mb-2">by {book.author}</p>
                     <p className="text-sm text-gray-500 mb-3">{book.category}</p>
-                    <p className="text-sm text-gray-700 mb-4 line-clamp-3">{book.description}</p>
+                    <p className="text-sm text-gray-700 mb-4 line-clamp-3">{truncateDescription(book.description)}</p>
 
                     <div className="flex justify-between items-center mb-4">
                       <span className="text-sm text-gray-500">ISBN: {book.isbn}</span>

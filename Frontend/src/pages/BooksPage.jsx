@@ -147,8 +147,20 @@ const BooksPage = () => {
               key={book._id}
               className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
             >
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-3">
+              {/* Book Image */}
+              <div className="aspect-[3/4] overflow-hidden bg-gray-100">
+                <img
+                  src={book.imageUrl || "/placeholder.svg?height=400&width=300"}
+                  alt={`${book.title} cover`}
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  onError={(e) => {
+                    e.target.src = "/placeholder.svg?height=400&width=300"
+                  }}
+                />
+              </div>
+
+              <div className="p-4">
+                <div className="flex justify-between items-start mb-2">
                   <h3 className="text-lg font-semibold text-gray-900 line-clamp-2 flex-1 mr-2">{book.title}</h3>
                   <span
                     className={`text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap ${
@@ -176,28 +188,14 @@ const BooksPage = () => {
                 <div className="space-y-1 text-xs text-gray-500 mb-4 bg-gray-50 p-3 rounded">
                   <div className="grid grid-cols-2 gap-2">
                     <p>
-                      <span className="font-medium">ISBN:</span> {book.isbn}
-                    </p>
-                    <p>
                       <span className="font-medium">Year:</span> {book.publishedYear}
                     </p>
                     <p>
                       <span className="font-medium">Pages:</span> {book.pages}
                     </p>
-                    <p>
-                      <span className="font-medium">Language:</span> {book.language}
-                    </p>
                   </div>
                   <p className="pt-1 border-t border-gray-200">
-                    <span className="font-medium">Publisher:</span> {book.publisher}
-                  </p>
-                  <p className="flex justify-between items-center pt-1">
-                    <span>
-                      <span className="font-medium">Available:</span> {book.availableCopies}/{book.totalCopies}
-                    </span>
-                    {book.availableCopies > 0 && (
-                      <span className="text-green-600 font-medium">{book.availableCopies} copies left</span>
-                    )}
+                    <span className="font-medium">Available:</span> {book.availableCopies}/{book.totalCopies}
                   </p>
                 </div>
 
