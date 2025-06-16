@@ -150,9 +150,9 @@ const Homepage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-              <h3 className="text-lg font-semibold mb-4">KEY Library</h3>
+              <h3 className="text-lg font-semibold mb-4">KEY Libraries</h3>
               <p className="text-gray-400">
-                Your gateway to knowledge and learning. Serving the community with excellence since day one.
+                Knowledge Empowering Youth.
               </p>
             </div>
             <div>
@@ -179,13 +179,13 @@ const Homepage = () => {
               <h3 className="text-lg font-semibold mb-4">Contact Info</h3>
               <div className="text-gray-400 space-y-2">
                 <p>📧 info@keylibrary.com</p>
-                <p>📞 (555) 123-4567</p>
-                <p>📍 Multiple locations citywide</p>
+                <p>📞 +2541123456789</p>
+                <p>📍 Multiple locations Countrywide</p>
               </div>
             </div>
           </div>
           <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 KEY Library. All rights reserved.</p>
+            <p>&copy; 2025 KEY Libraries. All rights reserved.</p>
           </div>
         </div>
       </footer>
