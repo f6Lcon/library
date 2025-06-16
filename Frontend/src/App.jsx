@@ -3,6 +3,8 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 import { AuthProvider } from "./context/AuthContext"
 import { useAuth } from "./context/AuthContext"
+import Homepage from "./pages/Homepage"
+import BooksPage from "./pages/BooksPage"
 import Login from "./pages/Login"
 import Register from "./pages/Register"
 import AdminDashboard from "./pages/AdminDashboard"
@@ -52,6 +54,8 @@ function App() {
         <div className="min-h-screen bg-gray-50">
           <Navbar />
           <Routes>
+            <Route path="/" element={<Homepage />} />
+            <Route path="/books" element={<BooksPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route
@@ -73,7 +77,6 @@ function App() {
                 </div>
               }
             />
-            <Route path="/" element={<Navigate to="/dashboard" />} />
           </Routes>
         </div>
       </Router>

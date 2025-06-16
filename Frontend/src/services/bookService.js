@@ -8,11 +8,18 @@ const getAuthHeaders = () => {
   }
 }
 
+const getPublicHeaders = () => {
+  return {
+    "Content-Type": "application/json",
+  }
+}
+
 export const bookService = {
   async getAllBooks(params = {}) {
     const queryString = new URLSearchParams(params).toString()
+    // Use public headers for book browsing - no auth required
     const response = await fetch(`${API_BASE_URL}/books?${queryString}`, {
-      headers: getAuthHeaders(),
+      headers: getPublicHeaders(),
     })
 
     if (!response.ok) {
@@ -25,7 +32,7 @@ export const bookService = {
 
   async getBookById(id) {
     const response = await fetch(`${API_BASE_URL}/books/${id}`, {
-      headers: getAuthHeaders(),
+      headers: getPublicHeaders(),
     })
 
     if (!response.ok) {
@@ -82,7 +89,7 @@ export const bookService = {
 
   async getCategories() {
     const response = await fetch(`${API_BASE_URL}/books/categories`, {
-      headers: getAuthHeaders(),
+      headers: getPublicHeaders(),
     })
 
     if (!response.ok) {
