@@ -5,7 +5,8 @@ export const getAllBooks = async (req, res) => {
     const { category, search, page = 1, limit = 10 } = req.query
     const query = {}
 
-    if (req.user && req.user.role !== "admin") {
+    // Only filter by branch if user is authenticated and not admin
+    if (req.user && req.user.role !== "admin" && req.user.branch) {
       query.branch = req.user.branch
     }
 
@@ -20,6 +21,7 @@ export const getAllBooks = async (req, res) => {
 
     const books = await Book.find(query)
       .populate("addedBy", "firstName lastName")
+      .populate("branch", "name code")
       .limit(limit * 1)
       .skip((page - 1) * limit)
       .sort({ createdAt: -1 })
@@ -39,7 +41,9 @@ export const getAllBooks = async (req, res) => {
 
 export const getBookById = async (req, res) => {
   try {
-    const book = await Book.findById(req.params.id).populate("addedBy", "firstName lastName")
+    const book = await Book.findById(req.params.id)
+      .populate("addedBy", "firstName lastName")
+      .populate("branch", "name code")
     if (!book) {
       return res.status(404).json({ message: "Book not found" })
     }
