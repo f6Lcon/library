@@ -60,7 +60,17 @@ const BooksPage = () => {
     searchBooks()
   }
 
-  if (loading) return <div className="flex justify-center items-center h-64">Loading...</div>
+  const truncateDescription = (description, maxLength = 150) => {
+    if (description.length <= maxLength) return description
+    return description.substring(0, maxLength) + "..."
+  }
+
+  if (loading)
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+      </div>
+    )
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -139,9 +149,9 @@ const BooksPage = () => {
             >
               <div className="p-6">
                 <div className="flex justify-between items-start mb-3">
-                  <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">{book.title}</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 line-clamp-2 flex-1 mr-2">{book.title}</h3>
                   <span
-                    className={`text-xs px-2 py-1 rounded-full font-medium ${
+                    className={`text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap ${
                       book.availableCopies > 0 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
                     }`}
                   >
@@ -150,42 +160,60 @@ const BooksPage = () => {
                 </div>
 
                 <p className="text-sm text-gray-600 mb-2">by {book.author}</p>
-                <p className="text-xs text-green-600 font-medium mb-3">{book.category}</p>
-                <p className="text-sm text-gray-700 mb-4 line-clamp-3">{book.description}</p>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs text-green-600 font-medium bg-green-50 px-2 py-1 rounded">
+                    {book.category}
+                  </span>
+                  {book.branch && <span className="text-xs text-gray-500">{book.branch.code}</span>}
+                </div>
 
-                <div className="space-y-2 text-xs text-gray-500 mb-4">
-                  <p>
-                    <span className="font-medium">ISBN:</span> {book.isbn}
-                  </p>
-                  <p>
+                {/* Book Description */}
+                <div className="mb-4">
+                  <p className="text-sm text-gray-700 leading-relaxed">{truncateDescription(book.description)}</p>
+                </div>
+
+                {/* Book Details */}
+                <div className="space-y-1 text-xs text-gray-500 mb-4 bg-gray-50 p-3 rounded">
+                  <div className="grid grid-cols-2 gap-2">
+                    <p>
+                      <span className="font-medium">ISBN:</span> {book.isbn}
+                    </p>
+                    <p>
+                      <span className="font-medium">Year:</span> {book.publishedYear}
+                    </p>
+                    <p>
+                      <span className="font-medium">Pages:</span> {book.pages}
+                    </p>
+                    <p>
+                      <span className="font-medium">Language:</span> {book.language}
+                    </p>
+                  </div>
+                  <p className="pt-1 border-t border-gray-200">
                     <span className="font-medium">Publisher:</span> {book.publisher}
                   </p>
-                  <p>
-                    <span className="font-medium">Year:</span> {book.publishedYear}
-                  </p>
-                  <p>
-                    <span className="font-medium">Pages:</span> {book.pages}
-                  </p>
-                  <p>
-                    <span className="font-medium">Language:</span> {book.language}
-                  </p>
-                  <p>
-                    <span className="font-medium">Available:</span> {book.availableCopies}/{book.totalCopies}
+                  <p className="flex justify-between items-center pt-1">
+                    <span>
+                      <span className="font-medium">Available:</span> {book.availableCopies}/{book.totalCopies}
+                    </span>
+                    {book.availableCopies > 0 && (
+                      <span className="text-green-600 font-medium">{book.availableCopies} copies left</span>
+                    )}
                   </p>
                 </div>
 
+                {/* Action Button */}
                 {user ? (
                   book.availableCopies > 0 ? (
                     <Link
                       to="/dashboard"
-                      className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors text-center block"
+                      className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors text-center block font-medium"
                     >
                       Borrow Book
                     </Link>
                   ) : (
                     <button
                       disabled
-                      className="w-full bg-gray-300 text-gray-500 py-2 px-4 rounded-md cursor-not-allowed"
+                      className="w-full bg-gray-300 text-gray-500 py-2 px-4 rounded-md cursor-not-allowed font-medium"
                     >
                       Currently Unavailable
                     </button>
@@ -195,7 +223,7 @@ const BooksPage = () => {
                     <p className="text-xs text-gray-500 mb-2">Sign in to borrow this book</p>
                     <Link
                       to="/login"
-                      className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors text-center block"
+                      className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors text-center block font-medium"
                     >
                       Sign In to Borrow
                     </Link>
@@ -212,7 +240,7 @@ const BooksPage = () => {
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              className="px-3 py-2 border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              className="px-4 py-2 border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
             >
               Previous
             </button>
@@ -224,7 +252,7 @@ const BooksPage = () => {
                   <button
                     key={page}
                     onClick={() => setCurrentPage(page)}
-                    className={`px-3 py-2 border rounded-md ${
+                    className={`px-3 py-2 border rounded-md transition-colors ${
                       currentPage === page
                         ? "bg-green-600 text-white border-green-600"
                         : "border-gray-300 hover:bg-gray-50"
@@ -234,12 +262,27 @@ const BooksPage = () => {
                   </button>
                 )
               })}
+              {totalPages > 5 && (
+                <>
+                  <span className="px-2 py-2 text-gray-500">...</span>
+                  <button
+                    onClick={() => setCurrentPage(totalPages)}
+                    className={`px-3 py-2 border rounded-md transition-colors ${
+                      currentPage === totalPages
+                        ? "bg-green-600 text-white border-green-600"
+                        : "border-gray-300 hover:bg-gray-50"
+                    }`}
+                  >
+                    {totalPages}
+                  </button>
+                </>
+              )}
             </div>
 
             <button
               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage === totalPages}
-              className="px-3 py-2 border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              className="px-4 py-2 border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
             >
               Next
             </button>
