@@ -141,91 +141,98 @@ const BooksPage = () => {
         </div>
 
         {/* Books Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mb-8">
           {books.map((book) => (
             <div
               key={book._id}
-              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+              className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden group"
             >
-              {/* Book Image */}
-              <div className="aspect-[3/4] overflow-hidden bg-gray-100">
+              {/* Book Image - Smaller and more compact */}
+              <div className="aspect-[2/3] overflow-hidden bg-gray-100 relative">
                 <img
-                  src={book.imageUrl || "/placeholder.svg?height=400&width=300"}
+                  src={book.imageUrl || "/placeholder.svg?height=300&width=200"}
                   alt={`${book.title} cover`}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   onError={(e) => {
-                    e.target.src = "/placeholder.svg?height=400&width=300"
+                    e.target.src = "/placeholder.svg?height=300&width=200"
                   }}
                 />
-              </div>
-
-              <div className="p-4">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-lg font-semibold text-gray-900 line-clamp-2 flex-1 mr-2">{book.title}</h3>
+                {/* Availability badge overlay */}
+                <div className="absolute top-2 right-2">
                   <span
-                    className={`text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap ${
-                      book.availableCopies > 0 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                    className={`text-xs px-2 py-1 rounded-full font-medium shadow-sm ${
+                      book.availableCopies > 0 ? "bg-green-500 text-white" : "bg-red-500 text-white"
                     }`}
                   >
-                    {book.availableCopies > 0 ? "Available" : "Unavailable"}
+                    {book.availableCopies > 0 ? "Available" : "Out"}
                   </span>
                 </div>
+              </div>
 
-                <p className="text-sm text-gray-600 mb-2">by {book.author}</p>
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs text-green-600 font-medium bg-green-50 px-2 py-1 rounded">
-                    {book.category}
-                  </span>
-                  {book.branch && <span className="text-xs text-gray-500">{book.branch.code}</span>}
-                </div>
-
-                {/* Book Description */}
-                <div className="mb-4">
-                  <p className="text-sm text-gray-700 leading-relaxed">{truncateDescription(book.description)}</p>
-                </div>
-
-                {/* Book Details */}
-                <div className="space-y-1 text-xs text-gray-500 mb-4 bg-gray-50 p-3 rounded">
-                  <div className="grid grid-cols-2 gap-2">
-                    <p>
-                      <span className="font-medium">Year:</span> {book.publishedYear}
-                    </p>
-                    <p>
-                      <span className="font-medium">Pages:</span> {book.pages}
-                    </p>
-                  </div>
-                  <p className="pt-1 border-t border-gray-200">
-                    <span className="font-medium">Available:</span> {book.availableCopies}/{book.totalCopies}
+              <div className="p-3">
+                {/* Title and Author - More compact */}
+                <div className="mb-2">
+                  <h3
+                    className="text-sm font-semibold text-gray-900 line-clamp-2 leading-tight mb-1"
+                    title={book.title}
+                  >
+                    {book.title}
+                  </h3>
+                  <p className="text-xs text-gray-600 truncate" title={book.author}>
+                    by {book.author}
                   </p>
                 </div>
 
-                {/* Action Button */}
+                {/* Category and Branch */}
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs text-green-600 font-medium bg-green-50 px-2 py-1 rounded">
+                    {book.category}
+                  </span>
+                  {book.branch && <span className="text-xs text-gray-500 font-mono">{book.branch.code}</span>}
+                </div>
+
+                {/* Compact Book Details */}
+                <div className="text-xs text-gray-500 mb-3 space-y-1">
+                  <div className="flex justify-between">
+                    <span>Year:</span>
+                    <span>{book.publishedYear}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Pages:</span>
+                    <span>{book.pages}</span>
+                  </div>
+                  <div className="flex justify-between font-medium">
+                    <span>Available:</span>
+                    <span className={book.availableCopies > 0 ? "text-green-600" : "text-red-600"}>
+                      {book.availableCopies}/{book.totalCopies}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Action Button - Compact */}
                 {user ? (
                   book.availableCopies > 0 ? (
                     <Link
                       to="/dashboard"
-                      className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors text-center block font-medium"
+                      className="w-full bg-green-600 text-white py-1.5 px-3 rounded text-xs hover:bg-green-700 transition-colors text-center block font-medium"
                     >
-                      Borrow Book
+                      Borrow
                     </Link>
                   ) : (
                     <button
                       disabled
-                      className="w-full bg-gray-300 text-gray-500 py-2 px-4 rounded-md cursor-not-allowed font-medium"
+                      className="w-full bg-gray-300 text-gray-500 py-1.5 px-3 rounded text-xs cursor-not-allowed font-medium"
                     >
-                      Currently Unavailable
+                      Unavailable
                     </button>
                   )
                 ) : (
-                  <div className="text-center">
-                    <p className="text-xs text-gray-500 mb-2">Sign in to borrow this book</p>
-                    <Link
-                      to="/login"
-                      className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors text-center block font-medium"
-                    >
-                      Sign In to Borrow
-                    </Link>
-                  </div>
+                  <Link
+                    to="/login"
+                    className="w-full bg-green-600 text-white py-1.5 px-3 rounded text-xs hover:bg-green-700 transition-colors text-center block font-medium"
+                  >
+                    Sign In
+                  </Link>
                 )}
               </div>
             </div>

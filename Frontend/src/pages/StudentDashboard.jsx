@@ -137,43 +137,56 @@ const StudentDashboard = () => {
             </div>
 
             {/* Books Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {books.map((book) => (
-                <div key={book._id} className="bg-white rounded-lg shadow-md overflow-hidden">
+                <div
+                  key={book._id}
+                  className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden group"
+                >
                   {/* Book Image */}
-                  <div className="aspect-[3/4] overflow-hidden bg-gray-100">
+                  <div className="aspect-[2/3] overflow-hidden bg-gray-100 relative">
                     <img
-                      src={book.imageUrl || "/placeholder.svg?height=400&width=300"}
+                      src={book.imageUrl || "/placeholder.svg?height=300&width=200"}
                       alt={`${book.title} cover`}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       onError={(e) => {
-                        e.target.src = "/placeholder.svg?height=400&width=300"
+                        e.target.src = "/placeholder.svg?height=300&width=200"
                       }}
                     />
-                  </div>
-
-                  <div className="p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{book.title}</h3>
-                    <p className="text-sm text-gray-600 mb-2">by {book.author}</p>
-                    <p className="text-sm text-gray-500 mb-3">{book.category}</p>
-                    <p className="text-sm text-gray-700 mb-4 line-clamp-3">{truncateDescription(book.description)}</p>
-
-                    <div className="flex justify-between items-center mb-4">
-                      <span className="text-sm text-gray-500">ISBN: {book.isbn}</span>
+                    <div className="absolute top-2 right-2">
                       <span
-                        className={`text-sm font-medium ${
-                          book.availableCopies > 0 ? "text-green-600" : "text-red-600"
+                        className={`text-xs px-2 py-1 rounded-full font-medium shadow-sm ${
+                          book.availableCopies > 0 ? "bg-green-500 text-white" : "bg-red-500 text-white"
                         }`}
                       >
-                        {book.availableCopies > 0 ? `${book.availableCopies} available` : "Not available"}
+                        {book.availableCopies > 0 ? book.availableCopies : "Out"}
                       </span>
                     </div>
+                  </div>
+
+                  <div className="p-3">
+                    <h3
+                      className="text-sm font-semibold text-gray-900 mb-1 line-clamp-2 leading-tight"
+                      title={book.title}
+                    >
+                      {book.title}
+                    </h3>
+                    <p className="text-xs text-gray-600 mb-2 truncate" title={book.author}>
+                      by {book.author}
+                    </p>
+                    <span className="text-xs text-green-600 font-medium bg-green-50 px-2 py-1 rounded mb-2 inline-block">
+                      {book.category}
+                    </span>
 
                     <div className="text-xs text-gray-500 space-y-1">
-                      <p>Publisher: {book.publisher}</p>
-                      <p>Year: {book.publishedYear}</p>
-                      <p>Pages: {book.pages}</p>
-                      <p>Language: {book.language}</p>
+                      <div className="flex justify-between">
+                        <span>Year:</span>
+                        <span>{book.publishedYear}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Pages:</span>
+                        <span>{book.pages}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
