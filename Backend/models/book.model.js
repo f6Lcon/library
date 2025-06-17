@@ -63,6 +63,15 @@ const bookSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    // Cloudinary image fields
+    imageUrl: {
+      type: String,
+      default: null,
+    },
+    imagePublicId: {
+      type: String,
+      default: null,
+    },
     addedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

@@ -7,6 +7,7 @@ import userRoutes from "./routes/user.routes.js"
 import bookRoutes from "./routes/book.routes.js"
 import borrowRoutes from "./routes/borrow.routes.js"
 import branchRoutes from "./routes/branch.routes.js"
+import uploadRoutes from "./routes/upload.routes.js"
 
 dotenv.config()
 
@@ -18,7 +19,8 @@ connectDB()
 
 // Middleware
 app.use(cors())
-app.use(express.json())
+app.use(express.json({ limit: "10mb" }))
+app.use(express.urlencoded({ extended: true, limit: "10mb" }))
 
 // Routes
 app.use("/api/auth", authRoutes)
@@ -26,6 +28,7 @@ app.use("/api/users", userRoutes)
 app.use("/api/books", bookRoutes)
 app.use("/api/borrow", borrowRoutes)
 app.use("/api/branches", branchRoutes)
+app.use("/api/upload", uploadRoutes)
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)

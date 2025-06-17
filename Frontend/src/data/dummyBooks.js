@@ -5,7 +5,7 @@ export const dummyBooks = [
     author: "F. Scott Fitzgerald",
     isbn: "978-0-7432-7356-5",
     category: "Fiction",
-    imageUrl: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=400&fit=crop&crop=center",
+    imageUrl: "https://res.cloudinary.com/your-cloud-name/image/upload/v1/key-library/books/great-gatsby.webp",
     description:
       "Set in the summer of 1922, The Great Gatsby follows narrator Nick Carraway's interactions with mysterious millionaire Jay Gatsby and Gatsby's obsession to reunite with his former lover, Daisy Buchanan. The novel explores themes of decadence, idealism, resistance to change, social upheaval, and excess, creating a portrait of the Roaring Twenties that has been described as a cautionary tale regarding the American Dream. This masterpiece of American literature captures the spirit of an era and remains one of the most widely read novels in high school and college curricula.",
     publisher: "Scribner",
@@ -25,7 +25,7 @@ export const dummyBooks = [
     author: "Harper Lee",
     isbn: "978-0-06-112008-4",
     category: "Fiction",
-    imageUrl: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300&h=400&fit=crop&crop=center",
+    imageUrl: "https://res.cloudinary.com/your-cloud-name/image/upload/v1/key-library/books/to-kill-mockingbird.webp",
     description:
       "Published in 1960, this Pulitzer Prize-winning novel deals with serious issues of rape and racial inequality through the eyes of young Scout Finch in the fictional town of Maycomb, Alabama, during the 1930s. The story follows Scout and her brother Jem as their father Atticus, a lawyer, defends a Black man falsely accused of rape. The novel explores themes of moral growth, prejudice, and the loss of innocence. It has become a classic of modern American literature and is widely taught in schools for its powerful message about justice, morality, and human dignity.",
     publisher: "J.B. Lippincott & Co.",
@@ -45,7 +45,7 @@ export const dummyBooks = [
     author: "George Orwell",
     isbn: "978-0-452-28423-4",
     category: "Fiction",
-    imageUrl: "https://images.unsplash.com/photo-1495640388908-05fa85288e61?w=300&h=400&fit=crop&crop=center",
+    imageUrl: "https://res.cloudinary.com/your-cloud-name/image/upload/v1/key-library/books/1984.webp",
     description:
       "A dystopian social science fiction novel published in 1949, 1984 presents a chilling vision of a totalitarian future where Big Brother watches everything and the Party controls all aspects of life. Set in Airstrip One (formerly Great Britain), the story follows Winston Smith, a low-ranking member of the ruling Party who begins to question the regime. The novel explores themes of totalitarianism, mass surveillance, and repressive regimentation. Orwell's concepts of 'Big Brother,' 'doublethink,' and 'thoughtcrime' have entered common usage, making this one of the most influential dystopian novels ever written.",
     publisher: "Secker & Warburg",
@@ -65,7 +65,7 @@ export const dummyBooks = [
     author: "Jane Austen",
     isbn: "978-0-14-143951-8",
     category: "Romance",
-    imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=400&fit=crop&crop=center",
+    imageUrl: "https://res.cloudinary.com/your-cloud-name/image/upload/v1/key-library/books/pride-prejudice.webp",
     description:
       "First published in 1813, this romantic novel follows the emotional development of Elizabeth Bennet, who learns the error of making hasty judgments and comes to appreciate the difference between superficial goodness and actual goodness. Set in rural England in the early 19th century, the story deals with issues of marriage, money, and social status through the complex relationship between Elizabeth and the proud Mr. Darcy. Austen's wit, social commentary, and memorable characters have made this novel a beloved classic that continues to influence romantic literature today. The novel's exploration of women's dependence on marriage for social standing remains relevant and thought-provoking.",
     publisher: "T. Egerton",
@@ -85,7 +85,7 @@ export const dummyBooks = [
     author: "J.D. Salinger",
     isbn: "978-0-316-76948-0",
     category: "Fiction",
-    imageUrl: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=300&h=400&fit=crop&crop=center",
+    imageUrl: "https://res.cloudinary.com/your-cloud-name/image/upload/v1/key-library/books/catcher-rye.webp",
     description:
       "Published in 1951, this controversial coming-of-age novel follows 16-year-old Holden Caulfield as he wanders around New York City after being expelled from prep school. The story is told in first person, capturing Holden's cynical and rebellious voice as he struggles with depression, alienation, and the 'phoniness' he perceives in the adult world. The novel explores themes of identity, belonging, loss, and connection, resonating with readers who identify with Holden's feelings of isolation and disillusionment. Despite its controversial reception, it has become one of the most widely taught books in American schools and a defining work of adolescent literature.",
     publisher: "Little, Brown and Company",
@@ -105,7 +105,7 @@ export const dummyBooks = [
     author: "J.R.R. Tolkien",
     isbn: "978-0-547-92822-7",
     category: "Fantasy",
-    imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&crop=center",
+    imageUrl: "https://res.cloudinary.com/your-cloud-name/image/upload/v1/key-library/books/lord-rings.webp",
     description:
       "The first volume of Tolkien's epic high fantasy trilogy, published in 1954, follows hobbit Frodo Baggins as he begins his quest to destroy the One Ring and defeat the Dark Lord Sauron. Set in the fictional world of Middle-earth, the story begins in the Shire and follows the formation of the Fellowship of the Ring, consisting of Frodo, three other hobbits, two men, an elf, a dwarf, and a wizard. The novel combines elements of mythology, linguistics, and medieval literature to create a rich, detailed fantasy world. Tolkien's work has profoundly influenced the fantasy genre and continues to captivate readers with its themes of friendship, courage, and the struggle between good and evil.",
     publisher: "George Allen & Unwin",
@@ -125,7 +125,7 @@ export const dummyBooks = [
     author: "J.K. Rowling",
     isbn: "978-0-7475-3269-9",
     category: "Fantasy",
-    imageUrl: "https://images.unsplash.com/photo-1621351183012-e2f9972dd9bf?w=300&h=400&fit=crop&crop=center",
+    imageUrl: "https://res.cloudinary.com/your-cloud-name/image/upload/v1/key-library/books/harry-potter.webp",
     description:
       "The first novel in the Harry Potter series, published in 1997, introduces readers to the magical world of Hogwarts School of Witchcraft and Wizardry. The story follows 11-year-old Harry Potter, who discovers on his birthday that he is a wizard and has been accepted to Hogwarts. There, he learns about his past, makes his first real friends in Ron Weasley and Hermione Granger, and faces the dark wizard who killed his parents. The novel combines elements of fantasy, mystery, and coming-of-age storytelling, creating a rich magical world that has captivated millions of readers worldwide. Rowling's creation has become a cultural phenomenon, inspiring a generation of readers and redefining children's literature.",
     publisher: "Bloomsbury",
@@ -145,7 +145,7 @@ export const dummyBooks = [
     author: "Frank Herbert",
     isbn: "978-0-441-17271-9",
     category: "Science",
-    imageUrl: "https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=300&h=400&fit=crop&crop=center",
+    imageUrl: "https://res.cloudinary.com/your-cloud-name/image/upload/v1/key-library/books/dune.webp",
     description:
       "Set in the distant future amidst a feudal interstellar society, this 1965 science fiction masterpiece follows Paul Atreides as his family becomes embroiled in a war over the desert planet Arrakis, the only source of the universe's most valuable substance, 'spice.' The novel explores complex themes including politics, religion, ecology, technology, and human emotion. Herbert created a richly detailed universe with intricate political machinations, religious mysticism, and ecological awareness that was ahead of its time. The story examines the dangers of messianic leadership and the intersection of power, religion, and environmental stewardship. Dune has won numerous awards and is considered one of the greatest science fiction novels ever written.",
     publisher: "Chilton Books",
@@ -165,7 +165,7 @@ export const dummyBooks = [
     author: "J.R.R. Tolkien",
     isbn: "978-0-547-92822-1",
     category: "Fantasy",
-    imageUrl: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=300&h=400&fit=crop&crop=center",
+    imageUrl: "https://res.cloudinary.com/your-cloud-name/image/upload/v1/key-library/books/hobbit.webp",
     description:
       "Published in 1937, this beloved children's fantasy novel tells the story of Bilbo Baggins, a hobbit who enjoys a comfortable, unambitious life until the wizard Gandalf and thirteen dwarves arrive at his door and whisk him away on an adventure to reclaim the dwarves' mountain home and treasure from the dragon Smaug. The journey transforms the reluctant Bilbo from a timid homebody into a clever hero. Written initially for Tolkien's children, the novel combines elements of fairy tales, mythology, and adventure stories. The Hobbit serves as a prelude to The Lord of the Rings and introduces readers to Middle-earth's rich mythology, memorable characters, and themes of personal growth, courage, and the value of home.",
     publisher: "George Allen & Unwin",
@@ -185,7 +185,7 @@ export const dummyBooks = [
     author: "Aldous Huxley",
     isbn: "978-0-06-085052-4",
     category: "Science",
-    imageUrl: "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=300&h=400&fit=crop&crop=center",
+    imageUrl: "https://res.cloudinary.com/your-cloud-name/image/upload/v1/key-library/books/brave-new-world.webp",
     description:
       "Published in 1932, this dystopian novel presents a futuristic World State where citizens are engineered through artificial wombs and childhood indoctrination programs into predetermined classes based on intelligence and labor. The story follows Bernard Marx and John 'the Savage,' who challenges the society's values of instant gratification, promiscuous sex, and drug use. Huxley's vision explores themes of technology, freedom, individuality, and the cost of happiness and stability. The novel's predictions about genetic engineering, psychological manipulation, and pharmaceutical dependency have proven remarkably prescient. Brave New World remains a powerful critique of utopian societies and continues to influence discussions about technology's role in human society.",
     publisher: "Chatto & Windus",
@@ -205,7 +205,7 @@ export const dummyBooks = [
     author: "Paulo Coelho",
     isbn: "978-0-06-231500-7",
     category: "Fiction",
-    imageUrl: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=300&h=400&fit=crop&crop=center",
+    imageUrl: "https://res.cloudinary.com/your-cloud-name/image/upload/v1/key-library/books/alchemist.webp",
     description:
       "Originally published in Portuguese in 1988, this philosophical novel follows Santiago, a young Andalusian shepherd who travels from Spain to Egypt in search of a treasure buried near the Pyramids. Along the way, he meets a series of characters who teach him about the importance of following one's dreams and listening to one's heart. The story is an allegory about the importance of pursuing one's destiny and the transformative power of travel and experience. Coelho weaves together themes of spirituality, self-discovery, and the interconnectedness of all things. The novel has become an international bestseller, translated into numerous languages, and has inspired millions of readers to pursue their own personal legends and dreams.",
     publisher: "HarperCollins",
@@ -225,7 +225,7 @@ export const dummyBooks = [
     author: "Dan Brown",
     isbn: "978-0-307-47928-5",
     category: "Mystery",
-    imageUrl: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300&h=400&fit=crop&crop=center",
+    imageUrl: "https://res.cloudinary.com/your-cloud-name/image/upload/v1/key-library/books/da-vinci-code.webp",
     description:
       "Published in 2003, this mystery thriller follows symbologist Robert Langdon and cryptologist Sophie Neveu as they investigate a murder in the Louvre Museum and discover a battle between the Priory of Sion and Opus Dei over the possibility of Jesus Christ having been married to Mary Magdalene. The novel combines art history, religious symbolism, and conspiracy theories in a fast-paced adventure that takes readers from Paris to London to Scotland. Brown weaves together historical facts and fiction, creating a controversial narrative that challenges traditional Christian beliefs. The book's blend of intellectual puzzles, religious mystery, and action-adventure elements made it a global phenomenon, sparking debates about history, religion, and the role of women in Christianity.",
     publisher: "Doubleday",
@@ -245,7 +245,7 @@ export const dummyBooks = [
     author: "Walter Isaacson",
     isbn: "978-1-4516-4853-9",
     category: "Biography",
-    imageUrl: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=300&h=400&fit=crop&crop=center",
+    imageUrl: "https://res.cloudinary.com/your-cloud-name/image/upload/v1/key-library/books/steve-jobs.webp",
     description:
       "Published in 2011, this comprehensive biography of Apple co-founder Steve Jobs is based on more than forty interviews with Jobs conducted over two years, as well as interviews with more than a hundred family members, friends, adversaries, competitors, and colleagues. Isaacson presents an unflinching portrait of Jobs as a brilliant but often difficult perfectionist who revolutionized six industries: personal computers, animated movies, music, phones, tablet computing, and digital publishing. The book explores Jobs' complex personality, his innovative approach to design and marketing, and his impact on technology and popular culture. From his adoption and early life to his final days battling cancer, the biography reveals the man behind the myth and examines how his relentless pursuit of perfection changed the world.",
     publisher: "Simon & Schuster",
@@ -265,7 +265,7 @@ export const dummyBooks = [
     author: "Yuval Noah Harari",
     isbn: "978-0-06-231609-7",
     category: "History",
-    imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=400&fit=crop&crop=center",
+    imageUrl: "https://res.cloudinary.com/your-cloud-name/image/upload/v1/key-library/books/sapiens.webp",
     description:
       "Published in 2014, this thought-provoking book explores the history of humanity from the emergence of Homo sapiens in Africa to the present day. Harari examines how humans came to dominate the planet through three major revolutions: the Cognitive Revolution (70,000 years ago), the Agricultural Revolution (10,000 years ago), and the Scientific Revolution (500 years ago). The book challenges conventional wisdom about human development, exploring how shared myths, religions, and ideologies enabled large-scale cooperation among strangers. Harari discusses the impact of agriculture, the rise of empires, the development of money and religion, and the scientific revolution. The book raises profound questions about the future of humanity, artificial intelligence, and genetic engineering, making complex historical and philosophical concepts accessible to general readers.",
     publisher: "Harvill Secker",
@@ -285,7 +285,7 @@ export const dummyBooks = [
     author: "Eric Ries",
     isbn: "978-0-307-88789-4",
     category: "Technology",
-    imageUrl: "https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=300&h=400&fit=crop&crop=center",
+    imageUrl: "https://res.cloudinary.com/your-cloud-name/image/upload/v1/key-library/books/lean-startup.webp",
     description:
       "Published in 2011, this influential business book introduces a methodology for developing businesses and products that aims to shorten product development cycles and rapidly discover if a proposed business model is viable. Ries defines a startup as an organization dedicated to creating something new under conditions of extreme uncertainty. The book advocates for a scientific approach to creating and managing successful startups in an age when companies need to innovate more than ever. Key concepts include the Build-Measure-Learn feedback loop, validated learning, and the Minimum Viable Product (MVP). The lean startup methodology has been adopted by countless entrepreneurs and established companies worldwide, fundamentally changing how new products and services are developed and launched in the modern economy.",
     publisher: "Crown Business",
@@ -305,7 +305,7 @@ export const dummyBooks = [
     author: "Tara Westover",
     isbn: "978-0-399-59050-4",
     category: "Biography",
-    imageUrl: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300&h=400&fit=crop&crop=center",
+    imageUrl: "https://res.cloudinary.com/your-cloud-name/image/upload/v1/key-library/books/educated.webp",
     description:
       "Published in 2018, this powerful memoir tells the story of Tara Westover, who grew up in a survivalist Mormon family in rural Idaho and didn't set foot in a classroom until she was 17 years old. Despite never receiving formal education as a child, she taught herself enough mathematics, grammar, and science to take the ACT and gain admission to Brigham Young University. The book chronicles her journey from an isolated, abusive household to earning a PhD from Cambridge University. Westover's story explores themes of education, family loyalty, and the struggle between the desire for knowledge and the pull of family ties. The memoir examines the transformative power of education and the painful process of self-discovery, making it both a coming-of-age story and a meditation on the value of learning.",
     publisher: "Random House",
@@ -325,7 +325,7 @@ export const dummyBooks = [
     author: "Alex Michaelides",
     isbn: "978-1-250-30170-7",
     category: "Mystery",
-    imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=400&fit=crop&crop=center",
+    imageUrl: "https://res.cloudinary.com/your-cloud-name/image/upload/v1/key-library/books/silent-patient.webp",
     description:
       "Published in 2019, this psychological thriller tells the story of Alicia Berenson, a woman who refuses to speak after allegedly murdering her husband, and Psychotherapist Theo Faber, who becomes obsessed with treating her and uncovering the truth behind her silence. Set in a secure psychiatric facility called the Grove, the novel alternates between Theo's present-day narrative and Alicia's diary entries leading up to the murder. The story explores themes of trauma, obsession, love, and revenge while building to a shocking twist that recontextualizes everything the reader thought they knew. Michaelides, a former screenwriter, crafts a tightly plotted narrative that keeps readers guessing until the final pages. The novel became an international bestseller and has been praised for its psychological depth and unexpected revelations.",
     publisher: "Celadon Books",
@@ -345,7 +345,7 @@ export const dummyBooks = [
     author: "James Clear",
     isbn: "978-0-7352-1129-2",
     category: "Non-Fiction",
-    imageUrl: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=300&h=400&fit=crop&crop=center",
+    imageUrl: "https://res.cloudinary.com/your-cloud-name/image/upload/v1/key-library/books/atomic-habits.webp",
     description:
       "Published in 2018, this practical guide reveals how tiny changes in behavior can lead to remarkable results. Clear draws on scientific research from psychology, neuroscience, and biology to explain how habits work and how they can be changed. The book introduces the Four Laws of Behavior Change: make it obvious, make it attractive, make it easy, and make it satisfying. Clear argues that success is not about making radical changes but about making small improvements consistently over time. The book provides practical strategies for building good habits and breaking bad ones, emphasizing the compound effect of small daily improvements. With real-world examples and actionable advice, Atomic Habits has become a bestseller and has helped millions of readers transform their lives through better habits and systems.",
     publisher: "Avery",
@@ -365,7 +365,7 @@ export const dummyBooks = [
     author: "Delia Owens",
     isbn: "978-0-7352-1909-0",
     category: "Fiction",
-    imageUrl: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300&h=400&fit=crop&crop=center",
+    imageUrl: "https://res.cloudinary.com/your-cloud-name/image/upload/v1/key-library/books/where-crawdads-sing.webp",
     description:
       "Published in 2018, this debut novel tells the story of Kya Clark, known as the 'Marsh Girl,' who grows up isolated in the marshes of North Carolina after being abandoned by her family. The story alternates between Kya's coming-of-age story in the 1950s and 1960s and a murder mystery in 1969 when a local man is found dead and Kya becomes the prime suspect. Owens, a wildlife scientist, brings the natural world vividly to life, making the marsh itself a central character in the story. The novel explores themes of isolation, resilience, love, and the relationship between humans and nature. Despite having no formal education, Kya becomes an expert naturalist and published author. The book combines elements of literary fiction, mystery, and nature writing, becoming a phenomenal bestseller and book club favorite.",
     publisher: "G.P. Putnam's Sons",
@@ -385,7 +385,7 @@ export const dummyBooks = [
     author: "Taylor Jenkins Reid",
     isbn: "978-1-5011-3981-2",
     category: "Fiction",
-    imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=400&fit=crop&crop=center",
+    imageUrl: "https://res.cloudinary.com/your-cloud-name/image/upload/v1/key-library/books/seven-husbands.webp",
     description:
       "Published in 2017, this captivating novel tells the story of reclusive Hollywood icon Evelyn Hugo, who finally decides to tell her life story to unknown journalist Monique Grant. As Evelyn recounts her rise to fame in the 1950s and her seven marriages, she reveals the truth about her glamorous and scandalous life, including her greatest love story. The novel explores themes of ambition, love, identity, and the price of fame, while also addressing issues of sexuality, race, and gender in mid-20th century America. Reid crafts a compelling narrative that examines the sacrifices people make for success and the masks they wear to protect themselves. The story is both a tribute to Old Hollywood glamour and a meditation on authenticity, love, and the stories we tell about ourselves. The novel has become a beloved contemporary classic and book club favorite.",
     publisher: "Atria Books",
