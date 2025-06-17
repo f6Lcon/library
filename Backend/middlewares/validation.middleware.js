@@ -35,7 +35,7 @@ export const validateRegistration = [
   body("branch").isMongoId().withMessage("Please select a valid branch"),
 
   body("studentId")
-    .optional()
+    .if(body("role").equals("student"))
     .trim()
     .isLength({ min: 3, max: 20 })
     .withMessage("Student ID must be between 3 and 20 characters")

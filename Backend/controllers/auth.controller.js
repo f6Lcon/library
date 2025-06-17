@@ -79,7 +79,7 @@ export const register = async (req, res) => {
     }
 
     // Add studentId only if provided and role is student
-    if (role === "student" && studentId) {
+    if (role === "student" && studentId && studentId.trim()) {
       userData.studentId = studentId.trim()
     }
 

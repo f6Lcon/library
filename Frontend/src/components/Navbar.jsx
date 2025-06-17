@@ -81,6 +81,11 @@ const Navbar = () => {
 
             {user && <NavIcon to="/dashboard" icon="📊" label="Dashboard" isActive={isActive("/dashboard")} />}
 
+            {/* Show register link only for librarians and admins */}
+            {user && (user.role === "librarian" || user.role === "admin") && (
+              <NavIcon to="/register" icon="👥" label="Register Users" isActive={isActive("/register")} />
+            )}
+
             {/* Divider */}
             <div className="w-px h-8 bg-primary-400 mx-2"></div>
 
@@ -111,10 +116,10 @@ const Navbar = () => {
                 <NavIcon to="/login" icon="🔑" label="Sign In" isActive={isActive("/login")} />
 
                 <Link
-                  to="/register"
+                  to="/login"
                   className="bg-white text-primary-600 px-6 py-2 rounded-xl font-semibold hover:bg-primary-50 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
                 >
-                  Join Now
+                  Staff Login
                 </Link>
               </div>
             )}
@@ -130,12 +135,11 @@ const Navbar = () => {
 
             {user && <NavIcon to="/dashboard" icon="📊" label="Dashboard" isActive={isActive("/dashboard")} />}
 
-            {!user && (
-              <>
-                <NavIcon to="/login" icon="🔑" label="Sign In" isActive={isActive("/login")} />
-                <NavIcon to="/register" icon="✨" label="Sign Up" isActive={isActive("/register")} />
-              </>
+            {user && (user.role === "librarian" || user.role === "admin") && (
+              <NavIcon to="/register" icon="👥" label="Register" isActive={isActive("/register")} />
             )}
+
+            {!user && <NavIcon to="/login" icon="🔑" label="Sign In" isActive={isActive("/login")} />}
           </div>
 
           {user && (
