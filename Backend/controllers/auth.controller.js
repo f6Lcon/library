@@ -79,7 +79,7 @@ export const register = async (req, res) => {
     }
 
     // Add studentId only if provided and role is student
-    if (role === "student" && studentId && studentId.trim()) {
+    if (role === "student" && studentId) {
       userData.studentId = studentId.trim()
     }
 
@@ -225,7 +225,8 @@ export const login = async (req, res) => {
 // Get User Profile
 export const getProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId).select("-password").populate("branch")
+    // req.user should already be populated by the authenticate middleware
+    const user = req.user
 
     if (!user) {
       return res.status(404).json({

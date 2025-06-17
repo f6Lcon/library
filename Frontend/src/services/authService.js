@@ -1,75 +1,65 @@
-const API_BASE_URL = "http://localhost:5000/api"
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api"
 
-const getAuthHeaders = () => {
-  const token = localStorage.getItem("token")
-  return {
+// Get auth token from localStorage
+const getAuthToken = () => {
+  return localStorage.getItem("token")
+}
+
+// Create axios-like request function with proper headers
+const apiRequest = async (url, options = {}) => {
+  const token = getAuthToken()
+  const headers = {
     "Content-Type": "application/json",
-    ...(token && { Authorization: `Bearer ${token}` }),
+    ...options.headers,
   }
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`
+  }
+
+  const config = {
+    method: options.method || "GET",
+    headers,
+    ...options,
+  }
+
+  if (options.body) {
+    config.body = JSON.stringify(options.body)
+  }
+
+  const response = await fetch(`${API_URL}${url}`, config)
+  
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ message: "Network error" }))
+    throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
+  }
+
+  return response.json()
 }
 
 export const authService = {
-  async login(email, password) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: "POST",
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ email, password }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || `HTTP error! status: ${response.status}`)
-      }
-
-      return data
-    } catch (error) {
-      console.error("Login error:", error)
-      throw error
-    }
+  async register(userData) {
+    const response = await apiRequest("/auth/register", {
+      method: "POST",
+      body: userData,
+    })
+    return response
   },
 
-  async register(userData) {
-    try {
-      console.log("Registering user with data:", userData)
-
-      const response = await fetch(`${API_BASE_URL}/auth/register`, {
-        method: "POST",
-        headers: getAuthHeaders(),
-        body: JSON.stringify(userData),
-      })
-
-      const data = await response.json()
-      console.log("Registration response:", data)
-
-      if (!response.ok) {
-        throw new Error(data.message || data.errors?.join(", ") || `HTTP error! status: ${response.status}`)
-      }
-
-      return data
-    } catch (error) {
-      console.error("Registration error:", error)
-      throw error
-    }
+  async login(email, password) {
+    const response = await apiRequest("/auth/login", {
+      method: "POST",
+      body: { email, password },
+    })
+    return response
   },
 
   async getProfile() {
-    try {
-      const response = await fetch(`${API_BASE_URL}/auth/profile`, {
-        headers: getAuthHeaders(),
-      })
+    const response = await apiRequest("/auth/profile")
+    return response
+  },
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || `HTTP error! status: ${response.status}`)
-      }
-
-      return data
-    } catch (error) {
-      console.error("Get profile error:", error)
-      throw error
-    }
+  async logout() {
+    localStorage.removeItem("token")
   },
 }

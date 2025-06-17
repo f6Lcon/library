@@ -4,16 +4,11 @@ import { authenticate, authorize } from "../middlewares/auth.middleware.js"
 
 const router = express.Router()
 
-// Get all users (admin gets all, librarian gets their branch users)
-router.get("/", authenticate, authorize("admin", "librarian"), async (req, res) => {
+// Get all users (admin only)
+router.get("/", authenticate, authorize("admin"), async (req, res) => {
   try {
     const { role, search, page = 1, limit = 10 } = req.query
     const query = {}
-
-    // If librarian, only show users from their branch
-    if (req.user.role === "librarian" && req.user.branch) {
-      query.branch = req.user.branch
-    }
 
     if (role) query.role = role
     if (search) {
@@ -26,7 +21,6 @@ router.get("/", authenticate, authorize("admin", "librarian"), async (req, res) 
 
     const users = await User.find(query)
       .select("-password")
-      .populate("branch", "name code")
       .limit(limit * 1)
       .skip((page - 1) * limit)
       .sort({ createdAt: -1 })
@@ -62,17 +56,12 @@ router.put("/:id/role", authenticate, authorize("admin"), async (req, res) => {
   }
 })
 
-// Toggle user active status (admin and librarian for their branch users)
-router.put("/:id/toggle-status", authenticate, authorize("admin", "librarian"), async (req, res) => {
+// Toggle user active status (admin only)
+router.put("/:id/toggle-status", authenticate, authorize("admin"), async (req, res) => {
   try {
     const user = await User.findById(req.params.id)
     if (!user) {
       return res.status(404).json({ message: "User not found" })
-    }
-
-    // If librarian, check if user is from their branch
-    if (req.user.role === "librarian" && user.branch.toString() !== req.user.branch.toString()) {
-      return res.status(403).json({ message: "You can only manage users from your branch" })
     }
 
     user.isActive = !user.isActive

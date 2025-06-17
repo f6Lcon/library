@@ -3,13 +3,16 @@
 import { useState, useEffect } from "react"
 import { bookService } from "../services/bookService"
 import { borrowService } from "../services/borrowService"
+import { userService } from "../services/userService"
 import BookForm from "../components/BookForm"
 import BorrowForm from "../components/BorrowForm"
+import { Link } from "react-router-dom"
 
 const LibrarianDashboard = () => {
   const [books, setBooks] = useState([])
   const [borrows, setBorrows] = useState([])
   const [overdueBooks, setOverdueBooks] = useState([])
+  const [branchUsers, setBranchUsers] = useState([])
   const [activeTab, setActiveTab] = useState("books")
   const [showBookForm, setShowBookForm] = useState(false)
   const [showBorrowForm, setShowBorrowForm] = useState(false)
@@ -24,15 +27,17 @@ const LibrarianDashboard = () => {
   const fetchData = async () => {
     try {
       setLoading(true)
-      const [booksRes, borrowsRes, overdueRes] = await Promise.all([
+      const [booksRes, borrowsRes, overdueRes, usersRes] = await Promise.all([
         bookService.getAllBooks(),
         borrowService.getAllBorrows({ status: "borrowed" }),
         borrowService.getOverdueBooks(),
+        userService.getAllUsers({ role: "student,community" }),
       ])
 
       setBooks(booksRes.books)
       setBorrows(borrowsRes.borrows)
       setOverdueBooks(overdueRes.overdueBooks)
+      setBranchUsers(usersRes.users)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -65,14 +70,22 @@ const LibrarianDashboard = () => {
   return (
     <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
       <div className="px-4 py-6 sm:px-0">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Librarian Dashboard</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Librarian Dashboard</h1>
+          <Link
+            to="/register"
+            className="bg-primary-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary-600 transition-all duration-200 transform hover:scale-105 shadow-lg"
+          >
+            ➕ Register New User
+          </Link>
+        </div>
 
         {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
 
         {/* Tab Navigation */}
         <div className="border-b border-gray-200 mb-6">
           <nav className="-mb-px flex space-x-8">
-            {["books", "borrows", "overdue"].map((tab) => (
+            {["books", "borrows", "overdue", "users"].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -257,6 +270,60 @@ const LibrarianDashboard = () => {
                         </tr>
                       )
                     })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Users Tab */}
+        {activeTab === "users" && (
+          <div>
+            <h2 className="text-xl font-semibold mb-6">Branch Users</h2>
+
+            <div className="bg-white shadow overflow-hidden sm:rounded-md">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contact</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Joined</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {branchUsers.map((user) => (
+                      <tr key={user._id}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">
+                            {user.firstName} {user.lastName}
+                          </div>
+                          <div className="text-sm text-gray-500">{user.email}</div>
+                          {user.studentId && <div className="text-xs text-blue-600">Student ID: {user.studentId}</div>}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 capitalize">
+                            {user.role}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.phone}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span
+                            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                              user.isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                            }`}
+                          >
+                            {user.isActive ? "Active" : "Inactive"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {new Date(user.createdAt).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>

@@ -57,15 +57,7 @@ function App() {
             <Route path="/" element={<Homepage />} />
             <Route path="/books" element={<BooksPage />} />
             <Route path="/login" element={<Login />} />
-            {/* Restrict register page to librarians and admins only */}
-            <Route
-              path="/register"
-              element={
-                <ProtectedRoute allowedRoles={["admin", "librarian"]}>
-                  <Register />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/register" element={<Register />} />
             <Route
               path="/dashboard"
               element={
@@ -81,9 +73,6 @@ function App() {
                   <div className="text-center">
                     <h1 className="text-4xl font-bold text-red-600 mb-4">403</h1>
                     <p className="text-gray-600">Access Denied - Insufficient Permissions</p>
-                    <p className="text-gray-500 text-sm mt-2">
-                      Only librarians and administrators can register new users.
-                    </p>
                   </div>
                 </div>
               }

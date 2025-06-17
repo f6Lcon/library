@@ -1,19 +1,13 @@
 import Borrow from "../models/borrow.model.js"
 import Book from "../models/book.model.js"
-import User from "../models/user.model.js"
 
 export const borrowBook = async (req, res) => {
   try {
     const { bookId, borrowerId } = req.body
 
-    const book = await Book.findById(bookId).populate("branch")
+    const book = await Book.findById(bookId)
     if (!book || book.availableCopies <= 0) {
       return res.status(400).json({ message: "Book not available for borrowing" })
-    }
-
-    const borrower = await User.findById(borrowerId)
-    if (!borrower) {
-      return res.status(400).json({ message: "Borrower not found" })
     }
 
     // Check if user already has this book borrowed
@@ -36,7 +30,6 @@ export const borrowBook = async (req, res) => {
       borrower: borrowerId,
       dueDate,
       issuedBy: req.user._id,
-      branch: book.branch._id,
     })
 
     await borrow.save()
@@ -45,7 +38,7 @@ export const borrowBook = async (req, res) => {
     book.availableCopies -= 1
     await book.save()
 
-    await borrow.populate(["book", "borrower", "issuedBy", "branch"])
+    await borrow.populate(["book", "borrower", "issuedBy"])
 
     res.status(201).json({ message: "Book borrowed successfully", borrow })
   } catch (error) {
@@ -82,7 +75,7 @@ export const returnBook = async (req, res) => {
     book.availableCopies += 1
     await book.save()
 
-    await borrow.populate(["borrower", "issuedBy", "returnedBy", "branch"])
+    await borrow.populate(["borrower", "issuedBy", "returnedBy"])
 
     res.json({ message: "Book returned successfully", borrow })
   } catch (error) {
@@ -103,7 +96,6 @@ export const getBorrowHistory = async (req, res) => {
       .populate("borrower", "firstName lastName email")
       .populate("issuedBy", "firstName lastName")
       .populate("returnedBy", "firstName lastName")
-      .populate("branch", "name code")
       .limit(limit * 1)
       .skip((page - 1) * limit)
       .sort({ borrowDate: -1 })
@@ -126,11 +118,6 @@ export const getAllBorrows = async (req, res) => {
     const { status, page = 1, limit = 10 } = req.query
     const query = {}
 
-    // Filter by branch if user is a librarian
-    if (req.user.role === "librarian" && req.user.branch) {
-      query.branch = req.user.branch
-    }
-
     if (status) query.status = status
 
     const borrows = await Borrow.find(query)
@@ -138,7 +125,6 @@ export const getAllBorrows = async (req, res) => {
       .populate("borrower", "firstName lastName email studentId")
       .populate("issuedBy", "firstName lastName")
       .populate("returnedBy", "firstName lastName")
-      .populate("branch", "name code")
       .limit(limit * 1)
       .skip((page - 1) * limit)
       .sort({ borrowDate: -1 })
@@ -159,20 +145,12 @@ export const getAllBorrows = async (req, res) => {
 export const getOverdueBooks = async (req, res) => {
   try {
     const today = new Date()
-    const query = {
+    const overdueBooks = await Borrow.find({
       status: "borrowed",
       dueDate: { $lt: today },
-    }
-
-    // Filter by branch if user is a librarian
-    if (req.user.role === "librarian" && req.user.branch) {
-      query.branch = req.user.branch
-    }
-
-    const overdueBooks = await Borrow.find(query)
+    })
       .populate("book", "title author isbn")
       .populate("borrower", "firstName lastName email phone")
-      .populate("branch", "name code")
       .sort({ dueDate: 1 })
 
     res.json({ overdueBooks })

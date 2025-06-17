@@ -21,12 +21,12 @@ const BorrowForm = ({ onClose, onSuccess }) => {
     try {
       const [booksRes, usersRes] = await Promise.all([
         bookService.getAllBooks(),
-        userService.getAllUsers({ role: "student" }),
+        userService.getAllUsers({ role: "student,community" }),
       ])
 
       // Only show available books
       setBooks(booksRes.books.filter((book) => book.availableCopies > 0))
-      setUsers(usersRes.users)
+      setUsers(usersRes.users.filter((user) => user.isActive))
     } catch (err) {
       setError("Failed to load data")
     }
@@ -78,17 +78,17 @@ const BorrowForm = ({ onClose, onSuccess }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Select Student *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Select User *</label>
             <select
               value={selectedUser}
               onChange={(e) => setSelectedUser(e.target.value)}
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
             >
-              <option value="">Choose a student</option>
+              <option value="">Choose a user</option>
               {users.map((user) => (
                 <option key={user._id} value={user._id}>
-                  {user.firstName} {user.lastName} ({user.email})
+                  {user.firstName} {user.lastName} ({user.role}) - {user.email}
                 </option>
               ))}
             </select>

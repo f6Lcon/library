@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext"
 import { branchService } from "../services/branchService"
 
 const Register = () => {
+  const { user } = useAuth()
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -28,8 +29,13 @@ const Register = () => {
   const navigate = useNavigate()
 
   useEffect(() => {
+    // Check if user has permission to access this page
+    if (!user || (user.role !== "admin" && user.role !== "librarian")) {
+      navigate("/unauthorized")
+      return
+    }
     fetchBranches()
-  }, [])
+  }, [user, navigate])
 
   const fetchBranches = async () => {
     try {
@@ -98,7 +104,7 @@ const Register = () => {
       case "phone":
         if (!value.trim()) {
           errors.phone = "Phone number is required"
-        } else if (!/^[+]?[1-9][\d]{3,14}$/.test(value.trim().replace(/[\s\-$$$$]/g, ""))) {
+        } else if (!/^[+]?[1-9][\d]{3,14}$/.test(value.trim().replace(/[\s\-()]/g, ""))) {
           errors.phone = "Please provide a valid phone number"
         }
         break
@@ -147,6 +153,19 @@ const Register = () => {
       ...formData,
       [name]: value,
     })
+
+    // Clear studentId when role changes from student to something else
+    if (name === "role" && value !== "student" && formData.studentId) {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+        studentId: "",
+      }))
+      setFieldErrors((prev) => ({
+        ...prev,
+        studentId: null,
+      }))
+    }
 
     // Mark field as touched
     setTouched({
@@ -228,20 +247,8 @@ const Register = () => {
       const { confirmPassword, ...userData } = formData
       await register(userData)
 
-      // Navigate based on role
-      switch (userData.role) {
-        case "admin":
-          navigate("/admin")
-          break
-        case "librarian":
-          navigate("/librarian")
-          break
-        case "student":
-          navigate("/student")
-          break
-        default:
-          navigate("/community")
-      }
+      // Navigate to dashboard after successful registration
+      navigate("/dashboard")
     } catch (err) {
       console.error("Registration error:", err)
       setError(err.message || "Registration failed. Please try again.")
@@ -289,6 +296,38 @@ const Register = () => {
     return null
   }
 
+  // Get available roles based on current user's role
+  const getAvailableRoles = () => {
+    if (user?.role === "admin") {
+      return [
+        { value: "community", label: "Community Member" },
+        { value: "student", label: "Student" },
+        { value: "librarian", label: "Librarian" },
+      ]
+    } else if (user?.role === "librarian") {
+      return [
+        { value: "community", label: "Community Member" },
+        { value: "student", label: "Student" },
+      ]
+    }
+    return []
+  }
+
+  // If user doesn't have permission, show unauthorized message
+  if (!user || (user.role !== "admin" && user.role !== "librarian")) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-red-600 mb-4">403</h1>
+          <p className="text-gray-600">Access Denied - Only administrators and librarians can register new users</p>
+          <Link to="/" className="text-primary-600 hover:text-primary-500 mt-4 inline-block">
+            Return to Home
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl w-full space-y-8">
@@ -297,8 +336,12 @@ const Register = () => {
           <div className="mx-auto w-16 h-16 bg-primary-500 rounded-2xl flex items-center justify-center shadow-lg mb-6">
             <span className="text-white font-bold text-2xl">K</span>
           </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Join KEY Library</h2>
-          <p className="text-gray-600">Create your account and start your learning journey</p>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Register New User</h2>
+          <p className="text-gray-600">
+            {user.role === "admin"
+              ? "Create accounts for students, community members, or librarians"
+              : "Create accounts for students and community members"}
+          </p>
         </div>
 
         {/* Form */}
@@ -394,8 +437,11 @@ const Register = () => {
                     onBlur={handleBlur}
                     className={getInputClass("role")}
                   >
-                    <option value="community">Community Member</option>
-                    <option value="student">Student</option>
+                    {getAvailableRoles().map((role) => (
+                      <option key={role.value} value={role.value}>
+                        {role.label}
+                      </option>
+                    ))}
                   </select>
                   {renderFieldError("role")}
                   {renderFieldSuccess("role")}
@@ -411,7 +457,7 @@ const Register = () => {
                     onBlur={handleBlur}
                     className={getInputClass("branch")}
                   >
-                    <option value="">Select Your Branch</option>
+                    <option value="">Select Branch</option>
                     {branches.map((branch) => (
                       <option key={branch._id} value={branch._id}>
                         {branch.name} - {branch.code}
@@ -420,6 +466,9 @@ const Register = () => {
                   </select>
                   {renderFieldError("branch")}
                   {renderFieldSuccess("branch")}
+                  {formData.role === "librarian" && (
+                    <p className="mt-1 text-xs text-blue-600">This librarian will be assigned to manage this branch</p>
+                  )}
                 </div>
 
                 {formData.role === "student" && (
@@ -491,34 +540,34 @@ const Register = () => {
                 onBlur={handleBlur}
                 rows="3"
                 className={getInputClass("address")}
-                placeholder="Enter your full address (minimum 10 characters)"
+                placeholder="Enter full address (minimum 10 characters)"
               />
               {renderFieldError("address")}
               {renderFieldSuccess("address")}
             </div>
 
-            <button
-              type="submit"
-              disabled={loading || Object.values(fieldErrors).some((error) => error)}
-              className="w-full flex justify-center items-center py-3 px-4 border border-transparent text-sm font-semibold rounded-xl text-white bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02]"
-            >
-              {loading ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Creating account...
-                </>
-              ) : (
-                <>✨ Create Account</>
-              )}
-            </button>
+            <div className="flex justify-between items-center pt-4">
+              <Link
+                to="/dashboard"
+                className="px-6 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-all duration-200 font-semibold"
+              >
+                ← Back to Dashboard
+              </Link>
 
-            <div className="text-center">
-              <span className="text-sm text-gray-600">
-                Already have an account?{" "}
-                <Link to="/login" className="font-semibold text-primary-600 hover:text-primary-500 transition-colors">
-                  Sign in here
-                </Link>
-              </span>
+              <button
+                type="submit"
+                disabled={loading || Object.values(fieldErrors).some((error) => error)}
+                className="flex justify-center items-center py-3 px-6 border border-transparent text-sm font-semibold rounded-xl text-white bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02]"
+              >
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Creating account...
+                  </>
+                ) : (
+                  <>✨ Create Account</>
+                )}
+              </button>
             </div>
           </form>
         </div>

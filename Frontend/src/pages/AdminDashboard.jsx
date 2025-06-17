@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { userService } from "../services/userService"
 import BranchManagement from "../components/BranchManagement"
+import { Link } from "react-router-dom"
 
 const AdminDashboard = () => {
   const [users, setUsers] = useState([])
@@ -72,7 +73,15 @@ const AdminDashboard = () => {
   return (
     <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
       <div className="px-4 py-6 sm:px-0">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Admin Dashboard</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+          <Link
+            to="/register"
+            className="bg-primary-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary-600 transition-all duration-200 transform hover:scale-105 shadow-lg"
+          >
+            ➕ Register New User
+          </Link>
+        </div>
 
         {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
 
@@ -212,6 +221,9 @@ const AdminDashboard = () => {
                         Role
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Branch
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Status
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -228,6 +240,9 @@ const AdminDashboard = () => {
                               {user.firstName} {user.lastName}
                             </div>
                             <div className="text-sm text-gray-500">{user.email}</div>
+                            {user.studentId && (
+                              <div className="text-xs text-blue-600">Student ID: {user.studentId}</div>
+                            )}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -241,6 +256,10 @@ const AdminDashboard = () => {
                             <option value="librarian">Librarian</option>
                             <option value="admin">Admin</option>
                           </select>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">{user.branch?.name || "No branch assigned"}</div>
+                          <div className="text-xs text-gray-500">{user.branch?.code || ""}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span
