@@ -34,7 +34,7 @@ const Register = () => {
       const response = await branchService.getAllBranches()
       setBranches(response.branches)
     } catch (err) {
-      // Handle error silently or show notification
+      console.error("Error fetching branches:", err)
     }
   }
 
@@ -43,18 +43,82 @@ const Register = () => {
     setLoading(true)
     setError("")
 
+    // Frontend validation
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match")
       setLoading(false)
       return
     }
 
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters long")
+      setLoading(false)
+      return
+    }
+
+    if (formData.firstName.trim().length < 2) {
+      setError("First name must be at least 2 characters")
+      setLoading(false)
+      return
+    }
+
+    if (formData.lastName.trim().length < 2) {
+      setError("Last name must be at least 2 characters")
+      setLoading(false)
+      return
+    }
+
+    if (formData.phone.trim().length < 10) {
+      setError("Phone number must be at least 10 digits")
+      setLoading(false)
+      return
+    }
+
+    if (formData.address.trim().length < 10) {
+      setError("Address must be at least 10 characters")
+      setLoading(false)
+      return
+    }
+
+    if (!formData.branch) {
+      setError("Please select a branch")
+      setLoading(false)
+      return
+    }
+
+    if (formData.role === "student" && (!formData.studentId || formData.studentId.trim().length < 3)) {
+      setError("Student ID is required and must be at least 3 characters for student accounts")
+      setLoading(false)
+      return
+    }
+
     try {
+      console.log("Submitting registration data:", {
+        ...formData,
+        password: "[HIDDEN]",
+        confirmPassword: "[HIDDEN]",
+      })
+
       const { confirmPassword, ...userData } = formData
       await register(userData)
-      navigate("/dashboard")
+
+      // Navigate based on role
+      switch (userData.role) {
+        case "admin":
+          navigate("/admin")
+          break
+        case "librarian":
+          navigate("/librarian")
+          break
+        case "student":
+          navigate("/student")
+          break
+        default:
+          navigate("/community")
+      }
     } catch (err) {
-      setError(err.message)
+      console.error("Registration error:", err)
+      setError(err.message || "Registration failed. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -188,6 +252,7 @@ const Register = () => {
                     <input
                       name="studentId"
                       type="text"
+                      required={formData.role === "student"}
                       value={formData.studentId}
                       onChange={handleChange}
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
@@ -205,7 +270,7 @@ const Register = () => {
                     value={formData.password}
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
-                    placeholder="Create password"
+                    placeholder="Create password (min 6 characters)"
                   />
                 </div>
 
@@ -234,7 +299,7 @@ const Register = () => {
                 onChange={handleChange}
                 rows="3"
                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
-                placeholder="Enter your full address"
+                placeholder="Enter your full address (min 10 characters)"
               />
             </div>
 

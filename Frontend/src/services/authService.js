@@ -10,45 +10,66 @@ const getAuthHeaders = () => {
 
 export const authService = {
   async login(email, password) {
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
-      method: "POST",
-      headers: getAuthHeaders(),
-      body: JSON.stringify({ email, password }),
-    })
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ email, password }),
+      })
 
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.message || "Login failed")
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || `HTTP error! status: ${response.status}`)
+      }
+
+      return data
+    } catch (error) {
+      console.error("Login error:", error)
+      throw error
     }
-
-    return response.json()
   },
 
   async register(userData) {
-    const response = await fetch(`${API_BASE_URL}/auth/register`, {
-      method: "POST",
-      headers: getAuthHeaders(),
-      body: JSON.stringify(userData),
-    })
+    try {
+      console.log("Registering user with data:", userData)
 
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.message || "Registration failed")
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify(userData),
+      })
+
+      const data = await response.json()
+      console.log("Registration response:", data)
+
+      if (!response.ok) {
+        throw new Error(data.message || data.errors?.join(", ") || `HTTP error! status: ${response.status}`)
+      }
+
+      return data
+    } catch (error) {
+      console.error("Registration error:", error)
+      throw error
     }
-
-    return response.json()
   },
 
   async getProfile() {
-    const response = await fetch(`${API_BASE_URL}/auth/profile`, {
-      headers: getAuthHeaders(),
-    })
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+        headers: getAuthHeaders(),
+      })
 
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.message || "Failed to get profile")
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || `HTTP error! status: ${response.status}`)
+      }
+
+      return data
+    } catch (error) {
+      console.error("Get profile error:", error)
+      throw error
     }
-
-    return response.json()
   },
 }
