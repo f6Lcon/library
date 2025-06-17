@@ -16,28 +16,34 @@ const Navbar = () => {
   const isActive = (path) => location.pathname === path
 
   return (
-    <nav className="bg-green-600 text-white shadow-lg">
+    <nav className="bg-primary-500 text-white shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-8">
-            <Link to="/" className="text-xl font-bold hover:text-green-200 transition-colors">
-              KEY Library
+            <Link to="/" className="flex items-center space-x-3 hover:text-primary-200 transition-colors">
+              <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
+                <span className="text-primary-500 font-bold text-lg">K</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-lg font-bold leading-tight">KEY Library</span>
+                <span className="text-xs text-primary-200 leading-tight">Knowledge Empowering Youth</span>
+              </div>
             </Link>
 
             {/* Public Navigation */}
             <div className="hidden md:flex space-x-6">
               <Link
                 to="/"
-                className={`hover:text-green-200 transition-colors ${
-                  isActive("/") ? "text-green-200 font-medium" : ""
+                className={`hover:text-primary-200 transition-colors ${
+                  isActive("/") ? "text-primary-200 font-medium" : ""
                 }`}
               >
                 Home
               </Link>
               <Link
                 to="/books"
-                className={`hover:text-green-200 transition-colors ${
-                  isActive("/books") ? "text-green-200 font-medium" : ""
+                className={`hover:text-primary-200 transition-colors ${
+                  isActive("/books") ? "text-primary-200 font-medium" : ""
                 }`}
               >
                 Browse Books
@@ -45,8 +51,8 @@ const Navbar = () => {
               {user && (
                 <Link
                   to="/dashboard"
-                  className={`hover:text-green-200 transition-colors ${
-                    isActive("/dashboard") ? "text-green-200 font-medium" : ""
+                  className={`hover:text-primary-200 transition-colors ${
+                    isActive("/dashboard") ? "text-primary-200 font-medium" : ""
                   }`}
                 >
                   Dashboard
@@ -62,25 +68,25 @@ const Navbar = () => {
                   <span className="text-sm">
                     Welcome, {user.firstName} {user.lastName}
                   </span>
-                  <span className="bg-green-500 px-2 py-1 rounded-full text-xs font-semibold capitalize">
+                  <span className="bg-primary-400 px-2 py-1 rounded-full text-xs font-semibold capitalize">
                     {user.role}
                   </span>
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="bg-green-700 hover:bg-green-800 px-3 py-1 rounded text-sm transition-colors"
+                  className="bg-primary-600 hover:bg-primary-700 px-3 py-1 rounded text-sm transition-colors"
                 >
                   Logout
                 </button>
               </>
             ) : (
               <div className="flex items-center space-x-3">
-                <Link to="/login" className="text-white hover:text-green-200 transition-colors">
+                <Link to="/login" className="text-white hover:text-primary-200 transition-colors">
                   Sign In
                 </Link>
                 <Link
                   to="/register"
-                  className="bg-green-500 hover:bg-green-400 px-4 py-2 rounded text-sm font-medium transition-colors"
+                  className="bg-primary-400 hover:bg-primary-300 px-4 py-2 rounded text-sm font-medium transition-colors"
                 >
                   Sign Up
                 </Link>
@@ -94,16 +100,16 @@ const Navbar = () => {
           <div className="flex space-x-4">
             <Link
               to="/"
-              className={`text-sm hover:text-green-200 transition-colors ${
-                isActive("/") ? "text-green-200 font-medium" : ""
+              className={`text-sm hover:text-primary-200 transition-colors ${
+                isActive("/") ? "text-primary-200 font-medium" : ""
               }`}
             >
               Home
             </Link>
             <Link
               to="/books"
-              className={`text-sm hover:text-green-200 transition-colors ${
-                isActive("/books") ? "text-green-200 font-medium" : ""
+              className={`text-sm hover:text-primary-200 transition-colors ${
+                isActive("/books") ? "text-primary-200 font-medium" : ""
               }`}
             >
               Books
@@ -111,8 +117,8 @@ const Navbar = () => {
             {user && (
               <Link
                 to="/dashboard"
-                className={`text-sm hover:text-green-200 transition-colors ${
-                  isActive("/dashboard") ? "text-green-200 font-medium" : ""
+                className={`text-sm hover:text-primary-200 transition-colors ${
+                  isActive("/dashboard") ? "text-primary-200 font-medium" : ""
                 }`}
               >
                 Dashboard
@@ -120,7 +126,7 @@ const Navbar = () => {
             )}
           </div>
           {user && (
-            <div className="mt-2 text-xs text-green-200">
+            <div className="mt-2 text-xs text-primary-200">
               {user.firstName} {user.lastName} ({user.role})
             </div>
           )}
