@@ -117,14 +117,6 @@ const Homepage = () => {
               >
                 📚 Explore Our Collection
               </Link>
-              {!user && (
-                <Link
-                  to="/register"
-                  className="bg-primary-400 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-primary-300 transition-all duration-300 transform hover:scale-105 shadow-xl"
-                >
-                  🚀 Join Our Community
-                </Link>
-              )}
               {user && (
                 <Link
                   to="/dashboard"
@@ -396,29 +388,22 @@ const Homepage = () => {
           <p className="text-xl mb-8 text-gray-300 max-w-3xl mx-auto">
             Join thousands of learners who trust KEY Library for their educational and personal growth needs.
           </p>
-          {!user ? (
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Link
+              to="/books"
+              className="border-2 border-white text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-white hover:text-gray-900 transition-all duration-300 transform hover:scale-105"
+            >
+              📚 Explore Books
+            </Link>
+            {user && (
               <Link
-                to="/register"
+                to="/dashboard"
                 className="bg-primary-500 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-primary-600 transition-all duration-300 transform hover:scale-105 shadow-xl"
               >
-                🚀 Start Your Journey
+                📊 Access Your Dashboard
               </Link>
-              <Link
-                to="/books"
-                className="border-2 border-white text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-white hover:text-gray-900 transition-all duration-300 transform hover:scale-105"
-              >
-                📚 Explore Books
-              </Link>
-            </div>
-          ) : (
-            <Link
-              to="/dashboard"
-              className="bg-primary-500 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-primary-600 transition-all duration-300 transform hover:scale-105 shadow-xl"
-            >
-              📊 Access Your Dashboard
-            </Link>
-          )}
+            )}
+          </div>
         </div>
       </div>
 

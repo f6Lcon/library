@@ -225,8 +225,7 @@ export const login = async (req, res) => {
 // Get User Profile
 export const getProfile = async (req, res) => {
   try {
-    // req.user should already be populated by the authenticate middleware
-    const user = req.user
+    const user = await User.findById(req.user.userId).select("-password").populate("branch")
 
     if (!user) {
       return res.status(404).json({
