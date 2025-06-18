@@ -1,2 +1,6 @@
 Backend/.env
 Backend/node_modules
+Backend/scripts
+.env
+node_modules
+scripts
