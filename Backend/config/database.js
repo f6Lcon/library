@@ -2,30 +2,31 @@ import mongoose from "mongoose"
 
 const connectDB = async () => {
   try {
-    // Enhanced connection options for better reliability
-    const options = {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 10000, // 10 seconds
-      socketTimeoutMS: 45000, // 45 seconds
-      family: 4, // Use IPv4, skip trying IPv6
-      bufferCommands: false,
-      maxPoolSize: 10,
-      minPoolSize: 5,
-      maxIdleTimeMS: 30000,
-      retryWrites: true,
-      retryReads: true,
+    console.log("🔗 Connecting to MongoDB Atlas...")
+    console.log(`📦 Mongoose version: ${mongoose.version}`)
+
+    if (!process.env.MONGODB_URI) {
+      throw new Error("MONGODB_URI environment variable is not set")
     }
 
-    // Try to connect with enhanced options
-    const conn = await mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/library-system", options)
+    // Minimal options that work with simple connection strings
+    const options = {
+      serverSelectionTimeoutMS: 10000, // 10 seconds
+      socketTimeoutMS: 45000, // 45 seconds
+    }
 
-    console.log(`✅ MongoDB Connected: ${conn.connection.host}`)
-    console.log(`📊 Database: ${conn.connection.name}`)
+    console.log("🔍 Using minimal connection options for simple URI")
 
-    // Handle connection events
+    const conn = await mongoose.connect(process.env.MONGODB_URI, options)
+
+    console.log(`✅ MongoDB Atlas Connected Successfully!`)
+    console.log(`🌐 Host: ${conn.connection.host}`)
+    console.log(`🗄️ Database: ${conn.connection.name}`)
+    console.log(`📊 Ready State: ${conn.connection.readyState}`)
+
+    // Connection event handlers
     mongoose.connection.on("error", (err) => {
-      console.error("❌ MongoDB connection error:", err)
+      console.error("❌ MongoDB connection error:", err.message)
     })
 
     mongoose.connection.on("disconnected", () => {
@@ -36,30 +37,22 @@ const connectDB = async () => {
       console.log("✅ MongoDB reconnected")
     })
   } catch (error) {
-    console.error("❌ Database connection error:", error.message)
+    console.error("❌ MongoDB Atlas Connection Failed:")
+    console.error("Error:", error.message)
 
-    // If Atlas connection fails, try local MongoDB
-    if (error.message.includes("ETIMEOUT") || error.message.includes("cluster0")) {
-      console.log("🔄 Atlas connection failed, trying local MongoDB...")
-      try {
-        const localConn = await mongoose.connect("mongodb://localhost:27017/library-system", {
-          useNewUrlParser: true,
-          useUnifiedTopology: true,
-        })
-        console.log(`✅ Local MongoDB Connected: ${localConn.connection.host}`)
-        return
-      } catch (localError) {
-        console.error("❌ Local MongoDB also failed:", localError.message)
-        console.log("💡 Please ensure MongoDB is installed and running locally, or fix your Atlas connection")
-      }
+    // Specific error handling
+    if (error.message.includes("ETIMEOUT")) {
+      console.log("\n🔧 Connection timeout - this usually means:")
+      console.log("1. Network connectivity issue")
+      console.log("2. IP not whitelisted in Atlas")
+      console.log("3. Incorrect credentials")
     }
 
-    console.log("\n🔧 Troubleshooting steps:")
-    console.log("1. Check your internet connection")
-    console.log("2. Verify your MongoDB Atlas connection string")
-    console.log("3. Ensure your IP is whitelisted in Atlas")
-    console.log("4. Try using a different network (mobile hotspot)")
-    console.log("5. Install and run MongoDB locally as fallback")
+    if (error.message.includes("authentication failed")) {
+      console.log("\n🔐 Authentication failed:")
+      console.log("1. Check username and password in connection string")
+      console.log("2. Verify database user exists in Atlas")
+    }
 
     process.exit(1)
   }

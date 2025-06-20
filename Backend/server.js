@@ -66,10 +66,80 @@ app.use(notFound)
 // Error handler (must be last)
 app.use(errorHandler)
 
-const PORT = process.env.PORT || 5000
+// Smart port selection with fallback
+const findAvailablePort = async (startPort) => {
+  return new Promise((resolve) => {
+    const server = app.listen(startPort, () => {
+      const port = server.address().port
+      server.close(() => resolve(port))
+    })
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`)
-  console.log(`📊 Environment: ${process.env.NODE_ENV || "development"}`)
-  console.log(`🔗 Health check: http://localhost:${PORT}/health`)
-})
+    server.on("error", (err) => {
+      if (err.code === "EADDRINUSE") {
+        resolve(findAvailablePort(startPort + 1))
+      } else {
+        resolve(null)
+      }
+    })
+  })
+}
+
+const startServer = async () => {
+  const preferredPort = Number.parseInt(process.env.PORT || "5000", 10)
+
+  try {
+    // Try preferred port first
+    const server = app.listen(preferredPort, () => {
+      console.log(`🚀 Server running on port ${preferredPort}`)
+      console.log(`📊 Environment: ${process.env.NODE_ENV || "development"}`)
+      console.log(`🔗 Health check: http://localhost:${preferredPort}/health`)
+      console.log(`🌐 API Base URL: http://localhost:${preferredPort}/api`)
+    })
+
+    server.on("error", async (err) => {
+      if (err.code === "EADDRINUSE") {
+        console.log(`⚠️  Port ${preferredPort} is already in use`)
+        console.log(`🔍 Finding available port...`)
+
+        const availablePort = await findAvailablePort(preferredPort + 1)
+        if (availablePort) {
+          app.listen(availablePort, () => {
+            console.log(`🚀 Server running on port ${availablePort} (fallback)`)
+            console.log(`📊 Environment: ${process.env.NODE_ENV || "development"}`)
+            console.log(`🔗 Health check: http://localhost:${availablePort}/health`)
+            console.log(`🌐 API Base URL: http://localhost:${availablePort}/api`)
+            console.log(`💡 Update your frontend to use port ${availablePort}`)
+          })
+        } else {
+          console.error("❌ Could not find an available port")
+          process.exit(1)
+        }
+      } else {
+        console.error("❌ Server error:", err)
+        process.exit(1)
+      }
+    })
+
+    // Graceful shutdown
+    process.on("SIGTERM", () => {
+      console.log("🛑 SIGTERM received, shutting down gracefully")
+      server.close(() => {
+        console.log("✅ Server closed")
+        process.exit(0)
+      })
+    })
+
+    process.on("SIGINT", () => {
+      console.log("🛑 SIGINT received, shutting down gracefully")
+      server.close(() => {
+        console.log("✅ Server closed")
+        process.exit(0)
+      })
+    })
+  } catch (error) {
+    console.error("❌ Failed to start server:", error)
+    process.exit(1)
+  }
+}
+
+startServer()
