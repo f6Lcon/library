@@ -32,9 +32,47 @@ const profileStorage = new CloudinaryStorage({
   },
 })
 
-export const uploadBookCover = multer({ storage: bookStorage })
-export const uploadGeneralImage = multer({ storage: generalStorage })
-export const uploadProfileImage = multer({ storage: profileStorage })
+export const uploadBookCover = multer({
+  storage: bookStorage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, true)
+    } else {
+      cb(new Error("Only image files are allowed!"), false)
+    }
+  },
+})
+
+export const uploadGeneralImage = multer({
+  storage: generalStorage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, true)
+    } else {
+      cb(new Error("Only image files are allowed!"), false)
+    }
+  },
+})
+
+export const uploadProfileImage = multer({
+  storage: profileStorage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, true)
+    } else {
+      cb(new Error("Only image files are allowed!"), false)
+    }
+  },
+})
 
 // Helper function to delete images from Cloudinary
 export const deleteCloudinaryImage = async (publicId) => {

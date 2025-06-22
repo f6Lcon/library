@@ -117,26 +117,42 @@ const BookForm = ({ book, onClose, onSuccess }) => {
       const uploadFormData = new FormData()
       uploadFormData.append("image", imageFile)
 
-      const response = await fetch("/api/upload/image", {
+      const token = localStorage.getItem("token")
+      if (!token) {
+        throw new Error("Authentication token not found")
+      }
+
+      console.log(
+        "Uploading image to:",
+        `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/upload/book-cover`,
+      )
+
+      const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/upload/book-cover`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
         body: uploadFormData,
       })
 
+      console.log("Upload response status:", response.status)
+
       if (!response.ok) {
-        throw new Error("Failed to upload image")
+        const errorData = await response.json().catch(() => ({ message: "Upload failed" }))
+        console.error("Upload error response:", errorData)
+        throw new Error(errorData.message || `Upload failed with status ${response.status}`)
       }
 
       const data = await response.json()
+      console.log("Upload success:", data)
+
       return {
         imageUrl: data.imageUrl,
         imagePublicId: data.publicId,
       }
     } catch (err) {
       console.error("Image upload error:", err)
-      throw new Error("Failed to upload image")
+      throw new Error(`Failed to upload image: ${err.message}`)
     } finally {
       setUploadingImage(false)
     }
@@ -152,7 +168,13 @@ const BookForm = ({ book, onClose, onSuccess }) => {
 
       // Upload image if a new one is selected
       if (imageFile) {
-        imageData = await uploadImage()
+        try {
+          imageData = await uploadImage()
+        } catch (uploadError) {
+          setError(uploadError.message)
+          setLoading(false)
+          return
+        }
       } else if (book && book.imageUrl && imagePreview) {
         // Keep existing image
         imageData = {
@@ -169,6 +191,8 @@ const BookForm = ({ book, onClose, onSuccess }) => {
         ...imageData,
       }
 
+      console.log("Submitting book data:", bookData)
+
       if (book) {
         await bookService.updateBook(book._id, bookData)
       } else {
@@ -177,6 +201,7 @@ const BookForm = ({ book, onClose, onSuccess }) => {
 
       onSuccess()
     } catch (err) {
+      console.error("Form submission error:", err)
       setError(err.message)
     } finally {
       setLoading(false)
@@ -249,6 +274,9 @@ const BookForm = ({ book, onClose, onSuccess }) => {
                         src={imagePreview || "/placeholder.svg"}
                         alt="Book cover preview"
                         className="w-full h-full object-cover rounded-lg"
+                        onError={(e) => {
+                          e.target.src = "/placeholder.svg?height=256&width=192"
+                        }}
                       />
                       <button
                         type="button"
