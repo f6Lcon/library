@@ -18,6 +18,7 @@ import {
   MdLanguage,
   MdPages,
   MdDescription,
+  MdWarning,
 } from "react-icons/md"
 
 const BookForm = ({ book, onClose, onSuccess }) => {
@@ -35,6 +36,7 @@ const BookForm = ({ book, onClose, onSuccess }) => {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [warning, setWarning] = useState("")
   const [imageFile, setImageFile] = useState(null)
   const [imagePreview, setImagePreview] = useState("")
   const [uploadingImage, setUploadingImage] = useState(false)
@@ -96,6 +98,7 @@ const BookForm = ({ book, onClose, onSuccess }) => {
       }
       reader.readAsDataURL(file)
       setError("")
+      setWarning("")
     }
   }
 
@@ -162,18 +165,21 @@ const BookForm = ({ book, onClose, onSuccess }) => {
     e.preventDefault()
     setLoading(true)
     setError("")
+    setWarning("")
+
+    let bookCreated = false
+    let imageData = {}
 
     try {
-      let imageData = {}
-
-      // Upload image if a new one is selected
+      // First, try to upload image if a new one is selected
       if (imageFile) {
         try {
           imageData = await uploadImage()
+          console.log("✅ Image uploaded successfully")
         } catch (uploadError) {
-          setError(uploadError.message)
-          setLoading(false)
-          return
+          console.warn("⚠️ Image upload failed, but continuing with book creation:", uploadError.message)
+          // Don't return here - continue with book creation without image
+          setWarning("Image upload failed, but book will be created without cover image.")
         }
       } else if (book && book.imageUrl && imagePreview) {
         // Keep existing image
@@ -183,6 +189,7 @@ const BookForm = ({ book, onClose, onSuccess }) => {
         }
       }
 
+      // Create book data
       const bookData = {
         ...formData,
         publishedYear: Number.parseInt(formData.publishedYear),
@@ -191,18 +198,42 @@ const BookForm = ({ book, onClose, onSuccess }) => {
         ...imageData,
       }
 
-      console.log("Submitting book data:", bookData)
+      console.log("📚 Creating/updating book:", bookData)
 
+      // Create or update the book
       if (book) {
         await bookService.updateBook(book._id, bookData)
+        console.log("✅ Book updated successfully")
       } else {
         await bookService.addBook(bookData)
+        console.log("✅ Book created successfully")
       }
 
-      onSuccess()
+      bookCreated = true
+
+      // If we had an image upload warning but book was created successfully, show success
+      if (warning) {
+        // Give user a moment to see the warning, then close
+        setTimeout(() => {
+          onSuccess()
+        }, 2000)
+      } else {
+        // Close immediately if everything went well
+        onSuccess()
+      }
     } catch (err) {
-      console.error("Form submission error:", err)
-      setError(err.message)
+      console.error("❌ Book creation/update error:", err)
+
+      // Only show error if book creation failed
+      if (!bookCreated) {
+        setError(`Failed to ${book ? "update" : "create"} book: ${err.message}`)
+      } else {
+        // Book was created but something else failed - treat as warning
+        setWarning(`Book ${book ? "updated" : "created"} successfully, but there was an issue: ${err.message}`)
+        setTimeout(() => {
+          onSuccess()
+        }, 2000)
+      }
     } finally {
       setLoading(false)
     }
@@ -246,6 +277,7 @@ const BookForm = ({ book, onClose, onSuccess }) => {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6">
+          {/* Error Message */}
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
@@ -257,12 +289,25 @@ const BookForm = ({ book, onClose, onSuccess }) => {
             </motion.div>
           )}
 
+          {/* Warning Message */}
+          {warning && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-xl mb-6 flex items-center space-x-2"
+            >
+              <MdWarning className="w-5 h-5" />
+              <span>{warning}</span>
+            </motion.div>
+          )}
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Image Upload Section */}
             <div className="lg:col-span-1">
               <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <MdImage className="w-5 h-5 mr-2 text-primary-500" />
                 Book Cover
+                <span className="text-sm text-gray-500 ml-2">(Optional)</span>
               </h4>
 
               <div className="space-y-4">
@@ -290,7 +335,7 @@ const BookForm = ({ book, onClose, onSuccess }) => {
                     <div className="text-center">
                       <MdCloudUpload className="w-12 h-12 text-primary-400 mx-auto mb-2" />
                       <p className="text-sm text-gray-600">Upload book cover</p>
-                      <p className="text-xs text-gray-500">PNG, JPG up to 5MB</p>
+                      <p className="text-xs text-gray-500">PNG, JPG up to 5MB (Optional)</p>
                     </div>
                   )}
                 </div>
