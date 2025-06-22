@@ -1,323 +1,433 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Link } from "react-router-dom"
 import { bookService } from "../services/bookService"
-import { useAuth } from "../context/AuthContext"
+import { motion, AnimatePresence } from "framer-motion"
+import {
+  FiSearch,
+  FiBook,
+  FiUser,
+  FiCalendar,
+  FiTag,
+  FiStar,
+  FiHeart,
+  FiBookOpen,
+  FiGrid,
+  FiList,
+  FiChevronDown,
+  FiX,
+} from "react-icons/fi"
+import { HiSparkles } from "react-icons/hi2"
 
 const BooksPage = () => {
-  const { user } = useAuth()
   const [books, setBooks] = useState([])
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState("")
-  const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
-  const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [selectedGenre, setSelectedGenre] = useState("")
+  const [viewMode, setViewMode] = useState("grid") // grid or list
+  const [showFilters, setShowFilters] = useState(false)
+  const [sortBy, setSortBy] = useState("title")
+
+  const genres = ["Fiction", "Non-Fiction", "Science", "History", "Biography", "Technology", "Art", "Philosophy"]
+  const sortOptions = [
+    { value: "title", label: "Title A-Z" },
+    { value: "author", label: "Author A-Z" },
+    { value: "year", label: "Publication Year" },
+    { value: "genre", label: "Genre" },
+  ]
 
   useEffect(() => {
-    fetchData()
+    fetchBooks()
   }, [])
 
-  useEffect(() => {
-    searchBooks()
-  }, [searchTerm, selectedCategory, currentPage])
-
-  const fetchData = async () => {
+  const fetchBooks = async () => {
     try {
       setLoading(true)
-      const categoriesRes = await bookService.getCategories()
-      setCategories(categoriesRes.categories)
-      await searchBooks()
+      const response = await bookService.getAllBooks()
+      setBooks(response.books || [])
     } catch (err) {
-      setError(err.message)
+      setError("Failed to fetch books")
+      console.error("Error fetching books:", err)
     } finally {
       setLoading(false)
     }
   }
 
-  const searchBooks = async () => {
-    try {
-      const params = {
-        page: currentPage,
-        limit: 12,
+  const filteredBooks = books
+    .filter((book) => {
+      const matchesSearch =
+        book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        book.author.toLowerCase().includes(searchTerm.toLowerCase())
+      const matchesGenre = !selectedGenre || book.genre === selectedGenre
+      return matchesSearch && matchesGenre
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "title":
+          return a.title.localeCompare(b.title)
+        case "author":
+          return a.author.localeCompare(b.author)
+        case "year":
+          return new Date(b.publishedYear) - new Date(a.publishedYear)
+        case "genre":
+          return a.genre.localeCompare(b.genre)
+        default:
+          return 0
       }
-      if (searchTerm) params.search = searchTerm
-      if (selectedCategory) params.category = selectedCategory
+    })
 
-      const response = await bookService.getAllBooks(params)
-      setBooks(response.books)
-      setTotalPages(response.totalPages)
-    } catch (err) {
-      setError(err.message)
-    }
-  }
+  const BookCard = ({ book, index }) => (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.1 }}
+      whileHover={{ y: -5 }}
+      className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/50 group"
+    >
+      <div className="relative mb-4">
+        <div className="w-full h-48 bg-gradient-to-br from-primary-100 to-secondary-100 rounded-xl flex items-center justify-center overflow-hidden">
+          {book.coverImage ? (
+            <img
+              src={book.coverImage || "/placeholder.svg"}
+              alt={book.title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          ) : (
+            <FiBook className="w-16 h-16 text-primary-500" />
+          )}
+        </div>
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          className="absolute top-2 right-2 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-colors"
+        >
+          <FiHeart className="w-4 h-4 text-red-500" />
+        </motion.button>
+      </div>
 
-  const handleSearch = (e) => {
-    e.preventDefault()
-    setCurrentPage(1)
-    searchBooks()
-  }
+      <div className="space-y-3">
+        <h3 className="text-lg font-bold text-gray-900 line-clamp-2 group-hover:text-primary-600 transition-colors">
+          {book.title}
+        </h3>
 
-  if (loading)
+        <div className="flex items-center text-gray-600">
+          <FiUser className="w-4 h-4 mr-2" />
+          <span className="text-sm">{book.author}</span>
+        </div>
+
+        <div className="flex items-center justify-between text-sm text-gray-500">
+          <div className="flex items-center">
+            <FiCalendar className="w-4 h-4 mr-1" />
+            <span>{book.publishedYear}</span>
+          </div>
+          <div className="flex items-center">
+            <FiTag className="w-4 h-4 mr-1" />
+            <span>{book.genre}</span>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between pt-2">
+          <div className="flex items-center">
+            <div className="flex text-yellow-400">
+              {[...Array(5)].map((_, i) => (
+                <FiStar key={i} className="w-4 h-4 fill-current" />
+              ))}
+            </div>
+            <span className="text-sm text-gray-600 ml-2">4.5</span>
+          </div>
+          <span
+            className={`px-3 py-1 rounded-full text-xs font-medium ${
+              book.availableCopies > 0 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+            }`}
+          >
+            {book.availableCopies > 0 ? "Available" : "Borrowed"}
+          </span>
+        </div>
+
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="w-full mt-4 bg-gradient-to-r from-primary-500 to-secondary-500 text-white py-2 px-4 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 flex items-center justify-center"
+        >
+          <FiBookOpen className="w-4 h-4 mr-2" />
+          View Details
+        </motion.button>
+      </div>
+    </motion.div>
+  )
+
+  const BookListItem = ({ book, index }) => (
+    <motion.div
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: index * 0.05 }}
+      className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/50 group"
+    >
+      <div className="flex items-center space-x-6">
+        <div className="w-20 h-28 bg-gradient-to-br from-primary-100 to-secondary-100 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+          {book.coverImage ? (
+            <img
+              src={book.coverImage || "/placeholder.svg"}
+              alt={book.title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          ) : (
+            <FiBook className="w-8 h-8 text-primary-500" />
+          )}
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-primary-600 transition-colors">
+            {book.title}
+          </h3>
+
+          <div className="flex items-center text-gray-600 mb-2">
+            <FiUser className="w-4 h-4 mr-2" />
+            <span>{book.author}</span>
+          </div>
+
+          <div className="flex items-center space-x-4 text-sm text-gray-500 mb-3">
+            <div className="flex items-center">
+              <FiCalendar className="w-4 h-4 mr-1" />
+              <span>{book.publishedYear}</span>
+            </div>
+            <div className="flex items-center">
+              <FiTag className="w-4 h-4 mr-1" />
+              <span>{book.genre}</span>
+            </div>
+          </div>
+
+          <div className="flex items-center">
+            <div className="flex text-yellow-400">
+              {[...Array(5)].map((_, i) => (
+                <FiStar key={i} className="w-4 h-4 fill-current" />
+              ))}
+            </div>
+            <span className="text-sm text-gray-600 ml-2">4.5</span>
+          </div>
+        </div>
+
+        <div className="flex flex-col items-end space-y-3">
+          <span
+            className={`px-3 py-1 rounded-full text-xs font-medium ${
+              book.availableCopies > 0 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+            }`}
+          >
+            {book.availableCopies > 0 ? "Available" : "Borrowed"}
+          </span>
+
+          <div className="flex space-x-2">
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              className="w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-colors"
+            >
+              <FiHeart className="w-4 h-4 text-red-500" />
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="bg-gradient-to-r from-primary-500 to-secondary-500 text-white py-2 px-4 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 flex items-center"
+            >
+              <FiBookOpen className="w-4 h-4 mr-2" />
+              View Details
+            </motion.button>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  )
+
+  if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 pt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="flex items-center justify-center h-64">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+              className="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full"
+            />
+          </div>
+        </div>
       </div>
     )
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-100">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b border-primary-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-500 rounded-2xl mb-6">
-              <span className="text-2xl">📚</span>
-            </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Discover Our Collection</h1>
-            <p className="text-xl text-gray-600 mb-8">Explore thousands of books across all genres and categories</p>
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 pt-20">
+      {/* Background Elements */}
+      <div className="absolute top-20 left-10 w-72 h-72 bg-primary-500/10 rounded-full blur-3xl animate-float"></div>
+      <div
+        className="absolute bottom-20 right-10 w-96 h-96 bg-secondary-500/10 rounded-full blur-3xl animate-float"
+        style={{ animationDelay: "1s" }}
+      ></div>
 
-            {!user && (
-              <div className="bg-gradient-to-r from-primary-500 to-primary-600 rounded-2xl p-6 mb-8 max-w-2xl mx-auto text-white">
-                <div className="flex items-center justify-center mb-4">
-                  <span className="text-3xl mr-3">🎯</span>
-                  <h3 className="text-xl font-bold">Ready to Borrow Books?</h3>
-                </div>
-                <p className="mb-4">Join our community to access borrowing services and exclusive features!</p>
-                <div className="space-x-3">
-                  <Link
-                    to="/register"
-                    className="bg-white text-primary-600 px-6 py-3 rounded-xl font-semibold hover:bg-primary-50 transition-all duration-200 transform hover:scale-105 inline-block"
-                  >
-                    🚀 Join Now
-                  </Link>
-                  <Link
-                    to="/login"
-                    className="border-2 border-white text-white px-6 py-3 rounded-xl font-semibold hover:bg-white hover:text-primary-600 transition-all duration-200 transform hover:scale-105 inline-block"
-                  >
-                    🔑 Sign In
-                  </Link>
-                </div>
-              </div>
-            )}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
+        {/* Header */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
+          <div className="inline-flex items-center bg-gradient-to-r from-primary-100 to-secondary-100 rounded-full px-6 py-2 mb-6">
+            <HiSparkles className="w-5 h-5 text-primary-500 mr-2" />
+            <span className="text-sm font-semibold text-primary-700">Discover Amazing Books</span>
           </div>
-        </div>
-      </div>
+          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4 font-display">Browse Our Collection</h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Explore thousands of books across various genres and find your next favorite read
+          </p>
+        </motion.div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 flex items-center space-x-2">
-            <span>⚠️</span>
-            <span>{error}</span>
-          </div>
-        )}
-
-        {/* Search and Filter */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-primary-100">
-          <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-2">
-              <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                🔍 Search Books
-              </label>
+        {/* Search and Filters */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/50 mb-8"
+        >
+          <div className="flex flex-col lg:flex-row gap-4 items-center">
+            {/* Search */}
+            <div className="relative flex-1">
+              <FiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
+                placeholder="Search books by title or author..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search by title, author, or ISBN..."
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-white/50"
               />
             </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">📂 Category</label>
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
-              >
-                <option value="">All Categories</option>
-                {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </form>
-        </div>
 
-        {/* Books Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 mb-8">
-          {books.map((book) => (
-            <div
-              key={book._id}
-              className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group transform hover:scale-105 border border-primary-100"
-            >
-              {/* Book Image */}
-              <div className="aspect-[2/3] overflow-hidden bg-gradient-to-br from-primary-50 to-primary-100 relative">
-                <img
-                  src={book.imageUrl || "/placeholder.svg?height=300&width=200"}
-                  alt={`${book.title} cover`}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  onError={(e) => {
-                    e.target.src = "/placeholder.svg?height=300&width=200"
-                  }}
-                />
-                {/* Availability badge */}
-                <div className="absolute top-3 right-3">
-                  <span
-                    className={`text-xs px-3 py-1 rounded-full font-bold shadow-lg ${
-                      book.availableCopies > 0 ? "bg-primary-500 text-white" : "bg-red-500 text-white"
-                    }`}
-                  >
-                    {book.availableCopies > 0 ? `${book.availableCopies} Available` : "Out of Stock"}
-                  </span>
-                </div>
+            {/* Filters */}
+            <div className="flex items-center space-x-4">
+              <div className="relative">
+                <select
+                  value={selectedGenre}
+                  onChange={(e) => setSelectedGenre(e.target.value)}
+                  className="appearance-none bg-white/50 border border-gray-300 rounded-xl px-4 py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                >
+                  <option value="">All Genres</option>
+                  {genres.map((genre) => (
+                    <option key={genre} value={genre}>
+                      {genre}
+                    </option>
+                  ))}
+                </select>
+                <FiChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
               </div>
 
-              <div className="p-4">
-                {/* Title and Author */}
-                <div className="mb-3">
-                  <h3 className="text-sm font-bold text-gray-900 line-clamp-2 leading-tight mb-1" title={book.title}>
-                    {book.title}
-                  </h3>
-                  <p className="text-xs text-gray-600 truncate" title={book.author}>
-                    by {book.author}
-                  </p>
-                </div>
+              <div className="relative">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="appearance-none bg-white/50 border border-gray-300 rounded-xl px-4 py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                >
+                  {sortOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+                <FiChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
+              </div>
 
-                {/* Category and Branch */}
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs text-primary-600 font-bold bg-primary-100 px-2 py-1 rounded-lg">
-                    {book.category}
-                  </span>
-                  {book.branch && (
-                    <span className="text-xs text-gray-500 font-mono bg-gray-100 px-2 py-1 rounded">
-                      {book.branch.code}
-                    </span>
-                  )}
-                </div>
-
-                {/* Book Details */}
-                <div className="text-xs text-gray-500 mb-4 space-y-1">
-                  <div className="flex justify-between">
-                    <span>📅 Year:</span>
-                    <span className="font-medium">{book.publishedYear}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>📄 Pages:</span>
-                    <span className="font-medium">{book.pages}</span>
-                  </div>
-                  <div className="flex justify-between font-bold">
-                    <span>📊 Stock:</span>
-                    <span className={book.availableCopies > 0 ? "text-primary-600" : "text-red-600"}>
-                      {book.availableCopies}/{book.totalCopies}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Action Button */}
-                {user ? (
-                  book.availableCopies > 0 ? (
-                    <Link
-                      to="/dashboard"
-                      className="w-full bg-primary-500 text-white py-2 px-3 rounded-xl text-xs hover:bg-primary-600 transition-all duration-200 text-center block font-bold transform hover:scale-105"
-                    >
-                      📖 Borrow Now
-                    </Link>
-                  ) : (
-                    <button
-                      disabled
-                      className="w-full bg-gray-300 text-gray-500 py-2 px-3 rounded-xl text-xs cursor-not-allowed font-bold"
-                    >
-                      ❌ Unavailable
-                    </button>
-                  )
-                ) : (
-                  <Link
-                    to="/login"
-                    className="w-full bg-primary-500 text-white py-2 px-3 rounded-xl text-xs hover:bg-primary-600 transition-all duration-200 text-center block font-bold transform hover:scale-105"
-                  >
-                    🔑 Sign In to Borrow
-                  </Link>
-                )}
+              {/* View Mode Toggle */}
+              <div className="flex bg-gray-100 rounded-xl p-1">
+                <button
+                  onClick={() => setViewMode("grid")}
+                  className={`p-2 rounded-lg transition-all duration-200 ${
+                    viewMode === "grid" ? "bg-white shadow-sm text-primary-600" : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  <FiGrid className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => setViewMode("list")}
+                  className={`p-2 rounded-lg transition-all duration-200 ${
+                    viewMode === "list" ? "bg-white shadow-sm text-primary-600" : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  <FiList className="w-5 h-5" />
+                </button>
               </div>
             </div>
-          ))}
-        </div>
+          </div>
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex justify-center items-center space-x-2">
-            <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              disabled={currentPage === 1}
-              className="px-4 py-2 border border-primary-300 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary-50 transition-colors font-medium"
-            >
-              ← Previous
-            </button>
-
-            <div className="flex space-x-1">
-              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                const page = i + 1
-                return (
-                  <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    className={`px-4 py-2 border rounded-xl transition-all duration-200 font-medium ${
-                      currentPage === page
-                        ? "bg-primary-500 text-white border-primary-500 shadow-lg"
-                        : "border-primary-300 hover:bg-primary-50"
-                    }`}
-                  >
-                    {page}
+          {/* Active Filters */}
+          {(searchTerm || selectedGenre) && (
+            <div className="flex items-center space-x-2 mt-4 pt-4 border-t border-gray-200">
+              <span className="text-sm text-gray-600">Active filters:</span>
+              {searchTerm && (
+                <span className="inline-flex items-center bg-primary-100 text-primary-800 px-3 py-1 rounded-full text-sm">
+                  Search: "{searchTerm}"
+                  <button onClick={() => setSearchTerm("")} className="ml-2 hover:text-primary-600">
+                    <FiX className="w-3 h-3" />
                   </button>
-                )
-              })}
-              {totalPages > 5 && (
-                <>
-                  <span className="px-2 py-2 text-gray-500">...</span>
-                  <button
-                    onClick={() => setCurrentPage(totalPages)}
-                    className={`px-4 py-2 border rounded-xl transition-all duration-200 font-medium ${
-                      currentPage === totalPages
-                        ? "bg-primary-500 text-white border-primary-500 shadow-lg"
-                        : "border-primary-300 hover:bg-primary-50"
-                    }`}
-                  >
-                    {totalPages}
+                </span>
+              )}
+              {selectedGenre && (
+                <span className="inline-flex items-center bg-secondary-100 text-secondary-800 px-3 py-1 rounded-full text-sm">
+                  Genre: {selectedGenre}
+                  <button onClick={() => setSelectedGenre("")} className="ml-2 hover:text-secondary-600">
+                    <FiX className="w-3 h-3" />
                   </button>
-                </>
+                </span>
               )}
             </div>
+          )}
+        </motion.div>
 
-            <button
-              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-              disabled={currentPage === totalPages}
-              className="px-4 py-2 border border-primary-300 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary-50 transition-colors font-medium"
-            >
-              Next →
-            </button>
-          </div>
-        )}
+        {/* Results Count */}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mb-6">
+          <p className="text-gray-600">
+            Showing <span className="font-semibold">{filteredBooks.length}</span> books
+          </p>
+        </motion.div>
 
-        {books.length === 0 && !loading && (
-          <div className="text-center py-16">
-            <div className="text-6xl mb-6">📚</div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-3">No books found</h3>
-            <p className="text-gray-600 mb-6">Try adjusting your search criteria or browse all categories.</p>
-            <button
-              onClick={() => {
-                setSearchTerm("")
-                setSelectedCategory("")
-                setCurrentPage(1)
-              }}
-              className="bg-primary-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary-600 transition-all duration-200 transform hover:scale-105"
-            >
-              🔄 Reset Filters
-            </button>
-          </div>
+        {/* Books Grid/List */}
+        {error ? (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-12">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <FiX className="w-8 h-8 text-red-500" />
+            </div>
+            <p className="text-red-600 font-semibold">{error}</p>
+          </motion.div>
+        ) : filteredBooks.length === 0 ? (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-12">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <FiSearch className="w-8 h-8 text-gray-400" />
+            </div>
+            <p className="text-gray-600 font-semibold">No books found</p>
+            <p className="text-gray-500 mt-2">Try adjusting your search or filters</p>
+          </motion.div>
+        ) : (
+          <AnimatePresence mode="wait">
+            {viewMode === "grid" ? (
+              <motion.div
+                key="grid"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+              >
+                {filteredBooks.map((book, index) => (
+                  <BookCard key={book._id} book={book} index={index} />
+                ))}
+              </motion.div>
+            ) : (
+              <motion.div
+                key="list"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="space-y-4"
+              >
+                {filteredBooks.map((book, index) => (
+                  <BookListItem key={book._id} book={book} index={index} />
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         )}
       </div>
     </div>

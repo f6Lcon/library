@@ -2,157 +2,236 @@
 
 import { useAuth } from "../context/AuthContext"
 import { useNavigate, Link, useLocation } from "react-router-dom"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import {
+  FiHome,
+  FiBook,
+  FiBarChart3,
+  FiLogIn,
+  FiUserPlus,
+  FiLogOut,
+  FiMenu,
+  FiX,
+  FiUser,
+  FiBookOpen,
+} from "react-icons/fi"
+import { HiSparkles } from "react-icons/hi2"
 
 const Navbar = () => {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
-  const [hoveredItem, setHoveredItem] = useState(null)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20)
+    }
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
   const handleLogout = () => {
     logout()
     navigate("/")
+    setIsMenuOpen(false)
   }
 
   const isActive = (path) => location.pathname === path
 
-  const NavIcon = ({ to, icon, label, isActive, onClick }) => (
-    <div className="relative group">
+  const NavLink = ({ to, icon: Icon, label, onClick, className = "" }) => (
+    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
       {onClick ? (
         <button
           onClick={onClick}
-          onMouseEnter={() => setHoveredItem(label)}
-          onMouseLeave={() => setHoveredItem(null)}
-          className={`p-3 rounded-xl transition-all duration-300 transform hover:scale-110 hover:shadow-lg ${
-            isActive ? "bg-white text-primary-600 shadow-md" : "text-primary-100 hover:bg-primary-400 hover:text-white"
-          }`}
+          className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-300 ${
+            isActive(to)
+              ? "bg-white/20 text-white shadow-lg backdrop-blur-sm"
+              : "text-white/80 hover:text-white hover:bg-white/10"
+          } ${className}`}
         >
-          <span className="text-xl">{icon}</span>
+          <Icon className="w-5 h-5" />
+          <span className="font-medium">{label}</span>
         </button>
       ) : (
         <Link
           to={to}
-          onMouseEnter={() => setHoveredItem(label)}
-          onMouseLeave={() => setHoveredItem(null)}
-          className={`p-3 rounded-xl transition-all duration-300 transform hover:scale-110 hover:shadow-lg ${
-            isActive ? "bg-white text-primary-600 shadow-md" : "text-primary-100 hover:bg-primary-400 hover:text-white"
-          }`}
+          onClick={() => setIsMenuOpen(false)}
+          className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-300 ${
+            isActive(to)
+              ? "bg-white/20 text-white shadow-lg backdrop-blur-sm"
+              : "text-white/80 hover:text-white hover:bg-white/10"
+          } ${className}`}
         >
-          <span className="text-xl">{icon}</span>
+          <Icon className="w-5 h-5" />
+          <span className="font-medium">{label}</span>
         </Link>
       )}
-
-      {/* Hover Tooltip */}
-      <div
-        className={`absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-3 py-1 bg-gray-900 text-white text-sm rounded-lg whitespace-nowrap transition-all duration-200 pointer-events-none ${
-          hoveredItem === label ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
-        }`}
-      >
-        {label}
-        <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
-      </div>
-    </div>
+    </motion.div>
   )
 
   return (
-    <nav className="bg-gradient-to-r from-primary-500 via-primary-600 to-primary-500 shadow-xl border-b border-primary-400">
+    <motion.nav
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? "bg-gradient-to-r from-primary-600/95 via-primary-500/95 to-secondary-600/95 backdrop-blur-lg shadow-2xl"
+          : "bg-gradient-to-r from-primary-600 via-primary-500 to-secondary-600"
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
+        <div className="flex justify-between items-center h-16 lg:h-20">
           {/* Logo Section */}
-          <Link to="/" className="flex items-center space-x-4 group">
-            <div className="relative">
-              <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-105">
-                <span className="text-primary-600 font-bold text-2xl">K</span>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Link to="/" className="flex items-center space-x-3 group">
+              <div className="relative">
+                <motion.div
+                  className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-white to-primary-100 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300"
+                  whileHover={{ rotate: 5 }}
+                >
+                  <FiBookOpen className="w-6 h-6 lg:w-7 lg:h-7 text-primary-600" />
+                </motion.div>
+                <motion.div
+                  className="absolute -top-1 -right-1 w-4 h-4 bg-accent-400 rounded-full"
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
+                >
+                  <HiSparkles className="w-3 h-3 text-white m-0.5" />
+                </motion.div>
               </div>
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary-300 rounded-full animate-pulse"></div>
-            </div>
-            <div className="hidden sm:flex flex-col">
-              <span className="text-xl font-bold text-white leading-tight">KEY Library</span>
-              <span className="text-sm text-primary-200 leading-tight font-medium">Knowledge Empowering Youth</span>
-            </div>
-          </Link>
+              <div className="hidden sm:flex flex-col">
+                <span className="text-xl lg:text-2xl font-bold text-white leading-tight font-display">KEY Library</span>
+                <span className="text-sm text-white/80 leading-tight font-medium">Knowledge Empowering Youth</span>
+              </div>
+            </Link>
+          </motion.div>
 
-          {/* Navigation Icons */}
-          <div className="flex items-center space-x-2">
-            <NavIcon to="/" icon="🏠" label="Home" isActive={isActive("/")} />
-
-            <NavIcon to="/books" icon="📚" label="Browse Books" isActive={isActive("/books")} />
-
-            {user && <NavIcon to="/dashboard" icon="📊" label="Dashboard" isActive={isActive("/dashboard")} />}
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center space-x-2">
+            <NavLink to="/" icon={FiHome} label="Home" />
+            <NavLink to="/books" icon={FiBook} label="Browse Books" />
+            {user && <NavLink to="/dashboard" icon={FiBarChart3} label="Dashboard" />}
 
             {/* Divider */}
-            <div className="w-px h-8 bg-primary-400 mx-2"></div>
+            <div className="w-px h-8 bg-white/20 mx-4"></div>
 
             {/* User Section */}
             {user ? (
               <div className="flex items-center space-x-3">
                 {/* User Info */}
-                <div className="hidden md:flex items-center space-x-3 bg-primary-400 bg-opacity-30 rounded-xl px-4 py-2">
-                  <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-                    <span className="text-primary-600 font-semibold text-sm">
-                      {user.firstName?.[0]}
-                      {user.lastName?.[0]}
-                    </span>
+                <motion.div
+                  className="flex items-center space-x-3 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/20"
+                  whileHover={{ scale: 1.02 }}
+                >
+                  <div className="w-8 h-8 bg-gradient-to-br from-white to-primary-100 rounded-full flex items-center justify-center">
+                    <FiUser className="w-4 h-4 text-primary-600" />
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-sm font-medium text-white">
+                    <span className="text-sm font-semibold text-white">
                       {user.firstName} {user.lastName}
                     </span>
-                    <span className="text-xs text-primary-200 capitalize">{user.role}</span>
+                    <span className="text-xs text-white/70 capitalize font-medium">{user.role}</span>
                   </div>
-                </div>
+                </motion.div>
 
                 {/* Logout Button */}
-                <NavIcon icon="🚪" label="Logout" onClick={handleLogout} />
+                <NavLink icon={FiLogOut} label="Logout" onClick={handleLogout} />
               </div>
             ) : (
               <div className="flex items-center space-x-2">
-                <NavIcon to="/login" icon="🔑" label="Sign In" isActive={isActive("/login")} />
-
-                <Link
-                  to="/register"
-                  className="bg-white text-primary-600 px-6 py-2 rounded-xl font-semibold hover:bg-primary-50 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
-                >
-                  Join Now
-                </Link>
+                <NavLink to="/login" icon={FiLogIn} label="Sign In" />
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Link
+                    to="/register"
+                    className="bg-white text-primary-600 px-6 py-2 rounded-xl font-semibold hover:bg-primary-50 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center space-x-2"
+                  >
+                    <FiUserPlus className="w-4 h-4" />
+                    <span>Join Now</span>
+                  </Link>
+                </motion.div>
               </div>
             )}
           </div>
+
+          {/* Mobile Menu Button */}
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="lg:hidden p-2 rounded-xl bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all duration-300"
+          >
+            <AnimatePresence mode="wait">
+              {isMenuOpen ? (
+                <motion.div
+                  key="close"
+                  initial={{ rotate: -90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: 90, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <FiX className="w-6 h-6" />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="menu"
+                  initial={{ rotate: 90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: -90, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <FiMenu className="w-6 h-6" />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.button>
         </div>
 
         {/* Mobile Navigation */}
-        <div className="md:hidden pb-4">
-          <div className="flex justify-center space-x-4">
-            <NavIcon to="/" icon="🏠" label="Home" isActive={isActive("/")} />
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+              className="lg:hidden overflow-hidden"
+            >
+              <div className="py-4 space-y-2 border-t border-white/20">
+                <NavLink to="/" icon={FiHome} label="Home" />
+                <NavLink to="/books" icon={FiBook} label="Browse Books" />
+                {user && <NavLink to="/dashboard" icon={FiBarChart3} label="Dashboard" />}
 
-            <NavIcon to="/books" icon="📚" label="Books" isActive={isActive("/books")} />
-
-            {user && <NavIcon to="/dashboard" icon="📊" label="Dashboard" isActive={isActive("/dashboard")} />}
-
-            {!user && (
-              <>
-                <NavIcon to="/login" icon="🔑" label="Sign In" isActive={isActive("/login")} />
-                <NavIcon to="/register" icon="✨" label="Sign Up" isActive={isActive("/register")} />
-              </>
-            )}
-          </div>
-
-          {user && (
-            <div className="mt-3 text-center">
-              <div className="inline-flex items-center space-x-2 bg-primary-400 bg-opacity-30 rounded-lg px-3 py-1">
-                <span className="text-sm text-white">
-                  {user.firstName} {user.lastName}
-                </span>
-                <span className="text-xs text-primary-200 bg-primary-500 px-2 py-0.5 rounded-full capitalize">
-                  {user.role}
-                </span>
+                {user ? (
+                  <>
+                    <div className="px-4 py-3 bg-white/10 rounded-xl mx-2 my-3">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-white to-primary-100 rounded-full flex items-center justify-center">
+                          <FiUser className="w-5 h-5 text-primary-600" />
+                        </div>
+                        <div>
+                          <div className="text-white font-semibold">
+                            {user.firstName} {user.lastName}
+                          </div>
+                          <div className="text-white/70 text-sm capitalize">{user.role}</div>
+                        </div>
+                      </div>
+                    </div>
+                    <NavLink icon={FiLogOut} label="Logout" onClick={handleLogout} />
+                  </>
+                ) : (
+                  <>
+                    <NavLink to="/login" icon={FiLogIn} label="Sign In" />
+                    <NavLink to="/register" icon={FiUserPlus} label="Join Now" />
+                  </>
+                )}
               </div>
-            </div>
+            </motion.div>
           )}
-        </div>
+        </AnimatePresence>
       </div>
-    </nav>
+    </motion.nav>
   )
 }
 
