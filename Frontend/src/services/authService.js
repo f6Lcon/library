@@ -1,65 +1,47 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api"
-
-// Get auth token from localStorage
-const getAuthToken = () => {
-  return localStorage.getItem("token")
-}
-
-// Create axios-like request function with proper headers
-const apiRequest = async (url, options = {}) => {
-  const token = getAuthToken()
-  const headers = {
-    "Content-Type": "application/json",
-    ...options.headers,
-  }
-
-  if (token) {
-    headers.Authorization = `Bearer ${token}`
-  }
-
-  const config = {
-    method: options.method || "GET",
-    headers,
-    ...options,
-  }
-
-  if (options.body) {
-    config.body = JSON.stringify(options.body)
-  }
-
-  const response = await fetch(`${API_URL}${url}`, config)
-  
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ message: "Network error" }))
-    throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
-  }
-
-  return response.json()
-}
+import api from "./api"
 
 export const authService = {
-  async register(userData) {
-    const response = await apiRequest("/auth/register", {
-      method: "POST",
-      body: userData,
-    })
-    return response
+  async login(email, password) {
+    try {
+      const response = await api.post("/auth/login", { email, password })
+
+      if (response.data.token) {
+        localStorage.setItem("token", response.data.token)
+        localStorage.setItem("user", JSON.stringify(response.data.user))
+      }
+
+      return response.data
+    } catch (error) {
+      console.error("Login error:", error)
+      throw error.response?.data || { message: "Login failed" }
+    }
   },
 
-  async login(email, password) {
-    const response = await apiRequest("/auth/login", {
-      method: "POST",
-      body: { email, password },
-    })
-    return response
+  async register(userData) {
+    try {
+      const response = await api.post("/auth/register", userData)
+      return response.data
+    } catch (error) {
+      console.error("Registration error:", error)
+      throw error.response?.data || { message: "Registration failed" }
+    }
   },
 
   async getProfile() {
-    const response = await apiRequest("/auth/profile")
-    return response
+    try {
+      const response = await api.get("/auth/profile")
+      return response.data
+    } catch (error) {
+      console.error("Get profile error:", error)
+      throw error.response?.data || { message: "Failed to fetch profile" }
+    }
   },
 
-  async logout() {
+  logout() {
     localStorage.removeItem("token")
+    localStorage.removeItem("user")
+    window.location.href = "/login"
   },
 }
+
+export default authService
