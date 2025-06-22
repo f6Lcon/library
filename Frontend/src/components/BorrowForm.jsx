@@ -96,7 +96,7 @@ const BorrowForm = ({ onClose, onSuccess }) => {
 
           <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
             <p>
-              <strong>Note:</strong> Books are issued for 14 days. Late returns incur a fine of $1 per day.
+              <strong>Note:</strong> Books are issued for 14 days. Late returns incur a fine of Kes 20 per day.
             </p>
           </div>
 
