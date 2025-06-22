@@ -20,7 +20,7 @@ const createAdminAccount = async () => {
         name: "KEY Library Main Branch",
         code: "KEY-MAIN",
         address: "123 Knowledge Avenue, Downtown District, City Center 10001",
-        phone: "(555) 123-4567",
+        phone: "+1-555-123-4567",
         email: "main@keylibrary.com",
         isActive: true,
       })
@@ -39,18 +39,23 @@ const createAdminAccount = async () => {
       return
     }
 
-    // Create admin account
+    // Create admin account with proper phone format
     const adminData = {
       firstName: "System",
       lastName: "Administrator",
       email: "admin@keylibrary.com",
       password: "admin123", // This will be hashed automatically by the pre-save hook
       role: "admin",
-      phone: "(555) 000-0001",
-      address: "KEY Library System Headquarters",
+      phone: "+1-555-000-0001", // Updated to match validation pattern
+      address: "KEY Library System Headquarters, 123 Admin Street, City Center 10001",
       isActive: true,
       branch: defaultBranch._id,
     }
+
+    console.log("Creating admin with data:", {
+      ...adminData,
+      password: "[HIDDEN]",
+    })
 
     const admin = await User.create(adminData)
 
@@ -59,6 +64,7 @@ const createAdminAccount = async () => {
     console.log(`   📧 Email: ${admin.email}`)
     console.log(`   🔑 Password: admin123`)
     console.log(`   👤 Name: ${admin.firstName} ${admin.lastName}`)
+    console.log(`   📞 Phone: ${admin.phone}`)
     console.log(`   🏢 Branch: ${defaultBranch.name}`)
     console.log(`   🆔 Role: ${admin.role}`)
 
@@ -84,6 +90,13 @@ const createAdminAccount = async () => {
 
     if (error.code === 11000) {
       console.log("📧 Email already exists. Admin might already be created.")
+    }
+
+    if (error.name === "ValidationError") {
+      console.log("Validation errors:")
+      Object.values(error.errors).forEach((err) => {
+        console.log(`   • ${err.path}: ${err.message}`)
+      })
     }
   } finally {
     // Close the connection

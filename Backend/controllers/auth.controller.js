@@ -1,5 +1,4 @@
 import jwt from "jsonwebtoken"
-import bcrypt from "bcryptjs"
 import User from "../models/user.model.js"
 import Branch from "../models/branch.model.js"
 import { validationResult } from "express-validator"
@@ -61,16 +60,12 @@ export const register = async (req, res) => {
       }
     }
 
-    // Hash password
-    const saltRounds = Number.parseInt(process.env.BCRYPT_ROUNDS) || 12
-    const hashedPassword = await bcrypt.hash(password, saltRounds)
-
-    // Create user object
+    // Create user object - let the pre-save hook handle password hashing
     const userData = {
       firstName: firstName.trim(),
       lastName: lastName.trim(),
       email: email.toLowerCase().trim(),
-      password: hashedPassword,
+      password: password, // Don't hash here, let the pre-save hook do it
       phone: phone.trim(),
       address: address.trim(),
       role,
@@ -88,7 +83,7 @@ export const register = async (req, res) => {
       password: "[HIDDEN]",
     })
 
-    // Create user
+    // Create user - the pre-save hook will hash the password
     const user = new User(userData)
     await user.save()
 
@@ -162,14 +157,19 @@ export const login = async (req, res) => {
 
     const { email, password } = req.body
 
+    console.log("Login attempt for email:", email) // Debug log
+
     // Find user by email
     const user = await User.findOne({ email: email.toLowerCase() }).populate("branch")
     if (!user) {
+      console.log("User not found for email:", email)
       return res.status(401).json({
         success: false,
         message: "Invalid email or password",
       })
     }
+
+    console.log("User found:", { id: user._id, email: user.email, role: user.role }) // Debug log
 
     // Check if user is active
     if (!user.isActive) {
@@ -179,9 +179,12 @@ export const login = async (req, res) => {
       })
     }
 
-    // Check password
-    const isPasswordValid = await bcrypt.compare(password, user.password)
+    // Check password using the model method
+    const isPasswordValid = await user.comparePassword(password)
+    console.log("Password validation result:", isPasswordValid) // Debug log
+
     if (!isPasswordValid) {
+      console.log("Invalid password for user:", email)
       return res.status(401).json({
         success: false,
         message: "Invalid email or password",
@@ -205,6 +208,8 @@ export const login = async (req, res) => {
       isActive: user.isActive,
       createdAt: user.createdAt,
     }
+
+    console.log("Login successful for user:", userResponse.email)
 
     res.json({
       success: true,

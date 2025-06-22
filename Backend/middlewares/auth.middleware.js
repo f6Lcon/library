@@ -46,3 +46,35 @@ export const authorize = (...roles) => {
     next()
   }
 }
+
+// New middleware for registration permissions
+export const canRegisterUsers = (req, res, next) => {
+  console.log("Registration permission check:", { userRole: req.user?.role }) // Debug log
+
+  if (!req.user) {
+    return res.status(401).json({ message: "Authentication required." })
+  }
+
+  // Admin can register anyone, librarian can register students and community members
+  if (req.user.role === "admin") {
+    return next()
+  }
+
+  if (req.user.role === "librarian") {
+    const { role } = req.body
+    if (role === "student" || role === "community") {
+      return next()
+    } else {
+      return res.status(403).json({
+        message: "Librarians can only register students and community members.",
+        userRole: req.user.role,
+        attemptedRole: role,
+      })
+    }
+  }
+
+  return res.status(403).json({
+    message: "Only administrators and librarians can register new users.",
+    userRole: req.user.role,
+  })
+}

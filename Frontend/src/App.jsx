@@ -1,38 +1,46 @@
 "use client"
 
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
-import { AuthProvider } from "./context/AuthContext"
-import { useAuth } from "./context/AuthContext"
+import { AuthProvider, useAuth } from "./context/AuthContext"
+import Navbar from "./components/Navbar"
+import Footer from "./components/Footer"
 import Homepage from "./pages/Homepage"
-import BooksPage from "./pages/BooksPage"
 import Login from "./pages/Login"
 import Register from "./pages/Register"
+import BooksPage from "./pages/BooksPage"
+import BookDetails from "./pages/BookDetails"
 import AdminDashboard from "./pages/AdminDashboard"
 import LibrarianDashboard from "./pages/LibrarianDashboard"
 import StudentDashboard from "./pages/StudentDashboard"
 import CommunityDashboard from "./pages/CommunityDashboard"
-import Navbar from "./components/Navbar"
-import Footer from "./components/Footer"
 import LoadingSpinner from "./components/LoadingSpinner"
 
-const ProtectedRoute = ({ children, allowedRoles }) => {
+// Protected Route Component
+const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const { user, loading } = useAuth()
 
-  if (loading) return <LoadingSpinner />
+  if (loading) {
+    return <LoadingSpinner />
+  }
 
-  if (!user) return <Navigate to="/login" />
+  if (!user) {
+    return <Navigate to="/login" replace />
+  }
 
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/unauthorized" />
+  if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
+    return <Navigate to="/unauthorized" replace />
   }
 
   return children
 }
 
-const DashboardRouter = () => {
+// Dashboard Route Component
+const DashboardRoute = () => {
   const { user } = useAuth()
 
-  if (!user) return <Navigate to="/login" />
+  if (!user) {
+    return <Navigate to="/login" replace />
+  }
 
   switch (user.role) {
     case "admin":
@@ -44,47 +52,68 @@ const DashboardRouter = () => {
     case "community":
       return <CommunityDashboard />
     default:
-      return <Navigate to="/login" />
+      return <Navigate to="/" replace />
   }
 }
 
+// Unauthorized Component
+const Unauthorized = () => (
+  <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-secondary-50">
+    <div className="text-center bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border border-white/50">
+      <div className="w-20 h-20 bg-gradient-to-br from-red-500 to-red-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
+        <span className="text-white text-2xl font-bold">403</span>
+      </div>
+      <h1 className="text-4xl font-bold text-red-600 mb-4">Access Denied</h1>
+      <p className="text-gray-600 mb-6">You don't have permission to access this resource.</p>
+      <button
+        onClick={() => window.history.back()}
+        className="inline-flex items-center space-x-2 text-primary-600 hover:text-primary-500 font-semibold"
+      >
+        <span>Go Back</span>
+      </button>
+    </div>
+  </div>
+)
+
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <div className="min-h-screen bg-gray-50 flex flex-col">
+    <Router
+      future={{
+        v7_relativeSplatPath: true,
+      }}
+    >
+      <AuthProvider>
+        <div className="App">
           <Navbar />
-          <main className="flex-grow pt-16 lg:pt-20">
-            <Routes>
-              <Route path="/" element={<Homepage />} />
-              <Route path="/books" element={<BooksPage />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <DashboardRouter />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/unauthorized"
-                element={
-                  <div className="flex items-center justify-center min-h-screen">
-                    <div className="text-center">
-                      <h1 className="text-4xl font-bold text-red-600 mb-4">403</h1>
-                      <p className="text-gray-600">Access Denied - Insufficient Permissions</p>
-                    </div>
-                  </div>
-                }
-              />
-            </Routes>
-          </main>
+          <Routes>
+            <Route path="/" element={<Homepage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/books" element={<BooksPage />} />
+            <Route path="/books/:id" element={<BookDetails />} />
+            <Route path="/unauthorized" element={<Unauthorized />} />
+
+            <Route
+              path="/register"
+              element={
+                <ProtectedRoute allowedRoles={["admin", "librarian"]}>
+                  <Register />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <DashboardRoute />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
           <Footer />
         </div>
-      </Router>
-    </AuthProvider>
+      </AuthProvider>
+    </Router>
   )
 }
 

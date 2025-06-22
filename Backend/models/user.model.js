@@ -58,8 +58,12 @@ const userSchema = new mongoose.Schema(
       required: [true, "Phone number is required"],
       trim: true,
       validate: {
-        validator: (v) => /^[+]?[1-9][\d]{0,15}$/.test(v),
-        message: "Please provide a valid phone number",
+        validator: (v) => {
+          // More flexible phone validation - accepts various formats
+          const phoneRegex = /^[+]?[1-9][\d\s\-$$$$]{7,15}$/
+          return phoneRegex.test(v.replace(/\s/g, ""))
+        },
+        message: "Please provide a valid phone number (e.g., +1234567890, (555) 123-4567, 555-123-4567)",
       },
     },
     address: {

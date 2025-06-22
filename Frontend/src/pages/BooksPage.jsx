@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { Link } from "react-router-dom"
 import { bookService } from "../services/bookService"
 import { motion, AnimatePresence } from "framer-motion"
 import {
@@ -144,14 +145,16 @@ const BooksPage = () => {
           </span>
         </div>
 
-        <motion.button
-          whileHover={{ scale: 1.01 }}
-          whileTap={{ scale: 0.99 }}
-          className="w-full mt-1.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white py-1.5 px-2 rounded-md text-xs font-semibold hover:shadow-sm transition-all duration-300 flex items-center justify-center"
-        >
-          <MdMenuBook className="w-3 h-3 mr-1" />
-          View Details
-        </motion.button>
+        <Link to={`/books/${book._id}`}>
+          <motion.button
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.99 }}
+            className="w-full mt-1.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white py-1.5 px-2 rounded-md text-xs font-semibold hover:shadow-sm transition-all duration-300 flex items-center justify-center"
+          >
+            <MdMenuBook className="w-3 h-3 mr-1" />
+            View Details
+          </motion.button>
+        </Link>
       </div>
     </motion.div>
   )
@@ -225,14 +228,16 @@ const BooksPage = () => {
               <MdFavorite className="w-3.5 h-3.5 text-red-500" />
             </motion.button>
 
-            <motion.button
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.99 }}
-              className="bg-gradient-to-r from-primary-500 to-primary-600 text-white py-1.5 px-3 rounded-md font-semibold hover:shadow-sm transition-all duration-300 flex items-center text-sm"
-            >
-              <MdMenuBook className="w-3.5 h-3.5 mr-1" />
-              View Details
-            </motion.button>
+            <Link to={`/books/${book._id}`}>
+              <motion.button
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                className="bg-gradient-to-r from-primary-500 to-primary-600 text-white py-1.5 px-3 rounded-md font-semibold hover:shadow-sm transition-all duration-300 flex items-center text-sm"
+              >
+                <MdMenuBook className="w-3.5 h-3.5 mr-1" />
+                View Details
+              </motion.button>
+            </Link>
           </div>
         </div>
       </div>

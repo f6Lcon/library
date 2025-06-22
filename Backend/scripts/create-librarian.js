@@ -16,64 +16,90 @@ const createLibrarianAccount = async () => {
 
     if (branches.length === 0) {
       console.log("❌ No active branches found. Please run the branch seeding script first.")
+      console.log("Run: node scripts/seed-branches.js")
       return
     }
 
-    console.log("📚 Available Branches:")
+    console.log("\n📚 Available Branches:")
     branches.forEach((branch, index) => {
       console.log(`   ${index + 1}. ${branch.name} (${branch.code})`)
     })
 
-    // For demo purposes, create a librarian for the main branch
-    const mainBranch = branches.find((b) => b.code === "KEY-MAIN") || branches[0]
+    // Use the first branch as default (you can modify this logic)
+    const defaultBranch = branches[0]
 
-    // Check if librarian already exists for this branch
+    // Check if librarian already exists
     const existingLibrarian = await User.findOne({
       role: "librarian",
-      branch: mainBranch._id,
+      email: "librarian@keylibrary.com",
     })
 
     if (existingLibrarian) {
-      console.log(`⚠️  Librarian already exists for ${mainBranch.name}:`)
+      console.log("⚠️  Default librarian account already exists:")
       console.log(`   📧 Email: ${existingLibrarian.email}`)
       console.log(`   👤 Name: ${existingLibrarian.firstName} ${existingLibrarian.lastName}`)
+      console.log(`   🏢 Branch: ${defaultBranch.name}`)
+      console.log("\n💡 If you forgot the password, you can update it manually in the database")
       return
     }
 
-    // Create librarian account
+    // Create librarian account with proper phone format
     const librarianData = {
-      firstName: "Sarah",
-      lastName: "Johnson",
+      firstName: "Library",
+      lastName: "Manager",
       email: "librarian@keylibrary.com",
-      password: "librarian123", // This will be hashed automatically
+      password: "librarian123", // This will be hashed automatically by the pre-save hook
       role: "librarian",
-      phone: "(555) 000-0002",
-      address: "456 Library Street, Book District",
+      phone: "+1-555-000-0002", // Updated to match validation pattern
+      address: `${defaultBranch.address}`,
       isActive: true,
-      branch: mainBranch._id,
+      branch: defaultBranch._id,
     }
+
+    console.log("Creating librarian with data:", {
+      ...librarianData,
+      password: "[HIDDEN]",
+    })
 
     const librarian = await User.create(librarianData)
 
-    console.log("\n🎉 Librarian account created successfully!")
+    console.log("🎉 Librarian account created successfully!")
     console.log("\n👤 Librarian Account Details:")
     console.log(`   📧 Email: ${librarian.email}`)
     console.log(`   🔑 Password: librarian123`)
     console.log(`   👤 Name: ${librarian.firstName} ${librarian.lastName}`)
-    console.log(`   🏢 Branch: ${mainBranch.name}`)
+    console.log(`   📞 Phone: ${librarian.phone}`)
+    console.log(`   🏢 Branch: ${defaultBranch.name}`)
     console.log(`   🆔 Role: ${librarian.role}`)
+
+    console.log("\n🔐 IMPORTANT SECURITY NOTES:")
+    console.log("   • Please change the default password after first login")
+    console.log("   • Use a strong password for production environments")
 
     console.log("\n✨ Librarian Capabilities:")
     console.log("   • Manage books in their assigned branch")
+    console.log("   • Register students and community members")
     console.log("   • Issue and return books")
-    console.log("   • View borrowing history and overdue books")
-    console.log("   • Manage student and community member accounts")
-    console.log("   • Generate branch reports")
+    console.log("   • View branch statistics and reports")
+    console.log("   • Manage borrowing records")
+
+    console.log("\n🚀 Next Steps:")
+    console.log("   1. Start the backend server: npm run dev")
+    console.log("   2. Start the frontend: npm run dev")
+    console.log("   3. Login with the librarian credentials")
+    console.log("   4. Go to Librarian Dashboard to manage books and users")
   } catch (error) {
     console.error("❌ Error creating librarian account:", error.message)
 
     if (error.code === 11000) {
       console.log("📧 Email already exists. Librarian might already be created.")
+    }
+
+    if (error.name === "ValidationError") {
+      console.log("Validation errors:")
+      Object.values(error.errors).forEach((err) => {
+        console.log(`   • ${err.path}: ${err.message}`)
+      })
     }
   } finally {
     // Close the connection
