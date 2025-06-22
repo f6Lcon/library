@@ -26,7 +26,6 @@ const BooksPage = () => {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedGenre, setSelectedGenre] = useState("")
   const [viewMode, setViewMode] = useState("grid") // grid or list
-  const [showFilters, setShowFilters] = useState(false)
   const [sortBy, setSortBy] = useState("title")
 
   const genres = ["Fiction", "Non-Fiction", "Science", "History", "Biography", "Technology", "Art", "Philosophy"]
@@ -34,7 +33,7 @@ const BooksPage = () => {
     { value: "title", label: "Title A-Z" },
     { value: "author", label: "Author A-Z" },
     { value: "year", label: "Publication Year" },
-    { value: "genre", label: "Genre" },
+    { value: "category", label: "Category" }, // Changed from genre to category
   ]
 
   useEffect(() => {
@@ -59,7 +58,7 @@ const BooksPage = () => {
       const matchesSearch =
         book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         book.author.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesGenre = !selectedGenre || book.genre === selectedGenre
+      const matchesGenre = !selectedGenre || book.category === selectedGenre // Changed from genre to category
       return matchesSearch && matchesGenre
     })
     .sort((a, b) => {
@@ -70,8 +69,8 @@ const BooksPage = () => {
           return a.author.localeCompare(b.author)
         case "year":
           return new Date(b.publishedYear) - new Date(a.publishedYear)
-        case "genre":
-          return a.genre.localeCompare(b.genre)
+        case "category": // Changed from genre to category
+          return a.category.localeCompare(b.category)
         default:
           return 0
       }
@@ -87,9 +86,9 @@ const BooksPage = () => {
     >
       <div className="relative mb-4">
         <div className="w-full h-48 bg-gradient-to-br from-primary-100 to-secondary-100 rounded-xl flex items-center justify-center overflow-hidden">
-          {book.coverImage ? (
+          {book.imageUrl ? (
             <img
-              src={book.coverImage || "/placeholder.svg"}
+              src={book.imageUrl || "/placeholder.svg"}
               alt={book.title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
@@ -123,7 +122,7 @@ const BooksPage = () => {
           </div>
           <div className="flex items-center">
             <FiTag className="w-4 h-4 mr-1" />
-            <span>{book.genre}</span>
+            <span>{book.category}</span> {/* Changed from genre to category */}
           </div>
         </div>
 
@@ -166,9 +165,9 @@ const BooksPage = () => {
     >
       <div className="flex items-center space-x-6">
         <div className="w-20 h-28 bg-gradient-to-br from-primary-100 to-secondary-100 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
-          {book.coverImage ? (
+          {book.imageUrl ? (
             <img
-              src={book.coverImage || "/placeholder.svg"}
+              src={book.imageUrl || "/placeholder.svg"}
               alt={book.title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
@@ -194,7 +193,7 @@ const BooksPage = () => {
             </div>
             <div className="flex items-center">
               <FiTag className="w-4 h-4 mr-1" />
-              <span>{book.genre}</span>
+              <span>{book.category}</span> {/* Changed from genre to category */}
             </div>
           </div>
 
@@ -306,7 +305,7 @@ const BooksPage = () => {
                   onChange={(e) => setSelectedGenre(e.target.value)}
                   className="appearance-none bg-white/50 border border-gray-300 rounded-xl px-4 py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
                 >
-                  <option value="">All Genres</option>
+                  <option value="">All Categories</option>
                   {genres.map((genre) => (
                     <option key={genre} value={genre}>
                       {genre}
@@ -367,7 +366,7 @@ const BooksPage = () => {
               )}
               {selectedGenre && (
                 <span className="inline-flex items-center bg-secondary-100 text-secondary-800 px-3 py-1 rounded-full text-sm">
-                  Genre: {selectedGenre}
+                  Category: {selectedGenre}
                   <button onClick={() => setSelectedGenre("")} className="ml-2 hover:text-secondary-600">
                     <FiX className="w-3 h-3" />
                   </button>

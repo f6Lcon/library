@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import {
   FiHome,
   FiBook,
-  FiBarChart3,
+  FiBarChart2, // Changed from FiBarChart3
   FiLogIn,
   FiUserPlus,
   FiLogOut,
@@ -113,7 +113,7 @@ const Navbar = () => {
           <div className="hidden lg:flex items-center space-x-2">
             <NavLink to="/" icon={FiHome} label="Home" />
             <NavLink to="/books" icon={FiBook} label="Browse Books" />
-            {user && <NavLink to="/dashboard" icon={FiBarChart3} label="Dashboard" />}
+            {user && <NavLink to="/dashboard" icon={FiBarChart2} label="Dashboard" />}
 
             {/* Divider */}
             <div className="w-px h-8 bg-white/20 mx-4"></div>
@@ -201,7 +201,7 @@ const Navbar = () => {
               <div className="py-4 space-y-2 border-t border-white/20">
                 <NavLink to="/" icon={FiHome} label="Home" />
                 <NavLink to="/books" icon={FiBook} label="Browse Books" />
-                {user && <NavLink to="/dashboard" icon={FiBarChart3} label="Dashboard" />}
+                {user && <NavLink to="/dashboard" icon={FiBarChart2} label="Dashboard" />}
 
                 {user ? (
                   <>

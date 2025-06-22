@@ -19,7 +19,7 @@ import {
   FiEyeOff,
   FiUsers,
   FiHome,
-  FiGraduationCap,
+  FiBook, // Changed from FiGraduationCap to FiBook
 } from "react-icons/fi"
 import { HiSparkles } from "react-icons/hi2"
 
@@ -42,8 +42,8 @@ const Register = () => {
   const [branches, setBranches] = useState([])
   const [fieldErrors, setFieldErrors] = useState({})
   const [touched, setTouched] = useState({})
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [showPassword, setShowConfirmPassword] = useState(false)
+  const [showConfirmPassword, setShowPassword] = useState(false)
 
   const { register } = useAuth()
   const navigate = useNavigate()
@@ -322,13 +322,13 @@ const Register = () => {
     if (user?.role === "admin") {
       return [
         { value: "community", label: "Community Member", icon: FiUsers },
-        { value: "student", label: "Student", icon: FiGraduationCap },
+        { value: "student", label: "Student", icon: FiBook }, // Changed icon
         { value: "librarian", label: "Librarian", icon: FiBookOpen },
       ]
     } else if (user?.role === "librarian") {
       return [
         { value: "community", label: "Community Member", icon: FiUsers },
-        { value: "student", label: "Student", icon: FiGraduationCap },
+        { value: "student", label: "Student", icon: FiBook }, // Changed icon
       ]
     }
     return []
@@ -599,7 +599,7 @@ const Register = () => {
                 {formData.role === "student" && (
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                      <FiGraduationCap className="w-4 h-4 mr-2" />
+                      <FiBook className="w-4 h-4 mr-2" /> {/* Changed from FiGraduationCap */}
                       Student ID *
                     </label>
                     <div className="relative">
@@ -613,7 +613,8 @@ const Register = () => {
                         className={getInputClass("studentId")}
                         placeholder="Enter student ID (letters and numbers only)"
                       />
-                      <FiGraduationCap className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                      <FiBook className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />{" "}
+                      {/* Changed icon */}
                     </div>
                     {renderFieldError("studentId")}
                     {renderFieldSuccess("studentId")}
