@@ -113,7 +113,7 @@ const StudentDashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <div className="inline-flex items-center bg-gradient-to-r from-primary-100 to-secondary-100 rounded-full px-4 py-2 mb-4">
-                <HiSparkles className="w-5 h-5 text-primary-500 mr-2" />
+                <HiSparkles className="w-5 h-5 text-primary-600 mr-2" />
                 <span className="text-sm font-semibold text-primary-700">Student Portal</span>
               </div>
               <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2 font-display">
@@ -122,7 +122,7 @@ const StudentDashboard = () => {
               <p className="text-gray-600">Discover new books and manage your reading journey</p>
             </div>
             <div className="hidden lg:flex items-center space-x-4">
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-white/50">
+              <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-primary-100">
                 <div className="flex items-center space-x-3">
                   <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center">
                     <FiBarChart2 className="w-6 h-6 text-white" />
@@ -152,7 +152,7 @@ const StudentDashboard = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white/80 backdrop-blur-sm rounded-2xl p-2 shadow-lg border border-white/50 mb-8"
+          className="bg-white/90 backdrop-blur-sm rounded-2xl p-2 shadow-lg border border-primary-100 mb-8"
         >
           <div className="flex space-x-2">
             {[
@@ -164,7 +164,7 @@ const StudentDashboard = () => {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
                   activeTab === tab.id
-                    ? "bg-gradient-to-r from-primary-500 to-secondary-500 text-white shadow-lg"
+                    ? "bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg"
                     : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                 }`}
               >
@@ -186,7 +186,7 @@ const StudentDashboard = () => {
               transition={{ duration: 0.3 }}
             >
               {/* Search Filters */}
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/50 mb-8">
+              <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-primary-100 mb-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
@@ -199,7 +199,7 @@ const StudentDashboard = () => {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         placeholder="Search by title, author, or ISBN..."
-                        className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-white/50"
+                        className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-white/70"
                       />
                       <FiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                     </div>
@@ -213,7 +213,7 @@ const StudentDashboard = () => {
                       <select
                         value={selectedCategory}
                         onChange={(e) => setSelectedCategory(e.target.value)}
-                        className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-white/50 appearance-none"
+                        className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-white/70 appearance-none"
                       >
                         <option value="">All Categories</option>
                         {categories.map((category) => (
@@ -228,16 +228,16 @@ const StudentDashboard = () => {
                 </div>
               </div>
 
-              {/* Books Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {/* Books Grid - 5 columns */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-4">
                 {books.map((book, index) => (
                   <motion.div
                     key={book._id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    whileHover={{ y: -5 }}
-                    className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group border border-white/50"
+                    transition={{ delay: index * 0.05 }}
+                    whileHover={{ y: -3, scale: 1.02 }}
+                    className="bg-white/90 backdrop-blur-sm rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden group border border-primary-100"
                   >
                     {/* Book Image */}
                     <div className="aspect-[2/3] overflow-hidden bg-gradient-to-br from-primary-50 to-secondary-50 relative">
@@ -250,62 +250,62 @@ const StudentDashboard = () => {
                         }}
                       />
                       {/* Availability badge */}
-                      <div className="absolute top-3 right-3">
+                      <div className="absolute top-2 right-2">
                         <span
-                          className={`text-xs px-3 py-1 rounded-full font-bold shadow-lg ${
-                            book.availableCopies > 0 ? "bg-green-500 text-white" : "bg-red-500 text-white"
+                          className={`text-xs px-2 py-1 rounded-full font-bold shadow-lg ${
+                            book.availableCopies > 0 ? "bg-primary-500 text-white" : "bg-red-500 text-white"
                           }`}
                         >
-                          {book.availableCopies > 0 ? `${book.availableCopies} Available` : "Out of Stock"}
+                          {book.availableCopies > 0 ? `${book.availableCopies}` : "Out"}
                         </span>
                       </div>
                     </div>
 
-                    <div className="p-6">
+                    <div className="p-4">
                       {/* Title and Author */}
-                      <div className="mb-4">
-                        <h3 className="text-lg font-bold text-gray-900 line-clamp-2 leading-tight mb-2 group-hover:text-primary-600 transition-colors">
+                      <div className="mb-3">
+                        <h3 className="text-sm font-bold text-gray-900 line-clamp-2 leading-tight mb-1 group-hover:text-primary-600 transition-colors">
                           {book.title}
                         </h3>
-                        <p className="text-gray-600 flex items-center" title={book.author}>
-                          <FiUser className="w-4 h-4 mr-2" />
+                        <p className="text-xs text-gray-600 flex items-center truncate" title={book.author}>
+                          <FiUser className="w-3 h-3 mr-1" />
                           {book.author}
                         </p>
                       </div>
 
                       {/* Category and Branch */}
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="text-sm text-primary-600 font-bold bg-primary-100 px-3 py-1 rounded-lg flex items-center">
-                          <FiTag className="w-4 h-4 mr-1" />
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs text-primary-600 font-bold bg-primary-100 px-2 py-1 rounded-lg flex items-center">
+                          <FiTag className="w-3 h-3 mr-1" />
                           {book.category}
                         </span>
                         {book.branch && (
-                          <span className="text-sm text-gray-500 font-mono bg-gray-100 px-3 py-1 rounded flex items-center">
-                            <FiMapPin className="w-4 h-4 mr-1" />
+                          <span className="text-xs text-gray-500 font-mono bg-gray-100 px-2 py-1 rounded flex items-center">
+                            <FiMapPin className="w-3 h-3 mr-1" />
                             {book.branch.code}
                           </span>
                         )}
                       </div>
 
                       {/* Book Details */}
-                      <div className="text-sm text-gray-500 mb-4 space-y-2">
+                      <div className="text-xs text-gray-500 mb-3 space-y-1">
                         <div className="flex justify-between items-center">
                           <span className="flex items-center">
-                            <FiCalendar className="w-4 h-4 mr-1" />
+                            <FiCalendar className="w-3 h-3 mr-1" />
                             Year:
                           </span>
                           <span className="font-medium">{book.publishedYear}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="flex items-center">
-                            <FiBook className="w-4 h-4 mr-1" />
+                            <FiBook className="w-3 h-3 mr-1" />
                             Pages:
                           </span>
                           <span className="font-medium">{book.pages}</span>
                         </div>
                         <div className="flex justify-between items-center font-bold">
                           <span>Stock:</span>
-                          <span className={book.availableCopies > 0 ? "text-green-600" : "text-red-600"}>
+                          <span className={book.availableCopies > 0 ? "text-primary-600" : "text-red-600"}>
                             {book.availableCopies}/{book.totalCopies}
                           </span>
                         </div>
@@ -315,9 +315,9 @@ const StudentDashboard = () => {
                       <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        className="w-full bg-gradient-to-r from-primary-500 to-secondary-500 text-white py-3 px-4 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 flex items-center justify-center space-x-2"
+                        className="w-full bg-gradient-to-r from-primary-500 to-primary-600 text-white py-2 px-3 rounded-lg text-xs font-semibold hover:shadow-md transition-all duration-300 flex items-center justify-center space-x-1"
                       >
-                        <FiBookOpen className="w-5 h-5" />
+                        <FiBookOpen className="w-3 h-3" />
                         <span>Request Book</span>
                       </motion.button>
                     </div>
@@ -339,7 +339,7 @@ const StudentDashboard = () => {
                       setSearchTerm("")
                       setSelectedCategory("")
                     }}
-                    className="bg-gradient-to-r from-primary-500 to-secondary-500 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-200 flex items-center space-x-2 mx-auto"
+                    className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-200 flex items-center space-x-2 mx-auto"
                   >
                     <FiRefreshCw className="w-5 h-5" />
                     <span>Reset Filters</span>
@@ -358,7 +358,7 @@ const StudentDashboard = () => {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
             >
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 overflow-hidden">
+              <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-primary-100 overflow-hidden">
                 <div className="p-6 border-b border-gray-200">
                   <h2 className="text-xl font-bold text-gray-900 flex items-center">
                     <FiClock className="w-6 h-6 mr-3 text-primary-500" />
@@ -405,7 +405,7 @@ const StudentDashboard = () => {
                             <span
                               className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
                                 borrow.status === "returned"
-                                  ? "bg-green-100 text-green-800"
+                                  ? "bg-primary-100 text-primary-800"
                                   : borrow.status === "overdue"
                                     ? "bg-red-100 text-red-800"
                                     : "bg-yellow-100 text-yellow-800"

@@ -33,7 +33,7 @@ const BooksPage = () => {
     { value: "title", label: "Title A-Z" },
     { value: "author", label: "Author A-Z" },
     { value: "year", label: "Publication Year" },
-    { value: "category", label: "Category" }, // Changed from genre to category
+    { value: "category", label: "Category" },
   ]
 
   useEffect(() => {
@@ -58,7 +58,7 @@ const BooksPage = () => {
       const matchesSearch =
         book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         book.author.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesGenre = !selectedGenre || book.category === selectedGenre // Changed from genre to category
+      const matchesGenre = !selectedGenre || book.category === selectedGenre
       return matchesSearch && matchesGenre
     })
     .sort((a, b) => {
@@ -69,7 +69,7 @@ const BooksPage = () => {
           return a.author.localeCompare(b.author)
         case "year":
           return new Date(b.publishedYear) - new Date(a.publishedYear)
-        case "category": // Changed from genre to category
+        case "category":
           return a.category.localeCompare(b.category)
         default:
           return 0
@@ -80,91 +80,12 @@ const BooksPage = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.1 }}
-      whileHover={{ y: -5 }}
-      className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/50 group"
-    >
-      <div className="relative mb-4">
-        <div className="w-full h-48 bg-gradient-to-br from-primary-100 to-secondary-100 rounded-xl flex items-center justify-center overflow-hidden">
-          {book.imageUrl ? (
-            <img
-              src={book.imageUrl || "/placeholder.svg"}
-              alt={book.title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            />
-          ) : (
-            <FiBook className="w-16 h-16 text-primary-500" />
-          )}
-        </div>
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className="absolute top-2 right-2 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-colors"
-        >
-          <FiHeart className="w-4 h-4 text-red-500" />
-        </motion.button>
-      </div>
-
-      <div className="space-y-3">
-        <h3 className="text-lg font-bold text-gray-900 line-clamp-2 group-hover:text-primary-600 transition-colors">
-          {book.title}
-        </h3>
-
-        <div className="flex items-center text-gray-600">
-          <FiUser className="w-4 h-4 mr-2" />
-          <span className="text-sm">{book.author}</span>
-        </div>
-
-        <div className="flex items-center justify-between text-sm text-gray-500">
-          <div className="flex items-center">
-            <FiCalendar className="w-4 h-4 mr-1" />
-            <span>{book.publishedYear}</span>
-          </div>
-          <div className="flex items-center">
-            <FiTag className="w-4 h-4 mr-1" />
-            <span>{book.category}</span> {/* Changed from genre to category */}
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between pt-2">
-          <div className="flex items-center">
-            <div className="flex text-yellow-400">
-              {[...Array(5)].map((_, i) => (
-                <FiStar key={i} className="w-4 h-4 fill-current" />
-              ))}
-            </div>
-            <span className="text-sm text-gray-600 ml-2">4.5</span>
-          </div>
-          <span
-            className={`px-3 py-1 rounded-full text-xs font-medium ${
-              book.availableCopies > 0 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-            }`}
-          >
-            {book.availableCopies > 0 ? "Available" : "Borrowed"}
-          </span>
-        </div>
-
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="w-full mt-4 bg-gradient-to-r from-primary-500 to-secondary-500 text-white py-2 px-4 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 flex items-center justify-center"
-        >
-          <FiBookOpen className="w-4 h-4 mr-2" />
-          View Details
-        </motion.button>
-      </div>
-    </motion.div>
-  )
-
-  const BookListItem = ({ book, index }) => (
-    <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.05 }}
-      className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/50 group"
+      whileHover={{ y: -3, scale: 1.02 }}
+      className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-300 border border-primary-100 group"
     >
-      <div className="flex items-center space-x-6">
-        <div className="w-20 h-28 bg-gradient-to-br from-primary-100 to-secondary-100 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+      <div className="relative mb-3">
+        <div className="w-full h-32 bg-gradient-to-br from-primary-50 to-secondary-50 rounded-lg flex items-center justify-center overflow-hidden">
           {book.imageUrl ? (
             <img
               src={book.imageUrl || "/placeholder.svg"}
@@ -175,25 +96,104 @@ const BooksPage = () => {
             <FiBook className="w-8 h-8 text-primary-500" />
           )}
         </div>
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          className="absolute top-1 right-1 w-6 h-6 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md hover:bg-white transition-colors"
+        >
+          <FiHeart className="w-3 h-3 text-red-500" />
+        </motion.button>
+      </div>
+
+      <div className="space-y-2">
+        <h3 className="text-sm font-bold text-gray-900 line-clamp-2 group-hover:text-primary-600 transition-colors leading-tight">
+          {book.title}
+        </h3>
+
+        <div className="flex items-center text-gray-600">
+          <FiUser className="w-3 h-3 mr-1" />
+          <span className="text-xs truncate">{book.author}</span>
+        </div>
+
+        <div className="flex items-center justify-between text-xs text-gray-500">
+          <div className="flex items-center">
+            <FiCalendar className="w-3 h-3 mr-1" />
+            <span>{book.publishedYear}</span>
+          </div>
+          <div className="flex items-center">
+            <FiTag className="w-3 h-3 mr-1" />
+            <span className="truncate max-w-16">{book.category}</span>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between pt-1">
+          <div className="flex items-center">
+            <div className="flex text-yellow-400">
+              {[...Array(5)].map((_, i) => (
+                <FiStar key={i} className="w-3 h-3 fill-current" />
+              ))}
+            </div>
+            <span className="text-xs text-gray-600 ml-1">4.5</span>
+          </div>
+          <span
+            className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+              book.availableCopies > 0 ? "bg-primary-100 text-primary-800" : "bg-red-100 text-red-800"
+            }`}
+          >
+            {book.availableCopies > 0 ? "Available" : "Borrowed"}
+          </span>
+        </div>
+
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="w-full mt-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white py-2 px-3 rounded-lg text-xs font-semibold hover:shadow-md transition-all duration-300 flex items-center justify-center"
+        >
+          <FiBookOpen className="w-3 h-3 mr-1" />
+          View Details
+        </motion.button>
+      </div>
+    </motion.div>
+  )
+
+  const BookListItem = ({ book, index }) => (
+    <motion.div
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: index * 0.03 }}
+      className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-300 border border-primary-100 group"
+    >
+      <div className="flex items-center space-x-4">
+        <div className="w-16 h-20 bg-gradient-to-br from-primary-50 to-secondary-50 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+          {book.imageUrl ? (
+            <img
+              src={book.imageUrl || "/placeholder.svg"}
+              alt={book.title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          ) : (
+            <FiBook className="w-6 h-6 text-primary-500" />
+          )}
+        </div>
 
         <div className="flex-1 min-w-0">
-          <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-primary-600 transition-colors">
+          <h3 className="text-lg font-bold text-gray-900 mb-1 group-hover:text-primary-600 transition-colors">
             {book.title}
           </h3>
 
-          <div className="flex items-center text-gray-600 mb-2">
+          <div className="flex items-center text-gray-600 mb-1">
             <FiUser className="w-4 h-4 mr-2" />
-            <span>{book.author}</span>
+            <span className="text-sm">{book.author}</span>
           </div>
 
-          <div className="flex items-center space-x-4 text-sm text-gray-500 mb-3">
+          <div className="flex items-center space-x-4 text-sm text-gray-500 mb-2">
             <div className="flex items-center">
               <FiCalendar className="w-4 h-4 mr-1" />
               <span>{book.publishedYear}</span>
             </div>
             <div className="flex items-center">
               <FiTag className="w-4 h-4 mr-1" />
-              <span>{book.category}</span> {/* Changed from genre to category */}
+              <span>{book.category}</span>
             </div>
           </div>
 
@@ -207,10 +207,10 @@ const BooksPage = () => {
           </div>
         </div>
 
-        <div className="flex flex-col items-end space-y-3">
+        <div className="flex flex-col items-end space-y-2">
           <span
             className={`px-3 py-1 rounded-full text-xs font-medium ${
-              book.availableCopies > 0 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+              book.availableCopies > 0 ? "bg-primary-100 text-primary-800" : "bg-red-100 text-red-800"
             }`}
           >
             {book.availableCopies > 0 ? "Available" : "Borrowed"}
@@ -220,7 +220,7 @@ const BooksPage = () => {
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              className="w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-colors"
+              className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md hover:bg-white transition-colors"
             >
               <FiHeart className="w-4 h-4 text-red-500" />
             </motion.button>
@@ -228,7 +228,7 @@ const BooksPage = () => {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="bg-gradient-to-r from-primary-500 to-secondary-500 text-white py-2 px-4 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 flex items-center"
+              className="bg-gradient-to-r from-primary-500 to-primary-600 text-white py-2 px-4 rounded-lg font-semibold hover:shadow-md transition-all duration-300 flex items-center text-sm"
             >
               <FiBookOpen className="w-4 h-4 mr-2" />
               View Details
@@ -268,7 +268,7 @@ const BooksPage = () => {
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
           <div className="inline-flex items-center bg-gradient-to-r from-primary-100 to-secondary-100 rounded-full px-6 py-2 mb-6">
-            <HiSparkles className="w-5 h-5 text-primary-500 mr-2" />
+            <HiSparkles className="w-5 h-5 text-primary-600 mr-2" />
             <span className="text-sm font-semibold text-primary-700">Discover Amazing Books</span>
           </div>
           <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4 font-display">Browse Our Collection</h1>
@@ -282,7 +282,7 @@ const BooksPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/50 mb-8"
+          className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-primary-100 mb-8"
         >
           <div className="flex flex-col lg:flex-row gap-4 items-center">
             {/* Search */}
@@ -293,7 +293,7 @@ const BooksPage = () => {
                 placeholder="Search books by title or author..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-white/50"
+                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-white/70"
               />
             </div>
 
@@ -303,7 +303,7 @@ const BooksPage = () => {
                 <select
                   value={selectedGenre}
                   onChange={(e) => setSelectedGenre(e.target.value)}
-                  className="appearance-none bg-white/50 border border-gray-300 rounded-xl px-4 py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                  className="appearance-none bg-white/70 border border-gray-300 rounded-xl px-4 py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
                 >
                   <option value="">All Categories</option>
                   {genres.map((genre) => (
@@ -319,7 +319,7 @@ const BooksPage = () => {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="appearance-none bg-white/50 border border-gray-300 rounded-xl px-4 py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                  className="appearance-none bg-white/70 border border-gray-300 rounded-xl px-4 py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
                 >
                   {sortOptions.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -407,7 +407,7 @@ const BooksPage = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-4"
               >
                 {filteredBooks.map((book, index) => (
                   <BookCard key={book._id} book={book} index={index} />
