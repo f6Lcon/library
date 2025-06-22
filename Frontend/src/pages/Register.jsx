@@ -242,6 +242,10 @@ const Register = () => {
     // Validate all fields
     let allErrors = {}
     Object.keys(formData).forEach((field) => {
+      // Skip studentId validation if role is not student
+      if (field === "studentId" && formData.role !== "student") {
+        return
+      }
       const fieldError = validateField(field, formData[field])
       allErrors = { ...allErrors, ...fieldError }
     })

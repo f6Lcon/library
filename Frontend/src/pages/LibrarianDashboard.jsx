@@ -9,6 +9,7 @@ import BorrowForm from "../components/BorrowForm"
 import { Link } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
 import LoadingSpinner from "../components/LoadingSpinner"
+import BookCard from "../components/BookCard"
 
 const LibrarianDashboard = () => {
   const { user } = useAuth()
@@ -292,47 +293,20 @@ const LibrarianDashboard = () => {
                     </button>
                   </div>
                 ) : (
-                  <div className="grid gap-4">
-                    {books.map((book) => (
-                      <div
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                    {books.map((book, index) => (
+                      <BookCard
                         key={book._id}
-                        className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors duration-200"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <h3 className="text-lg font-medium text-gray-900">{book.title}</h3>
-                            <p className="text-sm text-gray-600">by {book.author}</p>
-                            <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-gray-500">
-                              <span>ISBN: {book.isbn}</span>
-                              <span>Category: {book.category}</span>
-                              <span
-                                className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                  book.availableCopies > 0 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                                }`}
-                              >
-                                Available: {book.availableCopies}/{book.totalCopies}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="flex space-x-3">
-                            <button
-                              onClick={() => {
-                                setEditingBook(book)
-                                setShowBookForm(true)
-                              }}
-                              className="text-teal-600 hover:text-teal-900 font-medium"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => handleDeleteBook(book._id)}
-                              className="text-red-600 hover:text-red-900 font-medium"
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        </div>
-                      </div>
+                        book={book}
+                        index={index}
+                        showActions={true}
+                        onEdit={(book) => {
+                          setEditingBook(book)
+                          setShowBookForm(true)
+                        }}
+                        onDelete={handleDeleteBook}
+                        variant="grid"
+                      />
                     ))}
                   </div>
                 )}
