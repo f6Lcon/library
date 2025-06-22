@@ -49,6 +49,7 @@ const IssueBookModal = ({ book, isOpen, onClose, onSuccess }) => {
         activeOnly: true,
         limit: 100,
       })
+      console.log("Fetched students:", response)
       setStudents(response.users || [])
       setFilteredStudents(response.users || [])
     } catch (err) {
@@ -71,17 +72,23 @@ const IssueBookModal = ({ book, isOpen, onClose, onSuccess }) => {
       setIssuing(true)
       setError("")
 
-      await borrowService.borrowBook({
+      console.log("Issuing book:", {
         bookId: book._id,
         borrowerId: selectedStudent,
       })
 
+      const result = await borrowService.borrowBook({
+        bookId: book._id,
+        borrowerId: selectedStudent,
+      })
+
+      console.log("Book issued successfully:", result)
       toast.success("Book issued successfully!")
       onSuccess()
       onClose()
     } catch (err) {
       console.error("Error issuing book:", err)
-      const errorMessage = err.response?.data?.message || "Failed to issue book"
+      const errorMessage = err.response?.data?.message || err.message || "Failed to issue book"
       setError(errorMessage)
       toast.error(errorMessage)
     } finally {

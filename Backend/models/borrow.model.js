@@ -54,4 +54,10 @@ const borrowSchema = new mongoose.Schema(
   },
 )
 
+// Index for better query performance
+borrowSchema.index({ borrower: 1, status: 1 })
+borrowSchema.index({ book: 1, status: 1 })
+borrowSchema.index({ dueDate: 1, status: 1 })
+borrowSchema.index({ branch: 1 })
+
 export default mongoose.model("Borrow", borrowSchema)

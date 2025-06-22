@@ -1,13 +1,35 @@
 import Borrow from "../models/borrow.model.js"
 import Book from "../models/book.model.js"
+import User from "../models/user.model.js"
 
 export const borrowBook = async (req, res) => {
   try {
     const { bookId, borrowerId } = req.body
 
+    console.log("Borrow request:", { bookId, borrowerId, userId: req.user._id })
+
+    // Validate required fields
+    if (!bookId || !borrowerId) {
+      return res.status(400).json({
+        message: "Book ID and Borrower ID are required",
+        received: { bookId, borrowerId },
+      })
+    }
+
+    // Find the book
     const book = await Book.findById(bookId)
-    if (!book || book.availableCopies <= 0) {
+    if (!book) {
+      return res.status(404).json({ message: "Book not found" })
+    }
+
+    if (book.availableCopies <= 0) {
       return res.status(400).json({ message: "Book not available for borrowing" })
+    }
+
+    // Find the borrower
+    const borrower = await User.findById(borrowerId)
+    if (!borrower) {
+      return res.status(404).json({ message: "Borrower not found" })
     }
 
     // Check if user already has this book borrowed
@@ -25,24 +47,45 @@ export const borrowBook = async (req, res) => {
     const dueDate = new Date()
     dueDate.setDate(dueDate.getDate() + 14) // 2 weeks borrowing period
 
-    const borrow = new Borrow({
+    const borrowData = {
       book: bookId,
       borrower: borrowerId,
       dueDate,
       issuedBy: req.user._id,
-    })
+      branch: borrower.branch || req.user.branch, // Use borrower's branch or issuer's branch
+    }
 
+    console.log("Creating borrow with data:", borrowData)
+
+    const borrow = new Borrow(borrowData)
     await borrow.save()
 
     // Update book availability
     book.availableCopies -= 1
     await book.save()
 
-    await borrow.populate(["book", "borrower", "issuedBy"])
+    // Populate the borrow record for response
+    await borrow.populate([
+      { path: "book", select: "title author isbn" },
+      { path: "borrower", select: "firstName lastName email studentId" },
+      { path: "issuedBy", select: "firstName lastName" },
+      { path: "branch", select: "name" },
+    ])
 
-    res.status(201).json({ message: "Book borrowed successfully", borrow })
+    console.log("Book borrowed successfully:", borrow)
+
+    res.status(201).json({
+      message: "Book borrowed successfully",
+      borrow,
+      success: true,
+    })
   } catch (error) {
-    res.status(500).json({ message: "Failed to borrow book", error: error.message })
+    console.error("Error in borrowBook:", error)
+    res.status(500).json({
+      message: "Failed to borrow book",
+      error: error.message,
+      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+    })
   }
 }
 
@@ -75,10 +118,15 @@ export const returnBook = async (req, res) => {
     book.availableCopies += 1
     await book.save()
 
-    await borrow.populate(["borrower", "issuedBy", "returnedBy"])
+    await borrow.populate([
+      { path: "borrower", select: "firstName lastName email" },
+      { path: "issuedBy", select: "firstName lastName" },
+      { path: "returnedBy", select: "firstName lastName" },
+    ])
 
     res.json({ message: "Book returned successfully", borrow })
   } catch (error) {
+    console.error("Error in returnBook:", error)
     res.status(500).json({ message: "Failed to return book", error: error.message })
   }
 }
@@ -92,10 +140,11 @@ export const getBorrowHistory = async (req, res) => {
     if (status) query.status = status
 
     const borrows = await Borrow.find(query)
-      .populate("book", "title author isbn")
+      .populate("book", "title author isbn imageUrl")
       .populate("borrower", "firstName lastName email")
       .populate("issuedBy", "firstName lastName")
       .populate("returnedBy", "firstName lastName")
+      .populate("branch", "name")
       .limit(limit * 1)
       .skip((page - 1) * limit)
       .sort({ borrowDate: -1 })
@@ -109,6 +158,7 @@ export const getBorrowHistory = async (req, res) => {
       total,
     })
   } catch (error) {
+    console.error("Error in getBorrowHistory:", error)
     res.status(500).json({ message: "Failed to fetch borrow history", error: error.message })
   }
 }
@@ -120,11 +170,17 @@ export const getAllBorrows = async (req, res) => {
 
     if (status) query.status = status
 
+    // If user is librarian, only show borrows from their branch
+    if (req.user.role === "librarian") {
+      query.branch = req.user.branch
+    }
+
     const borrows = await Borrow.find(query)
-      .populate("book", "title author isbn")
+      .populate("book", "title author isbn imageUrl")
       .populate("borrower", "firstName lastName email studentId")
       .populate("issuedBy", "firstName lastName")
       .populate("returnedBy", "firstName lastName")
+      .populate("branch", "name")
       .limit(limit * 1)
       .skip((page - 1) * limit)
       .sort({ borrowDate: -1 })
@@ -138,6 +194,7 @@ export const getAllBorrows = async (req, res) => {
       total,
     })
   } catch (error) {
+    console.error("Error in getAllBorrows:", error)
     res.status(500).json({ message: "Failed to fetch borrows", error: error.message })
   }
 }
@@ -145,16 +202,25 @@ export const getAllBorrows = async (req, res) => {
 export const getOverdueBooks = async (req, res) => {
   try {
     const today = new Date()
-    const overdueBooks = await Borrow.find({
+    const query = {
       status: "borrowed",
       dueDate: { $lt: today },
-    })
-      .populate("book", "title author isbn")
+    }
+
+    // If user is librarian, only show overdue books from their branch
+    if (req.user.role === "librarian") {
+      query.branch = req.user.branch
+    }
+
+    const overdueBooks = await Borrow.find(query)
+      .populate("book", "title author isbn imageUrl")
       .populate("borrower", "firstName lastName email phone")
+      .populate("branch", "name")
       .sort({ dueDate: 1 })
 
     res.json({ overdueBooks })
   } catch (error) {
+    console.error("Error in getOverdueBooks:", error)
     res.status(500).json({ message: "Failed to fetch overdue books", error: error.message })
   }
 }

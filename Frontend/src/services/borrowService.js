@@ -1,81 +1,55 @@
-const API_BASE_URL = "http://localhost:5000/api"
-
-const getAuthHeaders = () => {
-  const token = localStorage.getItem("token")
-  return {
-    "Content-Type": "application/json",
-    ...(token && { Authorization: `Bearer ${token}` }),
-  }
-}
+import api from "./api"
 
 export const borrowService = {
-  async borrowBook(bookId, borrowerId) {
-    const response = await fetch(`${API_BASE_URL}/borrow`, {
-      method: "POST",
-      headers: getAuthHeaders(),
-      body: JSON.stringify({ bookId, borrowerId }),
-    })
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.message || "Failed to borrow book")
+  async borrowBook(data) {
+    try {
+      console.log("Sending borrow request:", data)
+      const response = await api.post("/borrow", data)
+      console.log("Borrow response:", response.data)
+      return response.data
+    } catch (error) {
+      console.error("Error in borrowBook:", error)
+      throw error
     }
-
-    return response.json()
   },
 
   async returnBook(borrowId) {
-    const response = await fetch(`${API_BASE_URL}/borrow/return/${borrowId}`, {
-      method: "PUT",
-      headers: getAuthHeaders(),
-    })
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.message || "Failed to return book")
+    try {
+      const response = await api.put(`/borrow/return/${borrowId}`)
+      return response.data
+    } catch (error) {
+      console.error("Error in returnBook:", error)
+      throw error
     }
-
-    return response.json()
   },
 
   async getBorrowHistory(userId, params = {}) {
-    const queryString = new URLSearchParams(params).toString()
-    const response = await fetch(`${API_BASE_URL}/borrow/history/${userId}?${queryString}`, {
-      headers: getAuthHeaders(),
-    })
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.message || "Failed to fetch borrow history")
+    try {
+      const response = await api.get(`/borrow/history/${userId}`, { params })
+      return response.data
+    } catch (error) {
+      console.error("Error in getBorrowHistory:", error)
+      throw error
     }
-
-    return response.json()
   },
 
   async getAllBorrows(params = {}) {
-    const queryString = new URLSearchParams(params).toString()
-    const response = await fetch(`${API_BASE_URL}/borrow?${queryString}`, {
-      headers: getAuthHeaders(),
-    })
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.message || "Failed to fetch borrows")
+    try {
+      const response = await api.get("/borrow", { params })
+      return response.data
+    } catch (error) {
+      console.error("Error in getAllBorrows:", error)
+      throw error
     }
-
-    return response.json()
   },
 
   async getOverdueBooks() {
-    const response = await fetch(`${API_BASE_URL}/borrow/overdue`, {
-      headers: getAuthHeaders(),
-    })
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.message || "Failed to fetch overdue books")
+    try {
+      const response = await api.get("/borrow/overdue")
+      return response.data
+    } catch (error) {
+      console.error("Error in getOverdueBooks:", error)
+      throw error
     }
-
-    return response.json()
   },
 }
