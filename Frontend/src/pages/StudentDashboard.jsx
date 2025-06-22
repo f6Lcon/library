@@ -5,19 +5,8 @@ import { bookService } from "../services/bookService"
 import { borrowService } from "../services/borrowService"
 import { useAuth } from "../context/AuthContext"
 import { motion, AnimatePresence } from "framer-motion"
-import {
-  FiBook,
-  FiBookOpen,
-  FiUser,
-  FiCalendar,
-  FiClock,
-  FiSearch,
-  FiFilter,
-  FiTag,
-  FiMapPin,
-  FiBarChart2,
-  FiRefreshCw,
-} from "react-icons/fi"
+import BookCard from "../components/BookCard"
+import { FiBook, FiClock, FiSearch, FiFilter, FiBarChart2, FiRefreshCw } from "react-icons/fi"
 import { HiSparkles } from "react-icons/hi2"
 
 const StudentDashboard = () => {
@@ -120,6 +109,11 @@ const StudentDashboard = () => {
                 Welcome back, {user?.firstName}!
               </h1>
               <p className="text-gray-600">Discover new books and manage your reading journey</p>
+              {user?.branch && (
+                <p className="text-sm text-primary-600 font-medium mt-1">
+                  Your library: {user.branch.name} ({user.branch.code})
+                </p>
+              )}
             </div>
             <div className="hidden lg:flex items-center space-x-4">
               <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-primary-100">
@@ -228,100 +222,17 @@ const StudentDashboard = () => {
                 </div>
               </div>
 
-              {/* Books Grid - 5 columns */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-4">
+              {/* Books Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
                 {books.map((book, index) => (
-                  <motion.div
+                  <BookCard
                     key={book._id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    whileHover={{ y: -3, scale: 1.02 }}
-                    className="bg-white/90 backdrop-blur-sm rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden group border border-primary-100"
-                  >
-                    {/* Book Image */}
-                    <div className="aspect-[2/3] overflow-hidden bg-gradient-to-br from-primary-50 to-secondary-50 relative">
-                      <img
-                        src={book.imageUrl || "/placeholder.svg?height=300&width=200"}
-                        alt={`${book.title} cover`}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        onError={(e) => {
-                          e.target.src = "/placeholder.svg?height=300&width=200"
-                        }}
-                      />
-                      {/* Availability badge */}
-                      <div className="absolute top-2 right-2">
-                        <span
-                          className={`text-xs px-2 py-1 rounded-full font-bold shadow-lg ${
-                            book.availableCopies > 0 ? "bg-primary-500 text-white" : "bg-red-500 text-white"
-                          }`}
-                        >
-                          {book.availableCopies > 0 ? `${book.availableCopies}` : "Out"}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="p-4">
-                      {/* Title and Author */}
-                      <div className="mb-3">
-                        <h3 className="text-sm font-bold text-gray-900 line-clamp-2 leading-tight mb-1 group-hover:text-primary-600 transition-colors">
-                          {book.title}
-                        </h3>
-                        <p className="text-xs text-gray-600 flex items-center truncate" title={book.author}>
-                          <FiUser className="w-3 h-3 mr-1" />
-                          {book.author}
-                        </p>
-                      </div>
-
-                      {/* Category and Branch */}
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-xs text-primary-600 font-bold bg-primary-100 px-2 py-1 rounded-lg flex items-center">
-                          <FiTag className="w-3 h-3 mr-1" />
-                          {book.category}
-                        </span>
-                        {book.branch && (
-                          <span className="text-xs text-gray-500 font-mono bg-gray-100 px-2 py-1 rounded flex items-center">
-                            <FiMapPin className="w-3 h-3 mr-1" />
-                            {book.branch.code}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Book Details */}
-                      <div className="text-xs text-gray-500 mb-3 space-y-1">
-                        <div className="flex justify-between items-center">
-                          <span className="flex items-center">
-                            <FiCalendar className="w-3 h-3 mr-1" />
-                            Year:
-                          </span>
-                          <span className="font-medium">{book.publishedYear}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="flex items-center">
-                            <FiBook className="w-3 h-3 mr-1" />
-                            Pages:
-                          </span>
-                          <span className="font-medium">{book.pages}</span>
-                        </div>
-                        <div className="flex justify-between items-center font-bold">
-                          <span>Stock:</span>
-                          <span className={book.availableCopies > 0 ? "text-primary-600" : "text-red-600"}>
-                            {book.availableCopies}/{book.totalCopies}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Action Button */}
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        className="w-full bg-gradient-to-r from-primary-500 to-primary-600 text-white py-2 px-3 rounded-lg text-xs font-semibold hover:shadow-md transition-all duration-300 flex items-center justify-center space-x-1"
-                      >
-                        <FiBookOpen className="w-3 h-3" />
-                        <span>Request Book</span>
-                      </motion.button>
-                    </div>
-                  </motion.div>
+                    book={book}
+                    index={index}
+                    showActions={false}
+                    showBranchInfo={false}
+                    variant="grid"
+                  />
                 ))}
               </div>
 

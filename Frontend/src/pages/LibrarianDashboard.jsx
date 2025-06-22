@@ -6,10 +6,13 @@ import { borrowService } from "../services/borrowService"
 import { userService } from "../services/userService"
 import BookForm from "../components/BookForm"
 import BorrowForm from "../components/BorrowForm"
+import IssueBookModal from "../components/IssueBookModal"
 import { Link } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
 import LoadingSpinner from "../components/LoadingSpinner"
 import BookCard from "../components/BookCard"
+import { motion } from "framer-motion"
+import { FiBook, FiUsers, FiClock, FiAlertTriangle, FiPlus, FiRefreshCw, FiUserPlus, FiBookOpen } from "react-icons/fi"
 
 const LibrarianDashboard = () => {
   const { user } = useAuth()
@@ -20,6 +23,8 @@ const LibrarianDashboard = () => {
   const [activeTab, setActiveTab] = useState("books")
   const [showBookForm, setShowBookForm] = useState(false)
   const [showBorrowForm, setShowBorrowForm] = useState(false)
+  const [showIssueModal, setShowIssueModal] = useState(false)
+  const [selectedBookForIssue, setSelectedBookForIssue] = useState(null)
   const [editingBook, setEditingBook] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
@@ -130,130 +135,175 @@ const LibrarianDashboard = () => {
     }
   }
 
+  const handleIssueBook = (book) => {
+    setSelectedBookForIssue(book)
+    setShowIssueModal(true)
+  }
+
+  const handleIssueSuccess = () => {
+    setShowIssueModal(false)
+    setSelectedBookForIssue(null)
+    fetchData()
+  }
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-teal-50 to-blue-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 flex items-center justify-center">
         <LoadingSpinner />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-blue-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 space-y-4 sm:space-y-0">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 space-y-4 sm:space-y-0"
+        >
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Librarian Dashboard</h1>
+            <h1 className="text-3xl font-bold text-gray-900 font-display">Librarian Dashboard</h1>
             <p className="text-gray-600 mt-1">Welcome back, {user?.firstName || "Librarian"}!</p>
+            {user?.branch && (
+              <p className="text-sm text-primary-600 font-medium">
+                Managing {user.branch.name} ({user.branch.code})
+              </p>
+            )}
           </div>
-          <Link
-            to="/register"
-            className="bg-teal-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-teal-700 transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center space-x-2"
-          >
-            <span>➕</span>
-            <span>Register New User</span>
-          </Link>
-        </div>
+          <div className="flex space-x-3">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={fetchData}
+              className="bg-white text-primary-600 px-4 py-2 rounded-xl font-semibold hover:bg-primary-50 transition-all duration-200 shadow-lg border border-primary-200 flex items-center space-x-2"
+            >
+              <FiRefreshCw className="w-4 h-4" />
+              <span>Refresh</span>
+            </motion.button>
+            <Link to="/register">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-6 py-2 rounded-xl font-semibold hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
+              >
+                <FiUserPlus className="w-4 h-4" />
+                <span>Register User</span>
+              </motion.button>
+            </Link>
+          </div>
+        </motion.div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Books</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalBooks}</p>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8"
+        >
+          {[
+            {
+              title: "Total Books",
+              value: stats.totalBooks,
+              icon: FiBook,
+              color: "blue",
+              bgColor: "from-blue-500 to-blue-600",
+            },
+            {
+              title: "Available",
+              value: stats.availableBooks,
+              icon: FiBookOpen,
+              color: "green",
+              bgColor: "from-green-500 to-green-600",
+            },
+            {
+              title: "Borrowed",
+              value: stats.borrowedBooks,
+              icon: FiClock,
+              color: "yellow",
+              bgColor: "from-yellow-500 to-yellow-600",
+            },
+            {
+              title: "Overdue",
+              value: stats.overdueBooks,
+              icon: FiAlertTriangle,
+              color: "red",
+              bgColor: "from-red-500 to-red-600",
+            },
+            {
+              title: "Total Users",
+              value: stats.totalUsers,
+              icon: FiUsers,
+              color: "purple",
+              bgColor: "from-purple-500 to-purple-600",
+            },
+          ].map((stat, index) => (
+            <motion.div
+              key={stat.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 + index * 0.05 }}
+              className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-primary-100 hover:shadow-xl transition-all duration-300"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">{stat.title}</p>
+                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                </div>
+                <div className={`p-3 bg-gradient-to-r ${stat.bgColor} rounded-xl shadow-lg`}>
+                  <stat.icon className="w-6 h-6 text-white" />
+                </div>
               </div>
-              <div className="p-3 bg-blue-100 rounded-full">
-                <span className="text-blue-600 text-xl">📚</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Available</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.availableBooks}</p>
-              </div>
-              <div className="p-3 bg-green-100 rounded-full">
-                <span className="text-green-600 text-xl">✅</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-yellow-500">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Borrowed</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.borrowedBooks}</p>
-              </div>
-              <div className="p-3 bg-yellow-100 rounded-full">
-                <span className="text-yellow-600 text-xl">📖</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Overdue</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.overdueBooks}</p>
-              </div>
-              <div className="p-3 bg-red-100 rounded-full">
-                <span className="text-red-600 text-xl">⚠️</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Users</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalUsers}</p>
-              </div>
-              <div className="p-3 bg-purple-100 rounded-full">
-                <span className="text-purple-600 text-xl">👥</span>
-              </div>
-            </div>
-          </div>
-        </div>
+            </motion.div>
+          ))}
+        </motion.div>
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 flex items-center space-x-2">
-            <span>⚠️</span>
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 flex items-center space-x-2"
+          >
+            <FiAlertTriangle className="w-5 h-5" />
             <span>{error}</span>
             <button onClick={() => setError("")} className="ml-auto text-red-500 hover:text-red-700">
               ✕
             </button>
-          </div>
+          </motion.div>
         )}
 
         {/* Tab Navigation */}
-        <div className="bg-white rounded-xl shadow-lg mb-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg mb-6 border border-primary-100"
+        >
           <div className="border-b border-gray-200">
             <nav className="flex space-x-8 px-6">
               {[
-                { key: "books", label: "Books", count: books.length },
-                { key: "borrows", label: "Active Borrows", count: borrows.length },
-                { key: "overdue", label: "Overdue", count: overdueBooks.length },
-                { key: "users", label: "Users", count: branchUsers.length },
+                { key: "books", label: "Books", count: books.length, icon: FiBook },
+                { key: "borrows", label: "Active Borrows", count: borrows.length, icon: FiClock },
+                { key: "overdue", label: "Overdue", count: overdueBooks.length, icon: FiAlertTriangle },
+                { key: "users", label: "Users", count: branchUsers.length, icon: FiUsers },
               ].map((tab) => (
                 <button
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key)}
-                  className={`py-4 px-2 border-b-2 font-medium text-sm transition-colors duration-200 ${
+                  className={`py-4 px-2 border-b-2 font-medium text-sm transition-colors duration-200 flex items-center space-x-2 ${
                     activeTab === tab.key
-                      ? "border-teal-500 text-teal-600"
+                      ? "border-primary-500 text-primary-600"
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                   }`}
                 >
-                  {tab.label}
+                  <tab.icon className="w-4 h-4" />
+                  <span>{tab.label}</span>
                   {tab.count > 0 && (
                     <span
-                      className={`ml-2 px-2 py-1 text-xs rounded-full ${
-                        activeTab === tab.key ? "bg-teal-100 text-teal-800" : "bg-gray-100 text-gray-600"
+                      className={`px-2 py-1 text-xs rounded-full ${
+                        activeTab === tab.key ? "bg-primary-100 text-primary-800" : "bg-gray-100 text-gray-600"
                       }`}
                     >
                       {tab.count}
@@ -271,40 +321,48 @@ const LibrarianDashboard = () => {
               <div>
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-xl font-semibold text-gray-900">Books Management</h2>
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => setShowBookForm(true)}
-                    className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors duration-200 flex items-center space-x-2"
+                    className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-4 py-2 rounded-xl hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
                   >
-                    <span>➕</span>
+                    <FiPlus className="w-4 h-4" />
                     <span>Add New Book</span>
-                  </button>
+                  </motion.button>
                 </div>
 
                 {books.length === 0 ? (
                   <div className="text-center py-12">
-                    <div className="text-6xl mb-4">📚</div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No books found</h3>
-                    <p className="text-gray-600 mb-4">Start by adding your first book to the library.</p>
-                    <button
+                    <div className="w-20 h-20 bg-gradient-to-br from-primary-100 to-secondary-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                      <FiBook className="w-10 h-10 text-primary-500" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">No books found</h3>
+                    <p className="text-gray-600 mb-6">Start by adding your first book to the library.</p>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                       onClick={() => setShowBookForm(true)}
-                      className="bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition-colors duration-200"
+                      className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-6 py-3 rounded-xl hover:shadow-lg transition-all duration-200"
                     >
                       Add First Book
-                    </button>
+                    </motion.button>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                     {books.map((book, index) => (
                       <BookCard
                         key={book._id}
                         book={book}
                         index={index}
                         showActions={true}
+                        showBranchInfo={false}
                         onEdit={(book) => {
                           setEditingBook(book)
                           setShowBookForm(true)
                         }}
                         onDelete={handleDeleteBook}
+                        onIssue={handleIssueBook}
                         variant="grid"
                       />
                     ))}
@@ -313,28 +371,33 @@ const LibrarianDashboard = () => {
               </div>
             )}
 
+            {/* Other tabs remain the same... */}
             {/* Borrows Tab */}
             {activeTab === "borrows" && (
               <div>
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-xl font-semibold text-gray-900">Active Borrows</h2>
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => setShowBorrowForm(true)}
-                    className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors duration-200 flex items-center space-x-2"
+                    className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-xl hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
                   >
-                    <span>📖</span>
+                    <FiBookOpen className="w-4 h-4" />
                     <span>Issue Book</span>
-                  </button>
+                  </motion.button>
                 </div>
 
                 {borrows.length === 0 ? (
                   <div className="text-center py-12">
-                    <div className="text-6xl mb-4">📖</div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No active borrows</h3>
+                    <div className="w-20 h-20 bg-gradient-to-br from-green-100 to-green-200 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                      <FiClock className="w-10 h-10 text-green-500" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">No active borrows</h3>
                     <p className="text-gray-600">No books are currently borrowed.</p>
                   </div>
                 ) : (
-                  <div className="overflow-x-auto">
+                  <div className="overflow-x-auto bg-white rounded-xl shadow-sm">
                     <table className="min-w-full divide-y divide-gray-200">
                       <thead className="bg-gray-50">
                         <tr>
@@ -387,7 +450,7 @@ const LibrarianDashboard = () => {
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                               <button
                                 onClick={() => handleReturnBook(borrow._id)}
-                                className="text-teal-600 hover:text-teal-900"
+                                className="text-primary-600 hover:text-primary-900 font-semibold"
                               >
                                 Return Book
                               </button>
@@ -408,12 +471,14 @@ const LibrarianDashboard = () => {
 
                 {overdueBooks.length === 0 ? (
                   <div className="text-center py-12">
-                    <div className="text-6xl mb-4">✅</div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No overdue books</h3>
+                    <div className="w-20 h-20 bg-gradient-to-br from-green-100 to-green-200 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                      <FiBookOpen className="w-10 h-10 text-green-500" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">No overdue books</h3>
                     <p className="text-gray-600">All books are returned on time!</p>
                   </div>
                 ) : (
-                  <div className="overflow-x-auto">
+                  <div className="overflow-x-auto bg-white rounded-xl shadow-sm">
                     <table className="min-w-full divide-y divide-gray-200">
                       <thead className="bg-red-50">
                         <tr>
@@ -470,7 +535,7 @@ const LibrarianDashboard = () => {
                               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <button
                                   onClick={() => handleReturnBook(borrow._id)}
-                                  className="text-teal-600 hover:text-teal-900 mr-3"
+                                  className="text-primary-600 hover:text-primary-900 mr-3 font-semibold"
                                 >
                                   Return Book
                                 </button>
@@ -492,18 +557,23 @@ const LibrarianDashboard = () => {
 
                 {branchUsers.length === 0 ? (
                   <div className="text-center py-12">
-                    <div className="text-6xl mb-4">👥</div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No users found</h3>
-                    <p className="text-gray-600 mb-4">No students or community members are registered yet.</p>
-                    <Link
-                      to="/register"
-                      className="bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition-colors duration-200 inline-block"
-                    >
-                      Register First User
+                    <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-purple-200 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                      <FiUsers className="w-10 h-10 text-purple-500" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">No users found</h3>
+                    <p className="text-gray-600 mb-6">No students or community members are registered yet.</p>
+                    <Link to="/register">
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-6 py-3 rounded-xl hover:shadow-lg transition-all duration-200 inline-block"
+                      >
+                        Register First User
+                      </motion.button>
                     </Link>
                   </div>
                 ) : (
-                  <div className="overflow-x-auto">
+                  <div className="overflow-x-auto bg-white rounded-xl shadow-sm">
                     <table className="min-w-full divide-y divide-gray-200">
                       <thead className="bg-gray-50">
                         <tr>
@@ -563,7 +633,7 @@ const LibrarianDashboard = () => {
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
 
         {/* Modals */}
         {showBookForm && (
@@ -588,6 +658,18 @@ const LibrarianDashboard = () => {
               setShowBorrowForm(false)
               fetchData()
             }}
+          />
+        )}
+
+        {showIssueModal && selectedBookForIssue && (
+          <IssueBookModal
+            book={selectedBookForIssue}
+            isOpen={showIssueModal}
+            onClose={() => {
+              setShowIssueModal(false)
+              setSelectedBookForIssue(null)
+            }}
+            onSuccess={handleIssueSuccess}
           />
         )}
       </div>

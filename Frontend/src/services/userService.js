@@ -1,54 +1,41 @@
-const API_BASE_URL = "http://localhost:5000/api"
+import api from "./api"
 
-const getAuthHeaders = () => {
-  const token = localStorage.getItem("token")
-  return {
-    "Content-Type": "application/json",
-    ...(token && { Authorization: `Bearer ${token}` }),
+// Get all users with filtering options
+const getAllUsers = async (params = {}) => {
+  try {
+    const queryParams = new URLSearchParams()
+
+    // Add all parameters to query string
+    Object.keys(params).forEach((key) => {
+      if (params[key] !== undefined && params[key] !== "") {
+        queryParams.append(key, params[key])
+      }
+    })
+
+    const queryString = queryParams.toString()
+    const url = queryString ? `/api/users?${queryString}` : "/api/users"
+
+    const response = await api.get(url)
+    return response.data
+  } catch (error) {
+    console.error("Get users error:", error)
+    throw error.response?.data || { message: "Failed to fetch users" }
+  }
+}
+
+// Get active users count for homepage
+const getActiveUsersCount = async () => {
+  try {
+    const response = await api.get("/api/users?activeOnly=true&limit=1000")
+    return response.data
+  } catch (error) {
+    console.error("Get active users count error:", error)
+    throw error.response?.data || { message: "Failed to fetch active users count" }
   }
 }
 
 export const userService = {
-  async getAllUsers(params = {}) {
-    const queryString = new URLSearchParams(params).toString()
-    const response = await fetch(`${API_BASE_URL}/users?${queryString}`, {
-      headers: getAuthHeaders(),
-    })
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.message || "Failed to fetch users")
-    }
-
-    return response.json()
-  },
-
-  async updateUserRole(userId, role) {
-    const response = await fetch(`${API_BASE_URL}/users/${userId}/role`, {
-      method: "PUT",
-      headers: getAuthHeaders(),
-      body: JSON.stringify({ role }),
-    })
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.message || "Failed to update user role")
-    }
-
-    return response.json()
-  },
-
-  async toggleUserStatus(userId) {
-    const response = await fetch(`${API_BASE_URL}/users/${userId}/toggle-status`, {
-      method: "PUT",
-      headers: getAuthHeaders(),
-    })
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.message || "Failed to toggle user status")
-    }
-
-    return response.json()
-  },
+  getAllUsers,
+  getActiveUsersCount,
+  // ... other existing methods
 }

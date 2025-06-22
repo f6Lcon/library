@@ -1,7 +1,11 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
+import { bookService } from "../services/bookService"
+import { userService } from "../services/userService"
+import { borrowService } from "../services/borrowService"
 import { motion } from "framer-motion"
 import {
   FiBookOpen,
@@ -22,12 +26,89 @@ import { HiSparkles } from "react-icons/hi2"
 
 const Homepage = () => {
   const { user } = useAuth()
+  const [stats, setStats] = useState({
+    totalBooks: 0,
+    activeMembers: 0,
+    totalBorrows: 0,
+    yearsOfService: 25,
+  })
+  const [loading, setLoading] = useState(true)
 
-  const stats = [
-    { icon: FiBook, label: "Books Available", value: "50,000+", color: "text-primary-500" },
-    { icon: FiUsers, label: "Active Members", value: "12,000+", color: "text-secondary-500" },
-    { icon: FiTrendingUp, label: "Books Borrowed", value: "100,000+", color: "text-accent-500" },
-    { icon: FiAward, label: "Years of Service", value: "25+", color: "text-green-500" },
+  useEffect(() => {
+    fetchStats()
+  }, [])
+
+  const fetchStats = async () => {
+    try {
+      setLoading(true)
+
+      // Fetch all data in parallel
+      const results = await Promise.allSettled([
+        bookService.getAllBooks({ limit: 1000 }), // Get all books for count
+        userService.getActiveUsersCount(), // Get only active users for count
+        borrowService.getAllBorrows({ limit: 1000 }), // Get all borrows for count
+      ])
+
+      let totalBooks = 0
+      let activeMembers = 0
+      let totalBorrows = 0
+
+      // Handle books data
+      if (results[0].status === "fulfilled") {
+        totalBooks = results[0].value.total || results[0].value.books?.length || 0
+      }
+
+      // Handle users data - now only counting active users
+      if (results[1].status === "fulfilled") {
+        const users = results[1].value.users || []
+        // Count all active users (students, community, librarians) excluding admins
+        activeMembers = users.filter((user) => user.role !== "admin" && user.isActive !== false).length
+      }
+
+      // Handle borrows data
+      if (results[2].status === "fulfilled") {
+        totalBorrows = results[2].value.total || results[2].value.borrows?.length || 0
+      }
+
+      setStats({
+        totalBooks,
+        activeMembers,
+        totalBorrows,
+        yearsOfService: 25, // This remains static as it's about the institution
+      })
+    } catch (error) {
+      console.error("Failed to fetch homepage stats:", error)
+      // Keep default values if fetch fails
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const displayStats = [
+    {
+      icon: FiBook,
+      label: "Books Available",
+      value: loading ? "Loading..." : `${stats.totalBooks.toLocaleString()}+`,
+      color: "text-primary-500",
+    },
+    {
+      icon: FiUsers,
+      label: "Active Members",
+      value: loading ? "Loading..." : `${stats.activeMembers.toLocaleString()}+`,
+      color: "text-secondary-500",
+    },
+    {
+      icon: FiTrendingUp,
+      label: "Books Borrowed",
+      value: loading ? "Loading..." : `${stats.totalBorrows.toLocaleString()}+`,
+      color: "text-accent-500",
+    },
+    {
+      icon: FiAward,
+      label: "Years of Service",
+      value: `${stats.yearsOfService}+`,
+      color: "text-green-500",
+    },
   ]
 
   const features = [
@@ -210,7 +291,7 @@ const Homepage = () => {
       <section className="py-16 bg-white/50 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
+            {displayStats.map((stat, index) => (
               <motion.div
                 key={stat.label}
                 initial={{ opacity: 0, y: 20 }}

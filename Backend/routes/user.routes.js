@@ -1,76 +1,45 @@
-import express from "express"
-import User from "../models/user.model.js"
-import { authenticate, authorize } from "../middlewares/auth.middleware.js"
-
+const express = require("express")
 const router = express.Router()
+const {
+  registerUser,
+  loginUser,
+  logoutUser,
+  getUserProfile,
+  updateUserProfile,
+  getAllUsers,
+  deleteUser,
+  updateUserRole,
+} = require("../controllers/user.controller")
+const { authenticate, authorize } = require("../middleware/auth")
 
-// Get all users (admin only)
-router.get("/", authenticate, authorize("admin"), async (req, res) => {
-  try {
-    const { role, search, page = 1, limit = 10 } = req.query
-    const query = {}
+router.post("/register", registerUser)
+router.post("/login", loginUser)
+router.get("/logout", authenticate, logoutUser)
+router.get("/profile", authenticate, getUserProfile)
+router.put("/profile", authenticate, updateUserProfile)
 
-    if (role) query.role = role
-    if (search) {
-      query.$or = [
-        { firstName: { $regex: search, $options: "i" } },
-        { lastName: { $regex: search, $options: "i" } },
-        { email: { $regex: search, $options: "i" } },
-      ]
+// Get all users (with role-based filtering)
+router.get(
+  "/",
+  authenticate,
+  (req, res, next) => {
+    const { role } = req.query
+
+    // If requesting specific roles for book issuing
+    if (role && (role.includes("student") || role.includes("community"))) {
+      // Allow librarians and admins to fetch students/community for book issuing
+      if (req.user.role === "librarian" || req.user.role === "admin") {
+        return next()
+      }
     }
 
-    const users = await User.find(query)
-      .select("-password")
-      .limit(limit * 1)
-      .skip((page - 1) * limit)
-      .sort({ createdAt: -1 })
+    // For general user management, require admin privileges
+    authorize("admin")(req, res, next)
+  },
+  getAllUsers,
+)
 
-    const total = await User.countDocuments(query)
+router.delete("/:id", authenticate, authorize("admin"), deleteUser)
+router.put("/:id", authenticate, authorize("admin"), updateUserRole)
 
-    res.json({
-      users,
-      totalPages: Math.ceil(total / limit),
-      currentPage: page,
-      total,
-    })
-  } catch (error) {
-    res.status(500).json({ message: "Failed to fetch users", error: error.message })
-  }
-})
-
-// Update user role (admin only)
-router.put("/:id/role", authenticate, authorize("admin"), async (req, res) => {
-  try {
-    const { role } = req.body
-    const user = await User.findByIdAndUpdate(req.params.id, { role }, { new: true, runValidators: true }).select(
-      "-password",
-    )
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" })
-    }
-
-    res.json({ message: "User role updated successfully", user })
-  } catch (error) {
-    res.status(500).json({ message: "Failed to update user role", error: error.message })
-  }
-})
-
-// Toggle user active status (admin only)
-router.put("/:id/toggle-status", authenticate, authorize("admin"), async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id)
-    if (!user) {
-      return res.status(404).json({ message: "User not found" })
-    }
-
-    user.isActive = !user.isActive
-    await user.save()
-
-    res.json({ message: "User status updated successfully", user: { ...user.toObject(), password: undefined } })
-  } catch (error) {
-    res.status(500).json({ message: "Failed to update user status", error: error.message })
-  }
-})
-
-export default router
+module.exports = router

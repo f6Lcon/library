@@ -5,9 +5,16 @@ export const getAllBooks = async (req, res) => {
     const { category, search, page = 1, limit = 10 } = req.query
     const query = {}
 
-    // Only filter by branch if user is authenticated and not admin
-    if (req.user && req.user.role !== "admin" && req.user.branch) {
-      query.branch = req.user.branch
+    // Filter by branch based on user role
+    if (req.user) {
+      if (req.user.role === "student" && req.user.branch) {
+        // Students only see books from their branch
+        query.branch = req.user.branch
+      } else if (req.user.role === "librarian" && req.user.branch) {
+        // Librarians see books from their branch
+        query.branch = req.user.branch
+      }
+      // Admins and community members see all books (no branch filter)
     }
 
     if (category) query.category = category
