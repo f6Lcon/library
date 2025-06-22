@@ -10,6 +10,13 @@ router.get("/", authenticate, async (req, res) => {
     const { role, search, page = 1, limit = 10, activeOnly } = req.query
     const query = {}
 
+    console.log("🔍 User fetch request:", {
+      userRole: req.user.role,
+      requestedRole: role,
+      search,
+      activeOnly,
+    })
+
     // Only include active users if activeOnly is true
     if (activeOnly === "true") {
       query.isActive = true
@@ -31,20 +38,31 @@ router.get("/", authenticate, async (req, res) => {
       ]
     }
 
-    // Branch filtering for librarians
-    if (req.user.role === "librarian") {
-      query.branch = req.user.branch
+    // Branch filtering for librarians (not for admins)
+    if (req.user.role === "librarian" && req.user.branch) {
+      query.branch = req.user.branch._id
+      console.log("📍 Filtering by librarian's branch:", req.user.branch.name)
     }
 
     // Authorization check
     const requestingRoles = role ? role.split(",") : []
     const isBookIssueRequest = requestingRoles.some((r) => ["student", "community"].includes(r.trim()))
 
-    if (isBookIssueRequest && !["librarian", "admin"].includes(req.user.role)) {
-      return res.status(403).json({ message: "Access denied" })
-    } else if (!isBookIssueRequest && req.user.role !== "admin") {
-      return res.status(403).json({ message: "Access denied" })
+    // Allow librarians and admins to fetch students/community for book issuing
+    if (isBookIssueRequest) {
+      if (!["librarian", "admin"].includes(req.user.role)) {
+        console.log("❌ Access denied for book issue request")
+        return res.status(403).json({ message: "Access denied. Only librarians and admins can issue books." })
+      }
+    } else {
+      // For other requests, only admins can access
+      if (req.user.role !== "admin") {
+        console.log("❌ Access denied for general user request")
+        return res.status(403).json({ message: "Access denied. Admin privileges required." })
+      }
     }
+
+    console.log("🔍 Final query:", query)
 
     const users = await User.find(query)
       .populate("branch", "name location")
@@ -55,6 +73,12 @@ router.get("/", authenticate, async (req, res) => {
 
     const total = await User.countDocuments(query)
 
+    console.log("✅ Users found:", {
+      count: users.length,
+      total,
+      currentPage: page,
+    })
+
     res.json({
       users,
       totalPages: Math.ceil(total / limit),
@@ -62,13 +86,13 @@ router.get("/", authenticate, async (req, res) => {
       total,
     })
   } catch (error) {
-    console.error("Error fetching users:", error)
+    console.error("❌ Error fetching users:", error)
     res.status(500).json({ message: "Failed to fetch users", error: error.message })
   }
 })
 
 // Get active users count for statistics
-router.get("/stats/active-count", authenticate, async (req, res) => {
+router.get("/stats/active-count", async (req, res) => {
   try {
     const count = await User.countDocuments({
       isActive: true,

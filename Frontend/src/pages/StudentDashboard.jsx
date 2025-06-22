@@ -6,7 +6,8 @@ import { borrowService } from "../services/borrowService"
 import { useAuth } from "../context/AuthContext"
 import { motion, AnimatePresence } from "framer-motion"
 import BookCard from "../components/BookCard"
-import { FiBook, FiClock, FiSearch, FiFilter, FiBarChart2, FiRefreshCw } from "react-icons/fi"
+import LoadingSpinner from "../components/LoadingSpinner"
+import { FiBook, FiClock, FiSearch, FiFilter, FiBarChart2, FiRefreshCw, FiAlertCircle } from "react-icons/fi"
 import { HiSparkles } from "react-icons/hi2"
 
 const StudentDashboard = () => {
@@ -19,10 +20,13 @@ const StudentDashboard = () => {
   const [activeTab, setActiveTab] = useState("search")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+  const [refreshing, setRefreshing] = useState(false)
 
   useEffect(() => {
-    fetchData()
-  }, [])
+    if (user?.id) {
+      fetchData()
+    }
+  }, [user])
 
   useEffect(() => {
     if (searchTerm || selectedCategory) {
@@ -35,17 +39,17 @@ const StudentDashboard = () => {
   const fetchData = async () => {
     try {
       setLoading(true)
-      const [categoriesRes, borrowHistoryRes] = await Promise.all([
-        bookService.getCategories(),
-        borrowService.getBorrowHistory(user.id),
-      ])
+      setError("")
 
-      setCategories(categoriesRes.categories)
-      setBorrowHistory(borrowHistoryRes.borrows)
+      const promises = [bookService.getCategories(), fetchBorrowHistory()]
+
+      const [categoriesRes] = await Promise.all(promises)
+      setCategories(categoriesRes.categories || [])
 
       await fetchBooks()
     } catch (err) {
-      setError(err.message)
+      console.error("Error fetching data:", err)
+      setError(err.message || "Failed to load data")
     } finally {
       setLoading(false)
     }
@@ -54,9 +58,24 @@ const StudentDashboard = () => {
   const fetchBooks = async () => {
     try {
       const response = await bookService.getAllBooks()
-      setBooks(response.books)
+      setBooks(response.books || [])
     } catch (err) {
-      setError(err.message)
+      console.error("Error fetching books:", err)
+      setError(err.message || "Failed to load books")
+    }
+  }
+
+  const fetchBorrowHistory = async () => {
+    try {
+      if (!user?.id) return
+
+      const response = await borrowService.getBorrowHistory(user.id)
+      setBorrowHistory(response.borrows || [])
+      return response
+    } catch (err) {
+      console.error("Error fetching borrow history:", err)
+      // Don't set error for borrow history as it's not critical
+      setBorrowHistory([])
     }
   }
 
@@ -67,21 +86,28 @@ const StudentDashboard = () => {
       if (selectedCategory) params.category = selectedCategory
 
       const response = await bookService.getAllBooks(params)
-      setBooks(response.books)
+      setBooks(response.books || [])
     } catch (err) {
-      setError(err.message)
+      console.error("Error searching books:", err)
+      setError(err.message || "Failed to search books")
     }
+  }
+
+  const handleRefresh = async () => {
+    setRefreshing(true)
+    await fetchData()
+    setRefreshing(false)
+  }
+
+  const refreshBorrowHistory = async () => {
+    await fetchBorrowHistory()
   }
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 pt-20">
         <div className="flex justify-center items-center h-64">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-            className="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full"
-          />
+          <LoadingSpinner size="large" />
         </div>
       </div>
     )
@@ -122,11 +148,20 @@ const StudentDashboard = () => {
                     <FiBarChart2 className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Books Read</p>
+                    <p className="text-sm text-gray-600">Books Borrowed</p>
                     <p className="text-2xl font-bold text-gray-900">{borrowHistory.length}</p>
                   </div>
                 </div>
               </div>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleRefresh}
+                disabled={refreshing}
+                className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-primary-100 hover:shadow-xl transition-all duration-200"
+              >
+                <FiRefreshCw className={`w-6 h-6 text-primary-500 ${refreshing ? "animate-spin" : ""}`} />
+              </motion.button>
             </div>
           </div>
         </motion.div>
@@ -137,7 +172,11 @@ const StudentDashboard = () => {
             animate={{ opacity: 1, x: 0 }}
             className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 flex items-center space-x-2"
           >
+            <FiAlertCircle className="w-5 h-5" />
             <span>{error}</span>
+            <button onClick={handleRefresh} className="ml-auto text-red-600 hover:text-red-800 font-medium">
+              Retry
+            </button>
           </motion.div>
         )}
 
@@ -151,11 +190,16 @@ const StudentDashboard = () => {
           <div className="flex space-x-2">
             {[
               { id: "search", label: "Browse Books", icon: FiSearch },
-              { id: "history", label: "My History", icon: FiClock },
+              { id: "history", label: `My History (${borrowHistory.length})`, icon: FiClock },
             ].map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => {
+                  setActiveTab(tab.id)
+                  if (tab.id === "history") {
+                    refreshBorrowHistory()
+                  }
+                }}
                 className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
                   activeTab === tab.id
                     ? "bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg"
@@ -270,11 +314,20 @@ const StudentDashboard = () => {
               transition={{ duration: 0.3 }}
             >
               <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-primary-100 overflow-hidden">
-                <div className="p-6 border-b border-gray-200">
+                <div className="p-6 border-b border-gray-200 flex items-center justify-between">
                   <h2 className="text-xl font-bold text-gray-900 flex items-center">
                     <FiClock className="w-6 h-6 mr-3 text-primary-500" />
-                    Your Borrow History
+                    Your Borrow History ({borrowHistory.length})
                   </h2>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={refreshBorrowHistory}
+                    className="bg-primary-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-600 transition-colors flex items-center space-x-2"
+                  >
+                    <FiRefreshCw className="w-4 h-4" />
+                    <span>Refresh</span>
+                  </motion.button>
                 </div>
 
                 <div className="overflow-x-auto">
@@ -295,11 +348,23 @@ const StudentDashboard = () => {
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
                               <div className="w-12 h-16 bg-gradient-to-br from-primary-100 to-secondary-100 rounded-lg flex items-center justify-center mr-4">
-                                <FiBook className="w-6 h-6 text-primary-500" />
+                                {borrow.book?.imageUrl ? (
+                                  <img
+                                    src={borrow.book.imageUrl || "/placeholder.svg"}
+                                    alt={borrow.book.title}
+                                    className="w-full h-full object-cover rounded-lg"
+                                  />
+                                ) : (
+                                  <FiBook className="w-6 h-6 text-primary-500" />
+                                )}
                               </div>
                               <div>
-                                <div className="text-sm font-medium text-gray-900">{borrow.book.title}</div>
-                                <div className="text-sm text-gray-500">by {borrow.book.author}</div>
+                                <div className="text-sm font-medium text-gray-900">
+                                  {borrow.book?.title || "Unknown Book"}
+                                </div>
+                                <div className="text-sm text-gray-500">
+                                  by {borrow.book?.author || "Unknown Author"}
+                                </div>
                               </div>
                             </div>
                           </td>
@@ -316,7 +381,7 @@ const StudentDashboard = () => {
                             <span
                               className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
                                 borrow.status === "returned"
-                                  ? "bg-primary-100 text-primary-800"
+                                  ? "bg-green-100 text-green-800"
                                   : borrow.status === "overdue"
                                     ? "bg-red-100 text-red-800"
                                     : "bg-yellow-100 text-yellow-800"

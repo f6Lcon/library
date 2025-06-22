@@ -5,6 +5,7 @@ import { bookService } from "../services/bookService"
 import { borrowService } from "../services/borrowService"
 import { useAuth } from "../context/AuthContext"
 import BookCard from "../components/BookCard"
+import LoadingSpinner from "../components/LoadingSpinner"
 import { motion } from "framer-motion"
 import {
   FiBook,
@@ -21,6 +22,7 @@ import {
   FiArrowRight,
 } from "react-icons/fi"
 import { HiSparkles } from "react-icons/hi2"
+import { toast } from "react-toastify"
 
 const CommunityDashboard = () => {
   const { user } = useAuth()
@@ -34,6 +36,7 @@ const CommunityDashboard = () => {
   const [errors, setErrors] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const [refreshing, setRefreshing] = useState(false)
   const [stats, setStats] = useState({
     totalBooks: 0,
     availableBooks: 0,
@@ -52,6 +55,13 @@ const CommunityDashboard = () => {
       fetchBooks()
     }
   }, [searchTerm, selectedCategory, currentPage])
+
+  // Auto-refresh borrow history when switching to history tab
+  useEffect(() => {
+    if (activeTab === "history" && user?._id) {
+      fetchBorrowHistory()
+    }
+  }, [activeTab, user?._id])
 
   const addError = (message) => {
     const errorId = Date.now()
@@ -72,7 +82,7 @@ const CommunityDashboard = () => {
 
       const results = await Promise.allSettled([
         bookService.getCategories(),
-        user?._id ? borrowService.getBorrowHistory(user._id) : Promise.resolve({ borrows: [] }),
+        fetchBorrowHistory(),
         bookService.getAllBooks({ page: 1, limit: 1000 }), // Get all books for stats
       ])
 
@@ -82,15 +92,6 @@ const CommunityDashboard = () => {
       } else {
         addError("Failed to load categories")
         setCategories([])
-      }
-
-      // Handle borrow history
-      if (results[1].status === "fulfilled") {
-        const borrowData = results[1].value.borrows || []
-        setBorrowHistory(borrowData)
-      } else {
-        addError("Failed to load borrow history")
-        setBorrowHistory([])
       }
 
       // Handle books and calculate stats
@@ -112,6 +113,22 @@ const CommunityDashboard = () => {
       addError("Failed to load dashboard data")
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchBorrowHistory = async () => {
+    if (!user?._id) return { borrows: [] }
+
+    try {
+      const response = await borrowService.getBorrowHistory(user._id)
+      const borrowData = response.borrows || []
+      setBorrowHistory(borrowData)
+      return response
+    } catch (err) {
+      console.error("Error fetching borrow history:", err)
+      addError("Failed to load borrow history")
+      setBorrowHistory([])
+      return { borrows: [] }
     }
   }
 
@@ -154,18 +171,32 @@ const CommunityDashboard = () => {
     setCurrentPage(1)
   }
 
-  const refreshData = () => {
-    fetchData()
+  const refreshData = async () => {
+    setRefreshing(true)
+    try {
+      await fetchData()
+      toast.success("Dashboard refreshed successfully!")
+    } catch (err) {
+      toast.error("Failed to refresh dashboard")
+    } finally {
+      setRefreshing(false)
+    }
+  }
+
+  const refreshBorrowHistory = async () => {
+    try {
+      await fetchBorrowHistory()
+      toast.success("Borrow history updated!")
+    } catch (err) {
+      toast.error("Failed to refresh borrow history")
+    }
   }
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-teal-100 pt-20">
         <div className="flex justify-center items-center h-64">
-          <div className="flex flex-col items-center space-y-4">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
-            <p className="text-teal-600 font-medium">Loading your dashboard...</p>
-          </div>
+          <LoadingSpinner size="lg" text="Loading your dashboard..." />
         </div>
       </div>
     )
@@ -201,10 +232,11 @@ const CommunityDashboard = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={refreshData}
-              className="bg-teal-600 text-white px-4 py-2 rounded-xl font-medium hover:bg-teal-700 transition-all duration-200 flex items-center gap-2 shadow-lg"
+              disabled={refreshing}
+              className="bg-teal-600 text-white px-4 py-2 rounded-xl font-medium hover:bg-teal-700 transition-all duration-200 flex items-center gap-2 shadow-lg disabled:opacity-50"
             >
-              <FiRefreshCw className="w-4 h-4" />
-              Refresh
+              <FiRefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
+              {refreshing ? "Refreshing..." : "Refresh"}
             </motion.button>
           </motion.div>
 
@@ -465,11 +497,18 @@ const CommunityDashboard = () => {
           {activeTab === "history" && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
               <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden border border-teal-100">
-                <div className="px-6 py-4 border-b border-gray-200">
+                <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                   <h2 className="text-xl font-semibold flex items-center gap-2">
                     <FiClock className="text-teal-600" />
                     Your Borrow History
                   </h2>
+                  <button
+                    onClick={refreshBorrowHistory}
+                    className="text-teal-600 hover:text-teal-800 text-sm flex items-center gap-1"
+                  >
+                    <FiRefreshCw className="w-4 h-4" />
+                    Refresh
+                  </button>
                 </div>
 
                 {borrowHistory.length > 0 ? (
@@ -515,20 +554,31 @@ const CommunityDashboard = () => {
                           <tr key={borrow._id} className="hover:bg-gray-50 transition-colors">
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center">
-                                <div className="w-12 h-16 bg-gradient-to-br from-teal-100 to-teal-200 rounded-lg flex items-center justify-center mr-4">
-                                  <FiBook className="w-6 h-6 text-teal-600" />
+                                <div className="w-12 h-16 bg-gradient-to-br from-teal-100 to-teal-200 rounded-lg flex items-center justify-center mr-4 overflow-hidden">
+                                  {borrow.book?.imageUrl ? (
+                                    <img
+                                      src={borrow.book.imageUrl || "/placeholder.svg"}
+                                      alt={borrow.book.title}
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        e.target.src = "/placeholder.svg?height=64&width=48"
+                                      }}
+                                    />
+                                  ) : (
+                                    <FiBook className="w-6 h-6 text-teal-600" />
+                                  )}
                                 </div>
                                 <div>
-                                  <div className="text-sm font-medium text-gray-900">{borrow.book.title}</div>
-                                  <div className="text-sm text-gray-500">by {borrow.book.author}</div>
+                                  <div className="text-sm font-medium text-gray-900">{borrow.book?.title || "N/A"}</div>
+                                  <div className="text-sm text-gray-500">by {borrow.book?.author || "N/A"}</div>
                                 </div>
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {new Date(borrow.borrowDate).toLocaleDateString()}
+                              {borrow.borrowDate ? new Date(borrow.borrowDate).toLocaleDateString() : "N/A"}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {new Date(borrow.dueDate).toLocaleDateString()}
+                              {borrow.dueDate ? new Date(borrow.dueDate).toLocaleDateString() : "N/A"}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                               {borrow.returnDate ? new Date(borrow.returnDate).toLocaleDateString() : "-"}
@@ -547,7 +597,7 @@ const CommunityDashboard = () => {
                               </span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {borrow.book.branch?.name || "N/A"}
+                              {borrow.branch?.name || borrow.book?.branch?.name || "N/A"}
                             </td>
                           </tr>
                         ))}

@@ -6,7 +6,7 @@ import { borrowService } from "../services/borrowService"
 import { userService } from "../services/userService"
 import { useAuth } from "../context/AuthContext"
 import LoadingSpinner from "./LoadingSpinner"
-import { FiX, FiSearch, FiUser, FiBook, FiCalendar, FiAlertCircle } from "react-icons/fi"
+import { FiX, FiSearch, FiUser, FiBook, FiCalendar, FiAlertCircle, FiRefreshCw } from "react-icons/fi"
 import { toast } from "react-toastify"
 
 const IssueBookModal = ({ book, isOpen, onClose, onSuccess }) => {
@@ -44,18 +44,36 @@ const IssueBookModal = ({ book, isOpen, onClose, onSuccess }) => {
     try {
       setLoading(true)
       setError("")
-      const response = await userService.getAllUsers({
+
+      // Build query parameters based on user role
+      const params = {
         role: "student,community",
         activeOnly: true,
-        limit: 100,
-      })
-      console.log("Fetched students:", response)
-      setStudents(response.users || [])
-      setFilteredStudents(response.users || [])
+        limit: 200,
+      }
+
+      // If librarian, only get students from their branch
+      if (user.role === "librarian" && user.branch) {
+        params.branch = user.branch._id
+      }
+
+      console.log("Fetching students with params:", params)
+
+      const response = await userService.getAllUsers(params)
+      console.log("Fetched students response:", response)
+
+      const fetchedStudents = response.users || []
+      setStudents(fetchedStudents)
+      setFilteredStudents(fetchedStudents)
+
+      if (fetchedStudents.length === 0) {
+        setError("No students found. Please check if there are active students in your branch.")
+      }
     } catch (err) {
       console.error("Error fetching students:", err)
-      setError("Failed to fetch students")
-      toast.error("Failed to fetch students")
+      const errorMessage = err.response?.data?.message || "Failed to fetch students"
+      setError(errorMessage)
+      toast.error(errorMessage)
     } finally {
       setLoading(false)
     }
@@ -126,7 +144,7 @@ const IssueBookModal = ({ book, isOpen, onClose, onSuccess }) => {
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="bg-gradient-to-r from-primary-500 to-primary-600 p-6 text-white">
+          <div className="bg-gradient-to-r from-teal-500 to-teal-600 p-6 text-white">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
@@ -134,7 +152,7 @@ const IssueBookModal = ({ book, isOpen, onClose, onSuccess }) => {
                 </div>
                 <div>
                   <h2 className="text-xl font-bold">Issue Book</h2>
-                  <p className="text-primary-100">Select a student to issue this book</p>
+                  <p className="text-teal-100">Select a student to issue this book</p>
                 </div>
               </div>
               <button
@@ -150,7 +168,7 @@ const IssueBookModal = ({ book, isOpen, onClose, onSuccess }) => {
             {/* Book Info */}
             <div className="bg-gray-50 rounded-xl p-4 mb-6">
               <div className="flex items-center space-x-4">
-                <div className="w-16 h-20 bg-gradient-to-br from-primary-50 to-secondary-50 rounded-lg flex items-center justify-center overflow-hidden">
+                <div className="w-16 h-20 bg-gradient-to-br from-teal-50 to-teal-100 rounded-lg flex items-center justify-center overflow-hidden">
                   {book.imageUrl ? (
                     <img
                       src={book.imageUrl || "/placeholder.svg"}
@@ -161,7 +179,7 @@ const IssueBookModal = ({ book, isOpen, onClose, onSuccess }) => {
                       }}
                     />
                   ) : (
-                    <FiBook className="w-6 h-6 text-primary-500" />
+                    <FiBook className="w-6 h-6 text-teal-500" />
                   )}
                 </div>
                 <div className="flex-1">
@@ -170,6 +188,7 @@ const IssueBookModal = ({ book, isOpen, onClose, onSuccess }) => {
                   <div className="flex items-center space-x-4 text-xs text-gray-500">
                     <span>ISBN: {book.isbn}</span>
                     <span>Available: {book.availableCopies}</span>
+                    {book.branch && <span>Branch: {book.branch.name}</span>}
                   </div>
                 </div>
               </div>
@@ -180,24 +199,43 @@ const IssueBookModal = ({ book, isOpen, onClose, onSuccess }) => {
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-4 flex items-center space-x-2"
+                className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-4 flex items-center justify-between"
               >
-                <FiAlertCircle className="w-5 h-5" />
-                <span>{error}</span>
+                <div className="flex items-center space-x-2">
+                  <FiAlertCircle className="w-5 h-5" />
+                  <span>{error}</span>
+                </div>
+                <button
+                  onClick={fetchStudents}
+                  className="text-red-600 hover:text-red-800 p-1"
+                  title="Retry loading students"
+                >
+                  <FiRefreshCw className="w-4 h-4" />
+                </button>
               </motion.div>
             )}
 
             <form onSubmit={handleIssueBook} className="space-y-6">
               {/* Student Search */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Search Students</label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-semibold text-gray-700">Search Students</label>
+                  <button
+                    type="button"
+                    onClick={fetchStudents}
+                    className="text-teal-600 hover:text-teal-800 text-sm flex items-center space-x-1"
+                  >
+                    <FiRefreshCw className="w-4 h-4" />
+                    <span>Refresh</span>
+                  </button>
+                </div>
                 <div className="relative">
                   <input
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search by name, email, or student ID..."
-                    className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                    className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200"
                   />
                   <FiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 </div>
@@ -205,7 +243,9 @@ const IssueBookModal = ({ book, isOpen, onClose, onSuccess }) => {
 
               {/* Students List */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Select Student</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Select Student ({filteredStudents.length} available)
+                </label>
                 <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-xl">
                   {loading ? (
                     <div className="p-8 text-center">
@@ -214,9 +254,14 @@ const IssueBookModal = ({ book, isOpen, onClose, onSuccess }) => {
                   ) : filteredStudents.length === 0 ? (
                     <div className="p-8 text-center">
                       <FiUser className="w-12 h-12 text-gray-300 mx-auto mb-2" />
-                      <p className="text-gray-500">
+                      <p className="text-gray-500 mb-2">
                         {searchTerm ? "No students found matching your search" : "No students available"}
                       </p>
+                      {user.role === "librarian" && (
+                        <p className="text-gray-400 text-sm">
+                          Only students from your branch ({user.branch?.name}) are shown
+                        </p>
+                      )}
                     </div>
                   ) : (
                     <div className="divide-y divide-gray-200">
@@ -224,7 +269,7 @@ const IssueBookModal = ({ book, isOpen, onClose, onSuccess }) => {
                         <label
                           key={student._id}
                           className={`flex items-center p-4 hover:bg-gray-50 cursor-pointer transition-colors ${
-                            selectedStudent === student._id ? "bg-primary-50 border-primary-200" : ""
+                            selectedStudent === student._id ? "bg-teal-50 border-teal-200" : ""
                           }`}
                         >
                           <input
@@ -233,7 +278,7 @@ const IssueBookModal = ({ book, isOpen, onClose, onSuccess }) => {
                             value={student._id}
                             checked={selectedStudent === student._id}
                             onChange={(e) => setSelectedStudent(e.target.value)}
-                            className="w-4 h-4 text-primary-600 focus:ring-primary-500 border-gray-300"
+                            className="w-4 h-4 text-teal-600 focus:ring-teal-500 border-gray-300"
                           />
                           <div className="ml-3 flex-1">
                             <div className="flex items-center justify-between">
@@ -244,17 +289,26 @@ const IssueBookModal = ({ book, isOpen, onClose, onSuccess }) => {
                                 <p className="text-sm text-gray-500">{student.email}</p>
                                 {student.branch && (
                                   <p className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded mt-1 inline-block">
-                                    {student.branch.name}
+                                    {student.branch.name} ({student.branch.code})
                                   </p>
                                 )}
                               </div>
                               <div className="text-right">
                                 {student.studentId && (
-                                  <p className="text-xs text-primary-600 font-mono bg-primary-100 px-2 py-1 rounded">
+                                  <p className="text-xs text-teal-600 font-mono bg-teal-100 px-2 py-1 rounded">
                                     {student.studentId}
                                   </p>
                                 )}
                                 <p className="text-xs text-gray-500 mt-1">{student.phone || "No phone"}</p>
+                                <span
+                                  className={`text-xs px-2 py-1 rounded-full ${
+                                    student.role === "student"
+                                      ? "bg-green-100 text-green-800"
+                                      : "bg-purple-100 text-purple-800"
+                                  }`}
+                                >
+                                  {student.role}
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -280,7 +334,7 @@ const IssueBookModal = ({ book, isOpen, onClose, onSuccess }) => {
                     <p>Issue Date: {new Date().toLocaleDateString()}</p>
                     <p>Due Date: {new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString()}</p>
                     <p>
-                      Issued by: {user?.firstName} {user?.lastName}
+                      Issued by: {user?.firstName} {user?.lastName} ({user?.role})
                     </p>
                   </div>
                 </motion.div>
@@ -298,7 +352,7 @@ const IssueBookModal = ({ book, isOpen, onClose, onSuccess }) => {
                 <button
                   type="submit"
                   disabled={!selectedStudent || issuing}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                 >
                   {issuing ? (
                     <>

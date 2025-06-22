@@ -18,28 +18,46 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const token = localStorage.getItem("token")
-    if (token) {
-      authService
-        .getProfile()
-        .then((response) => {
+    initializeAuth()
+  }, [])
+
+  const initializeAuth = async () => {
+    try {
+      const token = localStorage.getItem("token")
+      const storedUser = localStorage.getItem("user")
+
+      if (token && storedUser) {
+        // First set user from localStorage for immediate UI update
+        const parsedUser = JSON.parse(storedUser)
+        setUser(parsedUser)
+
+        // Then verify token is still valid by fetching fresh profile
+        try {
+          const response = await authService.getProfile()
           setUser(response.user)
-        })
-        .catch(() => {
+          // Update stored user with fresh data
+          localStorage.setItem("user", JSON.stringify(response.user))
+        } catch (error) {
+          console.error("Token validation failed:", error)
+          // Token is invalid, clear auth data
           localStorage.removeItem("token")
-        })
-        .finally(() => {
-          setLoading(false)
-        })
-    } else {
+          localStorage.removeItem("user")
+          setUser(null)
+        }
+      }
+    } catch (error) {
+      console.error("Auth initialization error:", error)
+      localStorage.removeItem("token")
+      localStorage.removeItem("user")
+      setUser(null)
+    } finally {
       setLoading(false)
     }
-  }, [])
+  }
 
   const login = async (email, password) => {
     try {
       const response = await authService.login(email, password)
-      localStorage.setItem("token", response.token)
       setUser(response.user)
       return response
     } catch (error) {
@@ -50,8 +68,11 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       const response = await authService.register(userData)
-      localStorage.setItem("token", response.token)
-      setUser(response.user)
+      if (response.token) {
+        localStorage.setItem("token", response.token)
+        localStorage.setItem("user", JSON.stringify(response.user))
+        setUser(response.user)
+      }
       return response
     } catch (error) {
       throw error
@@ -60,7 +81,13 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem("token")
+    localStorage.removeItem("user")
     setUser(null)
+  }
+
+  const updateUser = (updatedUser) => {
+    setUser(updatedUser)
+    localStorage.setItem("user", JSON.stringify(updatedUser))
   }
 
   const value = {
@@ -68,7 +95,9 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
+    updateUser,
     loading,
+    isAuthenticated: !!user,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
