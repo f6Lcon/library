@@ -25,32 +25,60 @@ const Homepage = () => {
 
   useEffect(() => {
     fetchHomepageData()
-  }, [])
+  }, [user])
 
   const fetchHomepageData = async () => {
     try {
       setLoading(true)
       setError("")
 
-      // Fetch all data in parallel
-      const [booksResponse, usersResponse, borrowsResponse, featuredResponse] = await Promise.all([
+      // Fetch books and users data (these don't require special permissions)
+      const [booksResponse, usersResponse] = await Promise.all([
         bookService.getAllBooks({ limit: 1 }), // Just get count
         userService.getActiveUsersCount(),
-        borrowService.getAllBorrows({ limit: 1 }), // Just get count
-        bookService.getAllBooks({ limit: 6, sort: "rating" }), // Featured books
       ])
+
+      let borrowsCount = 0
+      let featuredBooksData = []
+
+      // Try to fetch borrow statistics if user is authenticated
+      if (user) {
+        try {
+          const borrowStatsResponse = await borrowService.getBorrowStats()
+          borrowsCount = borrowStatsResponse.totalBorrows || 0
+        } catch (borrowError) {
+          console.log("Could not fetch borrow stats:", borrowError.message)
+          // Use fallback data or skip borrow stats
+        }
+      }
+
+      // Fetch featured books
+      try {
+        const featuredResponse = await bookService.getAllBooks({ limit: 6, sort: "rating" })
+        featuredBooksData = featuredResponse.books || []
+      } catch (featuredError) {
+        console.log("Could not fetch featured books:", featuredError.message)
+      }
 
       setStats({
         totalBooks: booksResponse.total || 0,
         activeMembers: usersResponse.count || 0,
-        booksBorrowed: borrowsResponse.total || 0,
+        booksBorrowed: borrowsCount,
         yearsOfService: 15, // Static institutional data
       })
 
-      setFeaturedBooks(featuredResponse.books || [])
+      setFeaturedBooks(featuredBooksData)
     } catch (err) {
       console.error("Error fetching homepage data:", err)
-      setError("Failed to load homepage data")
+      setError("Some data could not be loaded")
+
+      // Set fallback data
+      setStats({
+        totalBooks: 0,
+        activeMembers: 0,
+        booksBorrowed: 0,
+        yearsOfService: 15,
+      })
     } finally {
       setLoading(false)
     }
@@ -177,39 +205,39 @@ const Homepage = () => {
             </p>
           </motion.div>
 
-          {error ? (
-            <div className="text-center py-8">
-              <p className="text-red-600 mb-4">{error}</p>
+          {error && (
+            <div className="text-center py-4 mb-8">
+              <p className="text-amber-600 mb-2">{error}</p>
               <button
                 onClick={fetchHomepageData}
-                className="px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
+                className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors text-sm"
               >
                 Retry
               </button>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {statCards.map((stat, index) => (
-                <motion.div
-                  key={stat.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.1 * index }}
-                  className="relative group"
-                >
-                  <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 group-hover:border-gray-200">
-                    <div
-                      className={`w-16 h-16 ${stat.bgColor} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}
-                    >
-                      <stat.icon className={`w-8 h-8 ${stat.textColor}`} />
-                    </div>
-                    <h3 className="text-3xl font-bold text-gray-900 mb-2">{stat.value.toLocaleString()}</h3>
-                    <p className="text-gray-600 font-medium">{stat.title}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
           )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {statCards.map((stat, index) => (
+              <motion.div
+                key={stat.title}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 * index }}
+                className="relative group"
+              >
+                <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 group-hover:border-gray-200">
+                  <div
+                    className={`w-16 h-16 ${stat.bgColor} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}
+                  >
+                    <stat.icon className={`w-8 h-8 ${stat.textColor}`} />
+                  </div>
+                  <h3 className="text-3xl font-bold text-gray-900 mb-2">{stat.value.toLocaleString()}</h3>
+                  <p className="text-gray-600 font-medium">{stat.title}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 

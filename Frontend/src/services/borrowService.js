@@ -52,4 +52,14 @@ export const borrowService = {
       throw error
     }
   },
+
+  async getBorrowStats() {
+    try {
+      const response = await api.get("/borrow/stats")
+      return response.data
+    } catch (error) {
+      console.error("Error in getBorrowStats:", error)
+      throw error
+    }
+  },
 }

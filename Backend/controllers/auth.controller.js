@@ -230,14 +230,34 @@ export const login = async (req, res) => {
 // Get User Profile
 export const getProfile = async (req, res) => {
   try {
+    console.log("Getting profile for user ID:", req.user?.userId)
+
+    if (!req.user?.userId) {
+      return res.status(401).json({
+        success: false,
+        message: "User ID not found in token",
+      })
+    }
+
     const user = await User.findById(req.user.userId).select("-password").populate("branch")
 
     if (!user) {
+      console.log("User not found in database for ID:", req.user.userId)
       return res.status(404).json({
         success: false,
         message: "User not found",
       })
     }
+
+    // Check if user is still active
+    if (!user.isActive) {
+      return res.status(401).json({
+        success: false,
+        message: "Account is deactivated",
+      })
+    }
+
+    console.log("Profile retrieved successfully for user:", user.email)
 
     res.json({
       success: true,

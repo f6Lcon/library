@@ -26,41 +26,61 @@ export const AuthProvider = ({ children }) => {
       const token = localStorage.getItem("token")
       const storedUser = localStorage.getItem("user")
 
-      if (token && storedUser) {
-        // First set user from localStorage for immediate UI update
-        const parsedUser = JSON.parse(storedUser)
-        setUser(parsedUser)
+      console.log("Initializing auth - Token exists:", !!token, "Stored user exists:", !!storedUser)
 
-        // Then verify token is still valid by fetching fresh profile
+      if (token && storedUser) {
         try {
+          // First set user from localStorage for immediate UI update
+          const parsedUser = JSON.parse(storedUser)
+          setUser(parsedUser)
+          console.log("Set user from localStorage:", parsedUser.email)
+
+          // Then verify token is still valid by fetching fresh profile
           const response = await authService.getProfile()
+          console.log("Profile verification successful:", response.user.email)
           setUser(response.user)
           // Update stored user with fresh data
           localStorage.setItem("user", JSON.stringify(response.user))
         } catch (error) {
           console.error("Token validation failed:", error)
-          // Token is invalid, clear auth data
-          localStorage.removeItem("token")
-          localStorage.removeItem("user")
-          setUser(null)
+          // Only clear auth data if it's a real authentication error
+          if (error.status === 401 || error.status === 404 || error.message?.includes("token")) {
+            console.log("Clearing invalid auth data")
+            clearAuthData()
+          } else {
+            console.log("Network error, keeping stored user data")
+            // Keep the stored user for offline functionality
+          }
         }
+      } else {
+        console.log("No token or stored user found")
       }
     } catch (error) {
       console.error("Auth initialization error:", error)
-      localStorage.removeItem("token")
-      localStorage.removeItem("user")
-      setUser(null)
+      // Only clear on authentication errors, not network errors
+      if (error.status === 401 || error.status === 404) {
+        clearAuthData()
+      }
     } finally {
       setLoading(false)
     }
   }
 
+  const clearAuthData = () => {
+    console.log("Clearing authentication data")
+    localStorage.removeItem("token")
+    localStorage.removeItem("user")
+    setUser(null)
+  }
+
   const login = async (email, password) => {
     try {
       const response = await authService.login(email, password)
+      console.log("Login successful:", response.user.email)
       setUser(response.user)
       return response
     } catch (error) {
+      console.error("Login failed:", error)
       throw error
     }
   }
@@ -72,17 +92,18 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem("token", response.token)
         localStorage.setItem("user", JSON.stringify(response.user))
         setUser(response.user)
+        console.log("Registration successful:", response.user.email)
       }
       return response
     } catch (error) {
+      console.error("Registration failed:", error)
       throw error
     }
   }
 
   const logout = () => {
-    localStorage.removeItem("token")
-    localStorage.removeItem("user")
-    setUser(null)
+    console.log("Logging out user")
+    clearAuthData()
   }
 
   const updateUser = (updatedUser) => {
