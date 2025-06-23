@@ -52,35 +52,58 @@ const StudentDashboard = () => {
 
   // Handle search and filtering
   useEffect(() => {
-    if (user && !loading) {
+    if (user && !loading && activeTab === "browse") {
       handleSearch()
     }
-  }, [searchTerm, selectedCategory])
+  }, [searchTerm, selectedCategory, activeTab])
+
+  // Refresh borrow history when switching to history tab
+  useEffect(() => {
+    if (activeTab === "history" && user?._id) {
+      fetchBorrowHistory()
+    }
+  }, [activeTab, user?._id])
 
   const initializeDashboard = async () => {
     setLoading(true)
     setError("")
 
     try {
+      console.log("=== INITIALIZING STUDENT DASHBOARD ===")
+      console.log("User:", user)
+
       // Fetch all data in parallel
       const [categoriesRes, booksRes, historyRes] = await Promise.all([
-        bookService.getCategories().catch(() => ({ categories: [] })),
-        bookService.getAllBooks().catch(() => ({ books: [] })),
-        borrowService.getBorrowHistory(user.id).catch(() => ({ borrows: [] })),
+        bookService.getCategories().catch((err) => {
+          console.error("Categories fetch error:", err)
+          return { categories: [] }
+        }),
+        bookService.getAllBooks().catch((err) => {
+          console.error("Books fetch error:", err)
+          return { books: [] }
+        }),
+        fetchBorrowHistory().catch((err) => {
+          console.error("Borrow history fetch error:", err)
+          return { borrows: [] }
+        }),
       ])
 
       setCategories(categoriesRes.categories || [])
       setBooks(booksRes.books || [])
-      setBorrowHistory(historyRes.borrows || [])
 
-      // Calculate stats
+      // Calculate stats from borrow history
       const history = historyRes.borrows || []
-      setStats({
+      console.log("Borrow history for stats:", history)
+
+      const newStats = {
         totalBorrowed: history.length,
         currentlyBorrowed: history.filter((b) => b.status === "borrowed").length,
         overdue: history.filter((b) => b.status === "overdue").length,
         returned: history.filter((b) => b.status === "returned").length,
-      })
+      }
+
+      console.log("Calculated stats:", newStats)
+      setStats(newStats)
 
       // Fetch eligible books for reviews
       await fetchEligibleBooks()
@@ -92,8 +115,50 @@ const StudentDashboard = () => {
     }
   }
 
+  const fetchBorrowHistory = async () => {
+    if (!user?._id) {
+      console.log("No user ID available for borrow history")
+      return { borrows: [] }
+    }
+
+    try {
+      console.log("=== FETCHING BORROW HISTORY ===")
+      console.log("User ID:", user._id)
+
+      const response = await borrowService.getBorrowHistory(user._id)
+      console.log("Borrow history response:", response)
+
+      const borrowData = response.borrows || []
+      setBorrowHistory(borrowData)
+
+      // Update stats when borrow history is fetched
+      const newStats = {
+        totalBorrowed: borrowData.length,
+        currentlyBorrowed: borrowData.filter((b) => b.status === "borrowed").length,
+        overdue: borrowData.filter((b) => b.status === "overdue").length,
+        returned: borrowData.filter((b) => b.status === "returned").length,
+      }
+
+      console.log("Updated stats from borrow history:", newStats)
+      setStats(newStats)
+
+      return response
+    } catch (err) {
+      console.error("Error fetching borrow history:", err)
+      setBorrowHistory([])
+      return { borrows: [] }
+    }
+  }
+
   const handleSearch = async () => {
     if (!searchTerm && !selectedCategory) {
+      // If no search terms, fetch all books
+      try {
+        const response = await bookService.getAllBooks()
+        setBooks(response.books || [])
+      } catch (err) {
+        console.error("Error fetching all books:", err)
+      }
       return
     }
 
@@ -123,7 +188,7 @@ const StudentDashboard = () => {
   }
 
   // Show loading only during initial load
-  if (authLoading || (loading && books.length === 0)) {
+  if (authLoading || (loading && books.length === 0 && borrowHistory.length === 0)) {
     return (
       <div className="min-h-screen bg-gray-50 pt-20 flex items-center justify-center">
         <div className="text-center">
@@ -268,7 +333,7 @@ const StudentDashboard = () => {
             <nav className="flex space-x-8 px-8 py-6">
               {[
                 { id: "browse", label: "Browse Books", icon: FiSearch },
-                { id: "history", label: "Reading History", icon: FiClock },
+                { id: "history", label: "Reading History", icon: FiClock, count: borrowHistory.length },
                 { id: "reviews", label: "My Reviews", icon: FiStar },
               ].map((tab) => (
                 <button
@@ -282,6 +347,9 @@ const StudentDashboard = () => {
                 >
                   <tab.icon className="w-4 h-4" />
                   <span>{tab.label}</span>
+                  {tab.count !== undefined && (
+                    <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-xs">{tab.count}</span>
+                  )}
                 </button>
               ))}
             </nav>
@@ -382,6 +450,17 @@ const StudentDashboard = () => {
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.3 }}
                 >
+                  <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-lg font-semibold text-gray-900">Your Reading History</h3>
+                    <button
+                      onClick={fetchBorrowHistory}
+                      className="text-teal-600 hover:text-teal-800 text-sm flex items-center gap-1"
+                    >
+                      <FiRefreshCw className="w-4 h-4" />
+                      Refresh
+                    </button>
+                  </div>
+
                   {borrowHistory.length > 0 ? (
                     <div className="overflow-hidden rounded-xl border border-gray-200">
                       <table className="min-w-full divide-y divide-gray-200">
@@ -415,6 +494,9 @@ const StudentDashboard = () => {
                                         className="h-16 w-12 rounded-lg object-cover"
                                         src={borrow.book.imageUrl || "/placeholder.svg"}
                                         alt={borrow.book.title}
+                                        onError={(e) => {
+                                          e.target.src = "/placeholder.svg?height=64&width=48"
+                                        }}
                                       />
                                     ) : (
                                       <div className="h-16 w-12 bg-gray-100 rounded-lg flex items-center justify-center">
@@ -433,10 +515,10 @@ const StudentDashboard = () => {
                                 </div>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                {new Date(borrow.borrowDate).toLocaleDateString()}
+                                {borrow.borrowDate ? new Date(borrow.borrowDate).toLocaleDateString() : "N/A"}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                {new Date(borrow.dueDate).toLocaleDateString()}
+                                {borrow.dueDate ? new Date(borrow.dueDate).toLocaleDateString() : "N/A"}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <span

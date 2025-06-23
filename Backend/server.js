@@ -2,7 +2,7 @@ import express from "express"
 import cors from "cors"
 import dotenv from "dotenv"
 import connectDB from "./config/database.js"
-import { errorHandler } from "./middlewares/errorHandler.middleware.js"
+import { errorHandler, notFound } from "./middlewares/errorHandler.middleware.js"
 
 // Import routes
 import authRoutes from "./routes/auth.routes.js"
@@ -17,23 +17,64 @@ import reviewRoutes from "./routes/review.routes.js"
 dotenv.config()
 
 const app = express()
-const PORT = process.env.PORT || 5000
 
-// Middleware
+// Connect to database
+connectDB()
+
+// CORS configuration
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || "http://localhost:5173",
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   }),
 )
 
-app.use(express.json({ limit: "10mb" }))
-app.use(express.urlencoded({ extended: true, limit: "10mb" }))
+// Body parsing middleware with increased limits and better error handling
+app.use(
+  express.json({
+    limit: "10mb",
+    strict: true,
+    verify: (req, res, buf, encoding) => {
+      try {
+        JSON.parse(buf)
+      } catch (e) {
+        console.error("JSON Parse Error:", e.message)
+        console.error("Raw body:", buf.toString())
+        res.status(400).json({
+          success: false,
+          message: "Invalid JSON format",
+          error: e.message,
+        })
+        return
+      }
+    },
+  }),
+)
 
-// Connect to MongoDB
-connectDB()
+app.use(
+  express.urlencoded({
+    extended: true,
+    limit: "10mb",
+  }),
+)
 
-// Routes
+// Request logging middleware
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`)
+  if (req.method === "POST" || req.method === "PUT") {
+    console.log("Request body:", req.body)
+  }
+  next()
+})
+
+// Health check route
+app.get("/", (req, res) => {
+  res.json({ message: "Library Management System API is running!" })
+})
+
+// API routes
 app.use("/api/auth", authRoutes)
 app.use("/api/books", bookRoutes)
 app.use("/api/users", userRoutes)
@@ -42,28 +83,14 @@ app.use("/api/branches", branchRoutes)
 app.use("/api/upload", uploadRoutes)
 app.use("/api/reviews", reviewRoutes)
 
-// Health check route
-app.get("/api/health", (req, res) => {
-  res.status(200).json({
-    message: "KEY Library System API is running",
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || "development",
-  })
-})
-
-// Error handling middleware (should be last)
+// Error handling middleware
+app.use(notFound)
 app.use(errorHandler)
 
-// Handle 404 routes
-app.use("*", (req, res) => {
-  res.status(404).json({ message: "Route not found" })
-})
+const PORT = process.env.PORT || 5000
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`)
-  console.log(`📚 KEY Library System API`)
-  console.log(`🌐 Environment: ${process.env.NODE_ENV || "development"}`)
-  console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL || "http://localhost:5173"}`)
+  console.log(`Server running on port ${PORT}`)
+  console.log(`Environment: ${process.env.NODE_ENV || "development"}`)
+  console.log(`Frontend URL: ${process.env.FRONTEND_URL || "http://localhost:5173"}`)
 })
-
-export default app

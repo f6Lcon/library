@@ -97,11 +97,13 @@ const CommunityDashboard = () => {
       // Handle books and calculate stats
       if (results[2].status === "fulfilled") {
         const allBooks = results[2].value.books || []
+        const borrowData = results[1].status === "fulfilled" ? results[1].value.borrows || [] : []
+
         const stats = {
           totalBooks: allBooks.length,
           availableBooks: allBooks.filter((book) => book.availableCopies > 0).length,
           borrowedBooks: allBooks.filter((book) => book.availableCopies === 0).length,
-          totalBorrows: borrowHistory.length,
+          totalBorrows: borrowData.length,
         }
         setStats(stats)
       } else {
@@ -117,15 +119,30 @@ const CommunityDashboard = () => {
   }
 
   const fetchBorrowHistory = async () => {
-    if (!user?._id) return { borrows: [] }
+    if (!user?._id) {
+      console.log("No user ID available for community borrow history")
+      return { borrows: [] }
+    }
 
     try {
+      console.log("=== FETCHING COMMUNITY BORROW HISTORY ===")
+      console.log("User ID:", user._id)
+
       const response = await borrowService.getBorrowHistory(user._id)
+      console.log("Community borrow history response:", response)
+
       const borrowData = response.borrows || []
       setBorrowHistory(borrowData)
+
+      // Update stats
+      setStats((prevStats) => ({
+        ...prevStats,
+        totalBorrows: borrowData.length,
+      }))
+
       return response
     } catch (err) {
-      console.error("Error fetching borrow history:", err)
+      console.error("Error fetching community borrow history:", err)
       addError("Failed to load borrow history")
       setBorrowHistory([])
       return { borrows: [] }
@@ -441,30 +458,22 @@ const CommunityDashboard = () => {
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex justify-center items-center space-x-2"
-                >
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                <div className="flex justify-center items-center space-x-2">
+                  <button
                     onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                     disabled={currentPage === 1}
                     className="px-4 py-2 border border-teal-300 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:bg-teal-50 transition-colors font-medium flex items-center gap-2"
                   >
                     <FiArrowLeft className="w-4 h-4" />
                     Previous
-                  </motion.button>
+                  </button>
 
                   <div className="flex space-x-1">
                     {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                       const page = i + 1
                       return (
-                        <motion.button
+                        <button
                           key={page}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
                           onClick={() => setCurrentPage(page)}
                           className={`px-4 py-2 border rounded-xl transition-all duration-200 font-medium ${
                             currentPage === page
@@ -473,22 +482,20 @@ const CommunityDashboard = () => {
                           }`}
                         >
                           {page}
-                        </motion.button>
+                        </button>
                       )
                     })}
                   </div>
 
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                  <button
                     onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                     disabled={currentPage === totalPages}
                     className="px-4 py-2 border border-teal-300 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:bg-teal-50 transition-colors font-medium flex items-center gap-2"
                   >
                     Next
                     <FiArrowRight className="w-4 h-4" />
-                  </motion.button>
-                </motion.div>
+                  </button>
+                </div>
               )}
             </div>
           )}

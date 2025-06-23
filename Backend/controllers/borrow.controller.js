@@ -1,36 +1,75 @@
 import Borrow from "../models/borrow.model.js"
 import Book from "../models/book.model.js"
 import User from "../models/user.model.js"
+import mongoose from "mongoose"
 
 export const borrowBook = async (req, res) => {
   try {
-    const { bookId, borrowerId } = req.body
+    console.log("=== BORROW BOOK REQUEST ===")
+    console.log("Request body:", req.body)
+    console.log("User:", req.user)
+    console.log("Headers:", req.headers)
 
-    console.log("Borrow request:", { bookId, borrowerId, userId: req.user._id })
+    const { bookId, borrowerId } = req.body
 
     // Validate required fields
     if (!bookId || !borrowerId) {
+      console.log("Missing required fields:", { bookId, borrowerId })
       return res.status(400).json({
+        success: false,
         message: "Book ID and Borrower ID are required",
         received: { bookId, borrowerId },
       })
     }
 
-    // Find the book
-    const book = await Book.findById(bookId)
-    if (!book) {
-      return res.status(404).json({ message: "Book not found" })
+    // Validate ObjectIds
+    if (!mongoose.Types.ObjectId.isValid(bookId)) {
+      console.log("Invalid book ID:", bookId)
+      return res.status(400).json({
+        success: false,
+        message: "Invalid book ID format",
+      })
     }
 
+    if (!mongoose.Types.ObjectId.isValid(borrowerId)) {
+      console.log("Invalid borrower ID:", borrowerId)
+      return res.status(400).json({
+        success: false,
+        message: "Invalid borrower ID format",
+      })
+    }
+
+    // Find the book
+    const book = await Book.findById(bookId).populate("branch")
+    if (!book) {
+      console.log("Book not found:", bookId)
+      return res.status(404).json({
+        success: false,
+        message: "Book not found",
+      })
+    }
+
+    console.log("Found book:", book.title, "Available copies:", book.availableCopies)
+
     if (book.availableCopies <= 0) {
-      return res.status(400).json({ message: "Book not available for borrowing" })
+      console.log("Book not available")
+      return res.status(400).json({
+        success: false,
+        message: "Book not available for borrowing",
+      })
     }
 
     // Find the borrower
-    const borrower = await User.findById(borrowerId)
+    const borrower = await User.findById(borrowerId).populate("branch")
     if (!borrower) {
-      return res.status(404).json({ message: "Borrower not found" })
+      console.log("Borrower not found:", borrowerId)
+      return res.status(404).json({
+        success: false,
+        message: "Borrower not found",
+      })
     }
+
+    console.log("Found borrower:", borrower.firstName, borrower.lastName)
 
     // Check if user already has this book borrowed
     const existingBorrow = await Borrow.findOne({
@@ -40,7 +79,11 @@ export const borrowBook = async (req, res) => {
     })
 
     if (existingBorrow) {
-      return res.status(400).json({ message: "Book already borrowed by this user" })
+      console.log("Book already borrowed by this user")
+      return res.status(400).json({
+        success: false,
+        message: "Book already borrowed by this user",
+      })
     }
 
     // Create borrow record
@@ -52,7 +95,7 @@ export const borrowBook = async (req, res) => {
       borrower: borrowerId,
       dueDate,
       issuedBy: req.user._id,
-      branch: borrower.branch || req.user.branch, // Use borrower's branch or issuer's branch
+      branch: borrower.branch?._id || req.user.branch?._id,
     }
 
     console.log("Creating borrow with data:", borrowData)
@@ -64,27 +107,34 @@ export const borrowBook = async (req, res) => {
     book.availableCopies -= 1
     await book.save()
 
+    console.log("Book availability updated. New count:", book.availableCopies)
+
     // Populate the borrow record for response
     await borrow.populate([
-      { path: "book", select: "title author isbn" },
+      { path: "book", select: "title author isbn imageUrl" },
       { path: "borrower", select: "firstName lastName email studentId" },
       { path: "issuedBy", select: "firstName lastName" },
-      { path: "branch", select: "name" },
+      { path: "branch", select: "name code" },
     ])
 
-    console.log("Book borrowed successfully:", borrow)
+    console.log("Book borrowed successfully")
 
     res.status(201).json({
+      success: true,
       message: "Book borrowed successfully",
       borrow,
-      success: true,
     })
   } catch (error) {
-    console.error("Error in borrowBook:", error)
+    console.error("=== BORROW ERROR ===")
+    console.error("Error details:", error)
+    console.error("Stack trace:", error.stack)
+
+    // Ensure we always return JSON
     res.status(500).json({
+      success: false,
       message: "Failed to borrow book",
       error: error.message,
-      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+      details: process.env.NODE_ENV === "development" ? error.stack : undefined,
     })
   }
 }
@@ -93,9 +143,19 @@ export const returnBook = async (req, res) => {
   try {
     const { borrowId } = req.params
 
+    if (!mongoose.Types.ObjectId.isValid(borrowId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid borrow ID format",
+      })
+    }
+
     const borrow = await Borrow.findById(borrowId).populate("book")
     if (!borrow || borrow.status !== "borrowed") {
-      return res.status(404).json({ message: "Borrow record not found or already returned" })
+      return res.status(404).json({
+        success: false,
+        message: "Borrow record not found or already returned",
+      })
     }
 
     // Calculate fine if overdue
@@ -124,10 +184,18 @@ export const returnBook = async (req, res) => {
       { path: "returnedBy", select: "firstName lastName" },
     ])
 
-    res.json({ message: "Book returned successfully", borrow })
+    res.json({
+      success: true,
+      message: "Book returned successfully",
+      borrow,
+    })
   } catch (error) {
     console.error("Error in returnBook:", error)
-    res.status(500).json({ message: "Failed to return book", error: error.message })
+    res.status(500).json({
+      success: false,
+      message: "Failed to return book",
+      error: error.message,
+    })
   }
 }
 
@@ -135,6 +203,13 @@ export const getBorrowHistory = async (req, res) => {
   try {
     const { userId } = req.params
     const { status, page = 1, limit = 10 } = req.query
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user ID format",
+      })
+    }
 
     const query = { borrower: userId }
     if (status) query.status = status
@@ -152,6 +227,7 @@ export const getBorrowHistory = async (req, res) => {
     const total = await Borrow.countDocuments(query)
 
     res.json({
+      success: true,
       borrows,
       totalPages: Math.ceil(total / limit),
       currentPage: page,
@@ -159,7 +235,11 @@ export const getBorrowHistory = async (req, res) => {
     })
   } catch (error) {
     console.error("Error in getBorrowHistory:", error)
-    res.status(500).json({ message: "Failed to fetch borrow history", error: error.message })
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch borrow history",
+      error: error.message,
+    })
   }
 }
 
@@ -169,14 +249,17 @@ export const getAllBorrows = async (req, res) => {
 
     // For non-admin/librarian users, restrict access
     if (req.user.role !== "admin" && req.user.role !== "librarian") {
-      return res.status(403).json({ message: "Access denied. Insufficient permissions." })
+      return res.status(403).json({
+        success: false,
+        message: "Access denied. Insufficient permissions.",
+      })
     }
 
     const query = {}
     if (status) query.status = status
 
     // If user is librarian, only show borrows from their branch
-    if (req.user.role === "librarian") {
+    if (req.user.role === "librarian" && req.user.branch) {
       query.branch = req.user.branch
     }
 
@@ -193,6 +276,7 @@ export const getAllBorrows = async (req, res) => {
     const total = await Borrow.countDocuments(query)
 
     res.json({
+      success: true,
       borrows,
       totalPages: Math.ceil(total / limit),
       currentPage: page,
@@ -200,7 +284,11 @@ export const getAllBorrows = async (req, res) => {
     })
   } catch (error) {
     console.error("Error in getAllBorrows:", error)
-    res.status(500).json({ message: "Failed to fetch borrows", error: error.message })
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch borrows",
+      error: error.message,
+    })
   }
 }
 
@@ -213,7 +301,7 @@ export const getOverdueBooks = async (req, res) => {
     }
 
     // If user is librarian, only show overdue books from their branch
-    if (req.user.role === "librarian") {
+    if (req.user.role === "librarian" && req.user.branch) {
       query.branch = req.user.branch
     }
 
@@ -223,10 +311,17 @@ export const getOverdueBooks = async (req, res) => {
       .populate("branch", "name")
       .sort({ dueDate: 1 })
 
-    res.json({ overdueBooks })
+    res.json({
+      success: true,
+      overdueBooks,
+    })
   } catch (error) {
     console.error("Error in getOverdueBooks:", error)
-    res.status(500).json({ message: "Failed to fetch overdue books", error: error.message })
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch overdue books",
+      error: error.message,
+    })
   }
 }
 
@@ -270,6 +365,7 @@ export const getBorrowStats = async (req, res) => {
   } catch (error) {
     console.error("Error in getBorrowStats:", error)
     res.status(500).json({
+      success: false,
       message: "Failed to fetch borrow statistics",
       error: error.message,
     })

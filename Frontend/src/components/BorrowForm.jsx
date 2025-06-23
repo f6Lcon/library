@@ -38,10 +38,30 @@ const BorrowForm = ({ onClose, onSuccess }) => {
     setError("")
 
     try {
-      await borrowService.borrowBook(selectedBook, selectedUser)
-      onSuccess()
+      console.log("=== BORROW FORM SUBMIT ===")
+      console.log("Selected book:", selectedBook)
+      console.log("Selected user:", selectedUser)
+
+      // Prepare data with correct field names
+      const borrowData = {
+        bookId: selectedBook,
+        borrowerId: selectedUser,
+      }
+
+      console.log("Sending borrow data:", borrowData)
+
+      const result = await borrowService.borrowBook(borrowData)
+      console.log("Borrow result:", result)
+
+      if (result.success) {
+        onSuccess()
+        onClose()
+      } else {
+        setError(result.message || "Failed to issue book")
+      }
     } catch (err) {
-      setError(err.message)
+      console.error("Borrow form error:", err)
+      setError(err.response?.data?.message || err.message || "Failed to issue book")
     } finally {
       setLoading(false)
     }
@@ -64,7 +84,10 @@ const BorrowForm = ({ onClose, onSuccess }) => {
             <label className="block text-sm font-medium text-gray-700 mb-1">Select Book *</label>
             <select
               value={selectedBook}
-              onChange={(e) => setSelectedBook(e.target.value)}
+              onChange={(e) => {
+                console.log("Book selected:", e.target.value)
+                setSelectedBook(e.target.value)
+              }}
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
             >
@@ -81,7 +104,10 @@ const BorrowForm = ({ onClose, onSuccess }) => {
             <label className="block text-sm font-medium text-gray-700 mb-1">Select User *</label>
             <select
               value={selectedUser}
-              onChange={(e) => setSelectedUser(e.target.value)}
+              onChange={(e) => {
+                console.log("User selected:", e.target.value)
+                setSelectedUser(e.target.value)
+              }}
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
             >
@@ -96,7 +122,7 @@ const BorrowForm = ({ onClose, onSuccess }) => {
 
           <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
             <p>
-              <strong>Note:</strong> Books are issued for 14 days. Late returns incur a fine of Kes 20 per day.
+              <strong>Note:</strong> Books are issued for 14 days. Late returns incur a fine of $1 per day.
             </p>
           </div>
 
@@ -110,7 +136,7 @@ const BorrowForm = ({ onClose, onSuccess }) => {
             </button>
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !selectedBook || !selectedUser}
               className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
             >
               {loading ? "Issuing..." : "Issue Book"}
