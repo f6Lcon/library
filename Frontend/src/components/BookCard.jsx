@@ -2,18 +2,7 @@
 
 import { motion } from "framer-motion"
 import { Link } from "react-router-dom"
-import {
-  FiBook,
-  FiUser,
-  FiCalendar,
-  FiTag,
-  FiMapPin,
-  FiEdit,
-  FiTrash2,
-  FiBookOpen,
-  FiStar,
-  FiHeart,
-} from "react-icons/fi"
+import { FiBook, FiEdit, FiTrash2, FiBookOpen, FiStar, FiEye } from "react-icons/fi"
 
 const BookCard = ({
   book,
@@ -33,7 +22,7 @@ const BookCard = ({
       y: 0,
       transition: {
         duration: 0.4,
-        delay: index * 0.05,
+        delay: index * 0.02,
         ease: "easeOut",
       },
     },
@@ -41,9 +30,9 @@ const BookCard = ({
 
   const hoverVariants = {
     hover: {
-      y: -8,
+      y: -4,
       scale: 1.02,
-      transition: { duration: 0.3, ease: "easeOut" },
+      transition: { duration: 0.2, ease: "easeOut" },
     },
   }
 
@@ -54,307 +43,236 @@ const BookCard = ({
         initial="hidden"
         animate="visible"
         whileHover="hover"
-        className={`bg-white/95 backdrop-blur-sm rounded-2xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 border border-primary-100 group ${className}`}
+        className={`bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200 group ${className}`}
       >
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-3">
           {/* Book Image */}
-          <div className="w-16 h-20 bg-gradient-to-br from-primary-50 to-secondary-50 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden shadow-md">
-            {book.imageUrl ? (
-              <img
-                src={book.imageUrl || "/placeholder.svg"}
-                alt={book.title}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                onError={(e) => {
-                  e.target.src = "/placeholder.svg?height=80&width=64"
-                }}
-              />
-            ) : (
-              <FiBook className="w-6 h-6 text-primary-500" />
-            )}
-          </div>
+          <Link to={`/books/${book._id}`} className="flex-shrink-0">
+            <div className="w-10 h-10 bg-gray-100 rounded-md overflow-hidden shadow-sm group-hover:shadow-md transition-shadow">
+              {book.imageUrl ? (
+                <img
+                  src={book.imageUrl || "/placeholder.svg"}
+                  alt={book.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  onError={(e) => {
+                    e.target.src = "/placeholder.svg?height=40&width=40"
+                  }}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                  <FiBook className="w-5 h-5 text-gray-400" />
+                </div>
+              )}
+            </div>
+          </Link>
 
           {/* Book Info */}
           <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-bold text-gray-900 mb-1 group-hover:text-primary-600 transition-colors line-clamp-1">
-              {book.title}
-            </h3>
+            <Link to={`/books/${book._id}`}>
+              <h3 className="text-sm font-semibold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors line-clamp-1 cursor-pointer">
+                {book.title}
+              </h3>
+            </Link>
 
-            <div className="flex items-center text-gray-600 mb-2">
-              <FiUser className="w-4 h-4 mr-2" />
-              <span className="text-sm truncate">{book.author}</span>
+            <div className="flex items-center text-gray-600 mb-1">
+              <span className="text-xs truncate">by {book.author}</span>
             </div>
 
-            <div className="flex items-center space-x-4 text-sm text-gray-500 mb-2">
-              <div className="flex items-center">
-                <FiCalendar className="w-4 h-4 mr-1" />
-                <span>{book.publishedYear}</span>
-              </div>
-              <div className="flex items-center">
-                <FiTag className="w-4 h-4 mr-1" />
-                <span className="truncate">{book.category}</span>
-              </div>
+            <div className="flex items-center space-x-3 text-xs text-gray-500 mb-1">
+              <span>{book.publishedYear}</span>
+              <span className="truncate">{book.category}</span>
               {showBranchInfo && book.branch && (
-                <div className="flex items-center">
-                  <FiMapPin className="w-4 h-4 mr-1" />
-                  <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">{book.branch.code}</span>
-                </div>
+                <span className="font-mono bg-gray-100 px-1.5 py-0.5 rounded text-xs">{book.branch.code}</span>
               )}
             </div>
 
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <span
-                  className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                    book.availableCopies > 0 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                  className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                    book.availableCopies > 0 ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
                   }`}
                 >
-                  {book.availableCopies > 0 ? `${book.availableCopies} Available` : "Out of Stock"}
-                </span>
-                <span className="text-xs text-gray-500">
-                  {book.availableCopies}/{book.totalCopies} copies
+                  {book.availableCopies > 0 ? "Available" : "Out of Stock"}
                 </span>
               </div>
 
-              <div className="flex text-yellow-400">
-                {[...Array(5)].map((_, i) => (
-                  <FiStar key={i} className="w-4 h-4 fill-current" />
-                ))}
-                <span className="text-sm text-gray-600 ml-2">4.5</span>
+              <div className="flex items-center text-yellow-500">
+                <FiStar className="w-3 h-3 fill-current" />
+                <span className="text-xs text-gray-600 ml-1">
+                  {book.averageRating ? book.averageRating.toFixed(1) : "0.0"}
+                </span>
               </div>
             </div>
           </div>
 
           {/* Actions */}
-          <div className="flex flex-col space-y-2">
-            {!showActions && (
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md hover:bg-white transition-colors border border-primary-100"
-              >
-                <FiHeart className="w-4 h-4 text-red-500" />
-              </motion.button>
-            )}
-
-            {showActions ? (
-              <div className="flex space-x-2">
-                {onEdit && (
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => onEdit(book)}
-                    className="px-3 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors text-sm font-medium flex items-center space-x-1"
-                  >
-                    <FiEdit className="w-4 h-4" />
-                    <span>Edit</span>
-                  </motion.button>
-                )}
-                {onDelete && (
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => onDelete(book._id)}
-                    className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium flex items-center space-x-1"
-                  >
-                    <FiTrash2 className="w-4 h-4" />
-                    <span>Delete</span>
-                  </motion.button>
-                )}
-                {onIssue && book.availableCopies > 0 && (
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => onIssue(book)}
-                    className="px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm font-medium flex items-center space-x-1"
-                  >
-                    <FiBookOpen className="w-4 h-4" />
-                    <span>Issue</span>
-                  </motion.button>
-                )}
-              </div>
-            ) : (
-              <Link to={`/books/${book._id}`}>
+          {showActions && (
+            <div className="flex space-x-1">
+              {onEdit && (
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="bg-gradient-to-r from-primary-500 to-primary-600 text-white py-2 px-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 flex items-center space-x-2"
+                  onClick={() => onEdit(book)}
+                  className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
                 >
-                  <FiBookOpen className="w-4 h-4" />
-                  <span>View Details</span>
+                  <FiEdit className="w-3 h-3" />
                 </motion.button>
-              </Link>
-            )}
-          </div>
+              )}
+              {onDelete && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => onDelete(book._id)}
+                  className="p-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+                >
+                  <FiTrash2 className="w-3 h-3" />
+                </motion.button>
+              )}
+              {onIssue && book.availableCopies > 0 && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => onIssue(book)}
+                  className="p-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
+                >
+                  <FiBookOpen className="w-3 h-3" />
+                </motion.button>
+              )}
+            </div>
+          )}
         </div>
       </motion.div>
     )
   }
 
-  // Grid variant (default)
+  // Grid variant (OpenLibrary style)
   return (
     <motion.div
       variants={cardVariants}
       initial="hidden"
       animate="visible"
       whileHover={hoverVariants.hover}
-      className={`bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-primary-100 group overflow-hidden ${className}`}
+      className={`group cursor-pointer ${className}`}
     >
-      {/* Book Image */}
-      <div className="relative aspect-[3/4] overflow-hidden bg-gradient-to-br from-primary-50 to-secondary-50">
-        {book.imageUrl ? (
-          <img
-            src={book.imageUrl || "/placeholder.svg"}
-            alt={book.title}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-            onError={(e) => {
-              e.target.src = "/placeholder.svg?height=320&width=240"
-            }}
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <FiBook className="w-12 h-12 text-primary-500" />
-          </div>
-        )}
+      <Link to={`/books/${book._id}`} className="block">
+        <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200 overflow-hidden">
+          {/* Book Cover */}
+          <div className="relative w-full h-32 bg-gray-100 overflow-hidden">
+            {book.imageUrl ? (
+              <img
+                src={book.imageUrl || "/placeholder.svg"}
+                alt={book.title}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                onError={(e) => {
+                  e.target.src = "/placeholder.svg?height=128&width=200"
+                }}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                <FiBook className="w-8 h-8 text-gray-400" />
+              </div>
+            )}
 
-        {/* Availability Badge */}
-        <div className="absolute top-3 right-3">
-          <span
-            className={`px-2 py-1 rounded-full text-xs font-bold shadow-lg backdrop-blur-sm ${
-              book.availableCopies > 0 ? "bg-green-500/90 text-white" : "bg-red-500/90 text-white"
-            }`}
-          >
-            {book.availableCopies > 0 ? book.availableCopies : "Out"}
-          </span>
-        </div>
-
-        {/* Favorite Button */}
-        {!showActions && (
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className="absolute top-3 left-3 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md hover:bg-white transition-colors"
-          >
-            <FiHeart className="w-4 h-4 text-red-500" />
-          </motion.button>
-        )}
-      </div>
-
-      {/* Book Info */}
-      <div className="p-4">
-        <div className="mb-3">
-          <h3 className="text-base font-bold text-gray-900 line-clamp-2 leading-tight mb-2 group-hover:text-primary-600 transition-colors">
-            {book.title}
-          </h3>
-
-          <div className="flex items-center text-gray-600 mb-2">
-            <FiUser className="w-4 h-4 mr-2" />
-            <span className="text-sm truncate">{book.author}</span>
-          </div>
-        </div>
-
-        {/* Category and Branch */}
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-xs text-primary-600 font-bold bg-primary-100 px-2 py-1 rounded-lg flex items-center">
-            <FiTag className="w-3 h-3 mr-1" />
-            {book.category}
-          </span>
-          {showBranchInfo && book.branch && (
-            <span className="text-xs text-gray-500 font-mono bg-gray-100 px-2 py-1 rounded flex items-center">
-              <FiMapPin className="w-3 h-3 mr-1" />
-              {book.branch.code}
-            </span>
-          )}
-        </div>
-
-        {/* Book Details */}
-        <div className="text-xs text-gray-500 mb-3 space-y-1">
-          <div className="flex justify-between items-center">
-            <span className="flex items-center">
-              <FiCalendar className="w-3 h-3 mr-1" />
-              Year:
-            </span>
-            <span className="font-medium">{book.publishedYear}</span>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="flex items-center">
-              <FiBook className="w-3 h-3 mr-1" />
-              Pages:
-            </span>
-            <span className="font-medium">{book.pages}</span>
-          </div>
-          <div className="flex justify-between items-center font-bold">
-            <span>Stock:</span>
-            <span className={book.availableCopies > 0 ? "text-primary-600" : "text-red-600"}>
-              {book.availableCopies}/{book.totalCopies}
-            </span>
-          </div>
-        </div>
-
-        {/* Rating */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center">
-            <div className="flex text-yellow-400">
-              {[...Array(5)].map((_, i) => (
-                <FiStar key={i} className="w-3 h-3 fill-current" />
-              ))}
-            </div>
-            <span className="text-xs text-gray-600 ml-2">4.5</span>
-          </div>
-          <span className="text-xs text-gray-500">{book.isbn}</span>
-        </div>
-
-        {/* Actions */}
-        {showActions ? (
-          <div className="space-y-2">
-            <div className="flex space-x-2">
-              {onEdit && (
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => onEdit(book)}
-                  className="flex-1 bg-primary-500 text-white py-2 px-3 rounded-lg text-xs font-semibold hover:bg-primary-600 transition-colors flex items-center justify-center space-x-1"
-                >
-                  <FiEdit className="w-3 h-3" />
-                  <span>Edit</span>
-                </motion.button>
-              )}
-              {onDelete && (
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => onDelete(book._id)}
-                  className="flex-1 bg-red-500 text-white py-2 px-3 rounded-lg text-xs font-semibold hover:bg-red-600 transition-colors flex items-center justify-center space-x-1"
-                >
-                  <FiTrash2 className="w-3 h-3" />
-                  <span>Delete</span>
-                </motion.button>
-              )}
-            </div>
-            {onIssue && book.availableCopies > 0 && (
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => onIssue(book)}
-                className="w-full bg-green-500 text-white py-2 px-3 rounded-lg text-xs font-semibold hover:bg-green-600 transition-colors flex items-center justify-center space-x-1"
+            {/* Availability Badge */}
+            <div className="absolute top-2 right-2">
+              <span
+                className={`px-2 py-1 rounded-full text-xs font-medium shadow-sm ${
+                  book.availableCopies > 0 ? "bg-green-500 text-white" : "bg-red-500 text-white"
+                }`}
               >
-                <FiBookOpen className="w-3 h-3" />
-                <span>Issue Book</span>
-              </motion.button>
+                {book.availableCopies > 0 ? book.availableCopies : "0"}
+              </span>
+            </div>
+
+            {/* Hover Overlay */}
+            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="bg-white rounded-full p-2 shadow-lg">
+                  <FiEye className="w-5 h-5 text-gray-700" />
+                </div>
+              </div>
+            </div>
+
+            {/* Admin Actions Overlay */}
+            {showActions && (
+              <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="flex flex-col space-y-1">
+                  {onEdit && (
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        onEdit(book)
+                      }}
+                      className="p-1.5 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors shadow-sm"
+                    >
+                      <FiEdit className="w-3 h-3" />
+                    </motion.button>
+                  )}
+                  {onDelete && (
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        onDelete(book._id)
+                      }}
+                      className="p-1.5 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors shadow-sm"
+                    >
+                      <FiTrash2 className="w-3 h-3" />
+                    </motion.button>
+                  )}
+                  {onIssue && book.availableCopies > 0 && (
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        onIssue(book)
+                      }}
+                      className="p-1.5 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors shadow-sm"
+                    >
+                      <FiBookOpen className="w-3 h-3" />
+                    </motion.button>
+                  )}
+                </div>
+              </div>
             )}
           </div>
-        ) : (
-          <Link to={`/books/${book._id}`}>
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="w-full bg-gradient-to-r from-primary-500 to-primary-600 text-white py-2 px-3 rounded-lg text-xs font-semibold hover:shadow-lg transition-all duration-300 flex items-center justify-center space-x-1"
-            >
-              <FiBookOpen className="w-3 h-3" />
-              <span>View Details</span>
-            </motion.button>
-          </Link>
-        )}
-      </div>
+
+          {/* Book Info */}
+          <div className="p-3">
+            <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 leading-tight mb-1 group-hover:text-blue-600 transition-colors">
+              {book.title}
+            </h3>
+
+            <p className="text-xs text-gray-600 mb-2 line-clamp-1">by {book.author}</p>
+
+            <div className="flex items-center justify-between text-xs text-gray-500">
+              <span>{book.publishedYear}</span>
+              <div className="flex items-center">
+                <FiStar className="w-3 h-3 text-yellow-500 fill-current mr-1" />
+                <span>{book.averageRating ? book.averageRating.toFixed(1) : "0.0"}</span>
+              </div>
+            </div>
+
+            {/* Category and Branch */}
+            <div className="flex items-center justify-between mt-2">
+              <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full">{book.category}</span>
+              {showBranchInfo && book.branch && (
+                <span className="text-xs font-mono bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                  {book.branch.code}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      </Link>
     </motion.div>
   )
 }

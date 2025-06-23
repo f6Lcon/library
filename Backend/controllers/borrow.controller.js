@@ -166,8 +166,13 @@ export const getBorrowHistory = async (req, res) => {
 export const getAllBorrows = async (req, res) => {
   try {
     const { status, page = 1, limit = 10 } = req.query
-    const query = {}
 
+    // For non-admin/librarian users, restrict access
+    if (req.user.role !== "admin" && req.user.role !== "librarian") {
+      return res.status(403).json({ message: "Access denied. Insufficient permissions." })
+    }
+
+    const query = {}
     if (status) query.status = status
 
     // If user is librarian, only show borrows from their branch
@@ -222,5 +227,51 @@ export const getOverdueBooks = async (req, res) => {
   } catch (error) {
     console.error("Error in getOverdueBooks:", error)
     res.status(500).json({ message: "Failed to fetch overdue books", error: error.message })
+  }
+}
+
+export const getBorrowStats = async (req, res) => {
+  try {
+    console.log("Getting borrow stats for user:", req.user.role)
+
+    // Get total borrowed books count
+    const totalBorrowedBooks = await Borrow.countDocuments({ status: "borrowed" })
+
+    // Get overdue books count
+    const today = new Date()
+    const overdueBooks = await Borrow.countDocuments({
+      status: "borrowed",
+      dueDate: { $lt: today },
+    })
+
+    // Get total books count
+    const totalBooks = await Book.countDocuments()
+
+    // Get active users count (excluding admins)
+    const activeUsers = await User.countDocuments({
+      isActive: { $ne: false },
+      role: { $in: ["student", "community"] },
+    })
+
+    const stats = {
+      totalBooks,
+      totalBorrowedBooks,
+      overdueBooks,
+      activeUsers,
+      yearsOfService: 25, // Static institutional data
+    }
+
+    console.log("Borrow stats:", stats)
+
+    res.json({
+      success: true,
+      stats,
+    })
+  } catch (error) {
+    console.error("Error in getBorrowStats:", error)
+    res.status(500).json({
+      message: "Failed to fetch borrow statistics",
+      error: error.message,
+    })
   }
 }

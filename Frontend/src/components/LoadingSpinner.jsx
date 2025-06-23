@@ -14,6 +14,8 @@ const LoadingSpinner = ({ size = "md", color = "primary", text = "", fullScreen 
     secondary: "border-secondary-500",
     white: "border-white",
     gray: "border-gray-500",
+    green: "border-green-500",
+    blue: "border-blue-500",
   }
 
   const spinnerContent = (

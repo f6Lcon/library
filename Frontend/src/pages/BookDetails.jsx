@@ -6,6 +6,7 @@ import { bookService } from "../services/bookService"
 import { borrowService } from "../services/borrowService"
 import { useAuth } from "../context/AuthContext"
 import { motion } from "framer-motion"
+import { reviewService } from "../services/reviewService"
 import {
   MdArrowBack,
   MdBook,
@@ -35,6 +36,8 @@ const BookDetails = () => {
   const [error, setError] = useState("")
   const [borrowing, setBorrowing] = useState(false)
   const [borrowSuccess, setBorrowSuccess] = useState(false)
+  const [reviews, setReviews] = useState([])
+  const [reviewStats, setReviewStats] = useState({ averageRating: 0, totalReviews: 0 })
 
   useEffect(() => {
     fetchBookDetails()
@@ -45,11 +48,25 @@ const BookDetails = () => {
       setLoading(true)
       const response = await bookService.getBookById(id)
       setBook(response.book)
+      await fetchReviews()
     } catch (err) {
       setError("Failed to fetch book details")
       console.error("Error fetching book details:", err)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchReviews = async () => {
+    try {
+      const reviewData = await reviewService.getBookReviews(id)
+      setReviews(reviewData.reviews || [])
+      setReviewStats({
+        averageRating: reviewData.averageRating || 0,
+        totalReviews: reviewData.totalReviews || 0,
+      })
+    } catch (err) {
+      console.error("Error fetching reviews:", err)
     }
   }
 
@@ -238,13 +255,18 @@ const BookDetails = () => {
                 <div className="mt-6 pt-6 border-t border-gray-200">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-semibold text-gray-700">Rating</span>
-                    <span className="text-sm text-gray-600">4.5/5</span>
+                    <span className="text-sm text-gray-600">{reviewStats.averageRating.toFixed(1)}/5</span>
                   </div>
                   <div className="flex items-center space-x-1">
                     {[...Array(5)].map((_, i) => (
-                      <MdStar key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                      <MdStar
+                        key={i}
+                        className={`w-5 h-5 ${
+                          i < Math.floor(reviewStats.averageRating) ? "text-yellow-400 fill-current" : "text-gray-300"
+                        }`}
+                      />
                     ))}
-                    <span className="text-sm text-gray-600 ml-2">(124 reviews)</span>
+                    <span className="text-sm text-gray-600 ml-2">({reviewStats.totalReviews} reviews)</span>
                   </div>
                 </div>
               </div>

@@ -161,7 +161,7 @@ const Homepage = () => {
                   <FiArrowRight className="ml-2" />
                 </Link>
                 <Link
-                  to={`/${user.role}-dashboard`}
+                  to="/dashboard"
                   className="inline-flex items-center px-8 py-4 bg-primary-500/20 text-white border-2 border-white/30 rounded-xl font-semibold hover:bg-white/10 transition-all duration-200"
                 >
                   Go to Dashboard
@@ -261,7 +261,7 @@ const Homepage = () => {
               </p>
             </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-6 gap-4">
               {featuredBooks.map((book, index) => (
                 <motion.div
                   key={book._id}
@@ -269,7 +269,7 @@ const Homepage = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.1 * index }}
                 >
-                  <BookCard book={book} variant="grid" />
+                  <BookCard book={book} variant="grid" className="h-full" />
                 </motion.div>
               ))}
             </div>

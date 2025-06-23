@@ -11,6 +11,7 @@ import userRoutes from "./routes/user.routes.js"
 import borrowRoutes from "./routes/borrow.routes.js"
 import branchRoutes from "./routes/branch.routes.js"
 import uploadRoutes from "./routes/upload.routes.js"
+import reviewRoutes from "./routes/review.routes.js"
 
 // Load environment variables
 dotenv.config()
@@ -39,6 +40,7 @@ app.use("/api/users", userRoutes)
 app.use("/api/borrow", borrowRoutes)
 app.use("/api/branches", branchRoutes)
 app.use("/api/upload", uploadRoutes)
+app.use("/api/reviews", reviewRoutes)
 
 // Health check route
 app.get("/api/health", (req, res) => {

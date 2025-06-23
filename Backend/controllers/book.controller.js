@@ -26,13 +26,57 @@ export const getAllBooks = async (req, res) => {
       ]
     }
 
-    const books = await Book.find(query)
-      .populate("addedBy", "firstName lastName")
-      .populate("branch", "name code")
-      .limit(limit * 1)
-      .skip((page - 1) * limit)
-      .sort({ createdAt: -1 })
+    // Use aggregation to include review statistics
+    const pipeline = [
+      { $match: query },
+      {
+        $lookup: {
+          from: "reviews",
+          localField: "_id",
+          foreignField: "book",
+          as: "reviews",
+          pipeline: [{ $match: { isApproved: true } }],
+        },
+      },
+      {
+        $addFields: {
+          averageRating: {
+            $cond: {
+              if: { $gt: [{ $size: "$reviews" }, 0] },
+              then: { $avg: "$reviews.rating" },
+              else: 0,
+            },
+          },
+          totalReviews: { $size: "$reviews" },
+        },
+      },
+      { $project: { reviews: 0 } }, // Remove reviews array from output
+      {
+        $lookup: {
+          from: "users",
+          localField: "addedBy",
+          foreignField: "_id",
+          as: "addedBy",
+          pipeline: [{ $project: { firstName: 1, lastName: 1 } }],
+        },
+      },
+      {
+        $lookup: {
+          from: "branches",
+          localField: "branch",
+          foreignField: "_id",
+          as: "branch",
+          pipeline: [{ $project: { name: 1, code: 1 } }],
+        },
+      },
+      { $unwind: { path: "$addedBy", preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: "$branch", preserveNullAndEmptyArrays: true } },
+      { $sort: { createdAt: -1 } },
+      { $skip: (page - 1) * limit },
+      { $limit: Number.parseInt(limit) },
+    ]
 
+    const books = await Book.aggregate(pipeline)
     const total = await Book.countDocuments(query)
 
     res.json({
