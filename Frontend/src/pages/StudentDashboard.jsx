@@ -215,15 +215,15 @@ const StudentDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50 pt-20">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-teal-600 to-teal-700 text-white">
+      <div className="bg-gradient-to-r from-primary-600 to-primary-700 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex items-center justify-between">
             <div>
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
                 <h1 className="text-4xl font-bold mb-2">Welcome back, {user.firstName}!</h1>
-                <p className="text-teal-100 text-lg mb-4">Manage your reading journey and discover new books</p>
+                <p className="text-primary-100 text-lg mb-4">Manage your reading journey and discover new books</p>
                 {user.branch && (
-                  <div className="flex items-center mt-2 text-sm text-teal-200">
+                  <div className="flex items-center mt-2 text-sm text-primary-200">
                     <FiUser className="w-5 h-5 mr-2" />
                     <span className="font-medium">{user.branch.name} Library</span>
                   </div>
@@ -341,7 +341,7 @@ const StudentDashboard = () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
                     activeTab === tab.id
-                      ? "border-teal-500 text-teal-600"
+                      ? "border-primary-500 text-primary-600"
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                   }`}
                 >
@@ -377,7 +377,7 @@ const StudentDashboard = () => {
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
                           placeholder="Search by title, author, or ISBN..."
-                          className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors duration-200"
+                          className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200"
                         />
                       </div>
                     </div>
@@ -389,7 +389,7 @@ const StudentDashboard = () => {
                         <select
                           value={selectedCategory}
                           onChange={(e) => setSelectedCategory(e.target.value)}
-                          className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 appearance-none transition-colors duration-200"
+                          className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 appearance-none transition-colors duration-200"
                         >
                           <option value="">All Categories</option>
                           {categories.map((category) => (
@@ -431,7 +431,7 @@ const StudentDashboard = () => {
                             setSearchTerm("")
                             setSelectedCategory("")
                           }}
-                          className="inline-flex items-center px-6 py-3 bg-teal-600 text-white rounded-xl hover:bg-teal-700 transition-colors duration-200"
+                          className="inline-flex items-center px-6 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors duration-200"
                         >
                           <FiRefreshCw className="w-4 h-4 mr-2" />
                           Clear Filters
@@ -454,7 +454,7 @@ const StudentDashboard = () => {
                     <h3 className="text-lg font-semibold text-gray-900">Your Reading History</h3>
                     <button
                       onClick={fetchBorrowHistory}
-                      className="text-teal-600 hover:text-teal-800 text-sm flex items-center gap-1"
+                      className="text-primary-600 hover:text-primary-800 text-sm flex items-center gap-1"
                     >
                       <FiRefreshCw className="w-4 h-4" />
                       Refresh
@@ -571,7 +571,7 @@ const StudentDashboard = () => {
                               setSelectedBookForReview(book)
                               setShowReviewModal(true)
                             }}
-                            className="absolute bottom-2 right-2 bg-teal-600 text-white rounded-full p-2 hover:bg-teal-700 transition-colors duration-200"
+                            className="absolute bottom-2 right-2 bg-primary-600 text-white rounded-full p-2 hover:bg-primary-700 transition-colors duration-200"
                           >
                             <FiStar className="w-4 h-4" />
                           </button>

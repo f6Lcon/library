@@ -42,11 +42,11 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-secondary-50 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-100 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute top-20 left-10 w-72 h-72 bg-primary-500/10 rounded-full blur-3xl animate-float"></div>
       <div
-        className="absolute bottom-20 right-10 w-96 h-96 bg-secondary-500/10 rounded-full blur-3xl animate-float"
+        className="absolute bottom-20 right-10 w-96 h-96 bg-primary-600/10 rounded-full blur-3xl animate-float"
         style={{ animationDelay: "1s" }}
       ></div>
 
@@ -62,7 +62,7 @@ const Login = () => {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-            className="mx-auto w-20 h-20 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-3xl flex items-center justify-center shadow-2xl mb-6 relative"
+            className="mx-auto w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-600 rounded-3xl flex items-center justify-center shadow-large mb-6 relative"
           >
             <FiBookOpen className="w-10 h-10 text-white" />
             <motion.div
@@ -77,7 +77,7 @@ const Login = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2 font-display"
+            className="text-3xl lg:text-4xl font-bold text-secondary-900 mb-2 font-display"
           >
             Welcome Back
           </motion.h2>
@@ -85,7 +85,7 @@ const Login = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
-            className="text-gray-600 text-lg"
+            className="text-secondary-600 text-lg"
           >
             Sign in to your KEY Library account
           </motion.p>
@@ -96,14 +96,14 @@ const Login = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl p-8 border border-white/50"
+          className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-large p-8 border border-white/50"
         >
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-center space-x-2"
+                className="bg-error-50 border border-error-200 text-error-700 px-4 py-3 rounded-xl flex items-center space-x-2"
               >
                 <FiAlertCircle className="w-5 h-5" />
                 <span>{error}</span>
@@ -112,7 +112,10 @@ const Login = () => {
 
             <div className="space-y-5">
               <div>
-                <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-semibold text-secondary-700 mb-2 flex items-center"
+                >
                   <FiMail className="w-4 h-4 mr-2" />
                   Email Address
                 </label>
@@ -124,15 +127,18 @@ const Login = () => {
                     required
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-white/50"
+                    className="w-full px-4 py-3 pl-12 border border-secondary-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-white/50"
                     placeholder="Enter your email"
                   />
-                  <FiMail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <FiMail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-secondary-400 w-5 h-5" />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-semibold text-secondary-700 mb-2 flex items-center"
+                >
                   <FiLock className="w-4 h-4 mr-2" />
                   Password
                 </label>
@@ -144,14 +150,14 @@ const Login = () => {
                     required
                     value={formData.password}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 pl-12 pr-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-white/50"
+                    className="w-full px-4 py-3 pl-12 pr-12 border border-secondary-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-white/50"
                     placeholder="Enter your password"
                   />
-                  <FiLock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <FiLock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-secondary-400 w-5 h-5" />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-secondary-400 hover:text-secondary-600 transition-colors"
                   >
                     {showPassword ? <FiEyeOff className="w-5 h-5" /> : <FiEye className="w-5 h-5" />}
                   </button>
@@ -164,7 +170,7 @@ const Login = () => {
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={loading}
-              className="group w-full flex justify-center items-center py-3 px-4 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
+              className="group w-full flex justify-center items-center py-3 px-4 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-medium hover:shadow-large"
             >
               {loading ? (
                 <>
@@ -184,7 +190,7 @@ const Login = () => {
             </motion.button>
 
             <div className="text-center">
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-secondary-600">
                 Don't have an account?{" "}
                 <Link
                   to="/register"
@@ -204,7 +210,9 @@ const Login = () => {
           transition={{ delay: 0.6 }}
           className="text-center"
         >
-          <p className="text-xs text-gray-500">By signing in, you agree to our Terms of Service and Privacy Policy</p>
+          <p className="text-xs text-secondary-500">
+            By signing in, you agree to our Terms of Service and Privacy Policy
+          </p>
         </motion.div>
       </motion.div>
     </div>

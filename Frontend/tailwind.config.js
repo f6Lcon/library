@@ -4,20 +4,21 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Modern Smart Design System Colors
+        // Primary Brand Color - #278585 and variations
         primary: {
-          50: "#f0f9ff",
-          100: "#e0f2fe",
-          200: "#bae6fd",
-          300: "#7dd3fc",
-          400: "#38bdf8",
-          500: "#0ea5e9", // Main brand color
-          600: "#0284c7",
-          700: "#0369a1",
-          800: "#075985",
-          900: "#0c4a6e",
-          950: "#082f49",
+          50: "#f0fdfd",
+          100: "#ccfbf9",
+          200: "#99f6f2",
+          300: "#5eede8",
+          400: "#2dd9d4",
+          500: "#278585", // Main brand color
+          600: "#0d7377",
+          700: "#155e63",
+          800: "#164e52",
+          900: "#134144",
+          950: "#042a2d",
         },
+        // Secondary colors - complementary grays
         secondary: {
           50: "#f8fafc",
           100: "#f1f5f9",
@@ -31,19 +32,21 @@ export default {
           900: "#0f172a",
           950: "#020617",
         },
+        // Accent color - warm orange for contrast
         accent: {
           50: "#fef7ee",
           100: "#fdedd7",
           200: "#fbd7ae",
           300: "#f8ba7a",
           400: "#f59444",
-          500: "#f37320", // Orange accent
+          500: "#f37320",
           600: "#e45616",
           700: "#bd4015",
           800: "#973419",
           900: "#7a2e17",
           950: "#42140a",
         },
+        // Success - green tones
         success: {
           50: "#f0fdf4",
           100: "#dcfce7",
@@ -57,6 +60,7 @@ export default {
           900: "#14532d",
           950: "#052e16",
         },
+        // Warning - amber tones
         warning: {
           50: "#fffbeb",
           100: "#fef3c7",
@@ -70,6 +74,7 @@ export default {
           900: "#78350f",
           950: "#451a03",
         },
+        // Error - red tones
         error: {
           50: "#fef2f2",
           100: "#fee2e2",
@@ -111,11 +116,11 @@ export default {
         "5xl": "2.5rem",
       },
       boxShadow: {
-        soft: "0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)",
-        medium: "0 4px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-        large: "0 10px 40px -10px rgba(0, 0, 0, 0.15), 0 20px 25px -5px rgba(0, 0, 0, 0.1)",
-        glow: "0 0 20px rgba(14, 165, 233, 0.15)",
-        "glow-lg": "0 0 40px rgba(14, 165, 233, 0.2)",
+        soft: "0 2px 15px -3px rgba(39, 133, 133, 0.07), 0 10px 20px -2px rgba(39, 133, 133, 0.04)",
+        medium: "0 4px 25px -5px rgba(39, 133, 133, 0.1), 0 10px 10px -5px rgba(39, 133, 133, 0.04)",
+        large: "0 10px 40px -10px rgba(39, 133, 133, 0.15), 0 20px 25px -5px rgba(39, 133, 133, 0.1)",
+        glow: "0 0 20px rgba(39, 133, 133, 0.15)",
+        "glow-lg": "0 0 40px rgba(39, 133, 133, 0.2)",
       },
       animation: {
         "fade-in": "fadeIn 0.5s ease-in-out",

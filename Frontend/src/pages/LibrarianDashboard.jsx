@@ -148,14 +148,14 @@ const LibrarianDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-100 flex items-center justify-center">
         <LoadingSpinner />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-100 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -381,7 +381,7 @@ const LibrarianDashboard = () => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setShowBorrowForm(true)}
-                    className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-xl hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
+                    className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-4 py-2 rounded-xl hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
                   >
                     <FiBookOpen className="w-4 h-4" />
                     <span>Issue Book</span>
@@ -390,8 +390,8 @@ const LibrarianDashboard = () => {
 
                 {borrows.length === 0 ? (
                   <div className="text-center py-12">
-                    <div className="w-20 h-20 bg-gradient-to-br from-green-100 to-green-200 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                      <FiClock className="w-10 h-10 text-green-500" />
+                    <div className="w-20 h-20 bg-gradient-to-br from-primary-100 to-primary-200 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                      <FiClock className="w-10 h-10 text-primary-500" />
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 mb-2">No active borrows</h3>
                     <p className="text-gray-600">No books are currently borrowed.</p>
@@ -471,8 +471,8 @@ const LibrarianDashboard = () => {
 
                 {overdueBooks.length === 0 ? (
                   <div className="text-center py-12">
-                    <div className="w-20 h-20 bg-gradient-to-br from-green-100 to-green-200 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                      <FiBookOpen className="w-10 h-10 text-green-500" />
+                    <div className="w-20 h-20 bg-gradient-to-br from-primary-100 to-primary-200 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                      <FiBookOpen className="w-10 h-10 text-primary-500" />
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 mb-2">No overdue books</h3>
                     <p className="text-gray-600">All books are returned on time!</p>

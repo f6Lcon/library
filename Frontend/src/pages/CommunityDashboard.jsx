@@ -211,7 +211,7 @@ const CommunityDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-teal-100 pt-20">
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-100 pt-20">
         <div className="flex justify-center items-center h-64">
           <LoadingSpinner size="lg" text="Loading your dashboard..." />
         </div>
@@ -220,7 +220,7 @@ const CommunityDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-teal-100 pt-20">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-100 pt-20">
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           {/* Header */}
@@ -230,17 +230,17 @@ const CommunityDashboard = () => {
             className="flex justify-between items-center mb-8"
           >
             <div>
-              <div className="inline-flex items-center bg-gradient-to-r from-teal-100 to-teal-200 rounded-full px-4 py-2 mb-4">
-                <HiSparkles className="w-5 h-5 text-teal-600 mr-2" />
-                <span className="text-sm font-semibold text-teal-700">Community Portal</span>
+              <div className="inline-flex items-center bg-gradient-to-r from-primary-100 to-primary-200 rounded-full px-4 py-2 mb-4">
+                <HiSparkles className="w-5 h-5 text-primary-600 mr-2" />
+                <span className="text-sm font-semibold text-primary-700">Community Portal</span>
               </div>
               <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3 font-display">
-                <FiBook className="text-teal-600" />
+                <FiBook className="text-primary-600" />
                 Community Dashboard
               </h1>
               <p className="text-gray-600 mt-2">Browse and explore our book collection</p>
               {user?.branch && (
-                <p className="text-sm text-teal-600 font-medium mt-1">
+                <p className="text-sm text-primary-600 font-medium mt-1">
                   Your home branch: {user.branch.name} ({user.branch.code})
                 </p>
               )}
@@ -250,7 +250,7 @@ const CommunityDashboard = () => {
               whileTap={{ scale: 0.95 }}
               onClick={refreshData}
               disabled={refreshing}
-              className="bg-teal-600 text-white px-4 py-2 rounded-xl font-medium hover:bg-teal-700 transition-all duration-200 flex items-center gap-2 shadow-lg disabled:opacity-50"
+              className="bg-primary-600 text-white px-4 py-2 rounded-xl font-medium hover:bg-primary-700 transition-all duration-200 flex items-center gap-2 shadow-lg disabled:opacity-50"
             >
               <FiRefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
               {refreshing ? "Refreshing..." : "Refresh"}
@@ -284,7 +284,7 @@ const CommunityDashboard = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-gradient-to-r from-teal-500 to-teal-600 rounded-2xl p-6 mb-8 text-white shadow-xl"
+            className="bg-gradient-to-r from-primary-500 to-primary-600 rounded-2xl p-6 mb-8 text-white shadow-xl"
           >
             <div className="flex items-center gap-4">
               <div className="bg-white/20 p-3 rounded-xl">
@@ -292,7 +292,7 @@ const CommunityDashboard = () => {
               </div>
               <div>
                 <h2 className="text-xl font-bold mb-2">Welcome to KEY Library</h2>
-                <p className="text-teal-100">
+                <p className="text-primary-100">
                   As a community member, you can browse our book collection across all branches. To borrow books, please
                   visit your local branch or contact a librarian.
                 </p>
@@ -308,7 +308,7 @@ const CommunityDashboard = () => {
             className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"
           >
             {[
-              { title: "Total Books", value: stats.totalBooks, icon: FiBook, color: "teal" },
+              { title: "Total Books", value: stats.totalBooks, icon: FiBook, color: "primary" },
               { title: "Available", value: stats.availableBooks, icon: FiCheckCircle, color: "green" },
               { title: "Borrowed", value: stats.borrowedBooks, icon: FiClock, color: "orange" },
               { title: "My Borrows", value: stats.totalBorrows, icon: FiTrendingUp, color: "blue" },
@@ -318,7 +318,7 @@ const CommunityDashboard = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 + index * 0.05 }}
-                className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-teal-100 hover:shadow-xl transition-all duration-300"
+                className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-primary-100 hover:shadow-xl transition-all duration-300"
               >
                 <div className="flex items-center justify-between">
                   <div>
@@ -338,7 +338,7 @@ const CommunityDashboard = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg mb-6 overflow-hidden border border-teal-100"
+            className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg mb-6 overflow-hidden border border-primary-100"
           >
             <div className="border-b border-gray-200">
               <nav className="flex">
@@ -351,7 +351,7 @@ const CommunityDashboard = () => {
                     onClick={() => setActiveTab(tab.key)}
                     className={`flex items-center gap-3 px-6 py-4 font-medium text-sm transition-all duration-200 ${
                       activeTab === tab.key
-                        ? "border-b-2 border-teal-500 text-teal-600 bg-teal-50"
+                        ? "border-b-2 border-primary-500 text-primary-600 bg-primary-50"
                         : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
                     }`}
                   >
@@ -384,7 +384,7 @@ const CommunityDashboard = () => {
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       placeholder="Search by title, author, or ISBN..."
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
                     />
                   </div>
                   <div>
@@ -395,7 +395,7 @@ const CommunityDashboard = () => {
                     <select
                       value={selectedCategory}
                       onChange={(e) => setSelectedCategory(e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
                     >
                       <option value="">All Categories</option>
                       {categories.map((category) => (
@@ -439,8 +439,8 @@ const CommunityDashboard = () => {
                   animate={{ opacity: 1 }}
                   className="text-center py-16 bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg"
                 >
-                  <div className="w-20 h-20 bg-gradient-to-br from-teal-100 to-teal-200 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                    <FiBook className="w-10 h-10 text-teal-500" />
+                  <div className="w-20 h-20 bg-gradient-to-br from-primary-100 to-primary-200 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                    <FiBook className="w-10 h-10 text-primary-500" />
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-3">No books found</h3>
                   <p className="text-gray-600 mb-6">Try adjusting your search criteria or browse all categories.</p>
@@ -448,7 +448,7 @@ const CommunityDashboard = () => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={resetFilters}
-                    className="bg-teal-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-teal-600 transition-all duration-200 transform hover:scale-105 flex items-center gap-2 mx-auto"
+                    className="bg-primary-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary-600 transition-all duration-200 transform hover:scale-105 flex items-center gap-2 mx-auto"
                   >
                     <FiRefreshCw className="w-4 h-4" />
                     Reset Filters
@@ -462,7 +462,7 @@ const CommunityDashboard = () => {
                   <button
                     onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                     disabled={currentPage === 1}
-                    className="px-4 py-2 border border-teal-300 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:bg-teal-50 transition-colors font-medium flex items-center gap-2"
+                    className="px-4 py-2 border border-primary-300 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary-50 transition-colors font-medium flex items-center gap-2"
                   >
                     <FiArrowLeft className="w-4 h-4" />
                     Previous
@@ -477,8 +477,8 @@ const CommunityDashboard = () => {
                           onClick={() => setCurrentPage(page)}
                           className={`px-4 py-2 border rounded-xl transition-all duration-200 font-medium ${
                             currentPage === page
-                              ? "bg-teal-500 text-white border-teal-500 shadow-lg"
-                              : "border-teal-300 hover:bg-teal-50"
+                              ? "bg-primary-500 text-white border-primary-500 shadow-lg"
+                              : "border-primary-300 hover:bg-primary-50"
                           }`}
                         >
                           {page}
@@ -490,7 +490,7 @@ const CommunityDashboard = () => {
                   <button
                     onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                     disabled={currentPage === totalPages}
-                    className="px-4 py-2 border border-teal-300 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:bg-teal-50 transition-colors font-medium flex items-center gap-2"
+                    className="px-4 py-2 border border-primary-300 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary-50 transition-colors font-medium flex items-center gap-2"
                   >
                     Next
                     <FiArrowRight className="w-4 h-4" />
@@ -503,15 +503,15 @@ const CommunityDashboard = () => {
           {/* Borrow History Tab */}
           {activeTab === "history" && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-              <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden border border-teal-100">
+              <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden border border-primary-100">
                 <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                   <h2 className="text-xl font-semibold flex items-center gap-2">
-                    <FiClock className="text-teal-600" />
+                    <FiClock className="text-primary-600" />
                     Your Borrow History
                   </h2>
                   <button
                     onClick={refreshBorrowHistory}
-                    className="text-teal-600 hover:text-teal-800 text-sm flex items-center gap-1"
+                    className="text-primary-600 hover:text-primary-800 text-sm flex items-center gap-1"
                   >
                     <FiRefreshCw className="w-4 h-4" />
                     Refresh
@@ -561,7 +561,7 @@ const CommunityDashboard = () => {
                           <tr key={borrow._id} className="hover:bg-gray-50 transition-colors">
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center">
-                                <div className="w-12 h-16 bg-gradient-to-br from-teal-100 to-teal-200 rounded-lg flex items-center justify-center mr-4 overflow-hidden">
+                                <div className="w-12 h-16 bg-gradient-to-br from-primary-100 to-primary-200 rounded-lg flex items-center justify-center mr-4 overflow-hidden">
                                   {borrow.book?.imageUrl ? (
                                     <img
                                       src={borrow.book.imageUrl || "/placeholder.svg"}
@@ -572,7 +572,7 @@ const CommunityDashboard = () => {
                                       }}
                                     />
                                   ) : (
-                                    <FiBook className="w-6 h-6 text-teal-600" />
+                                    <FiBook className="w-6 h-6 text-primary-600" />
                                   )}
                                 </div>
                                 <div>
@@ -613,8 +613,8 @@ const CommunityDashboard = () => {
                   </div>
                 ) : (
                   <div className="text-center py-12">
-                    <div className="w-16 h-16 bg-gradient-to-br from-teal-100 to-teal-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      <FiClock className="w-8 h-8 text-teal-600" />
+                    <div className="w-16 h-16 bg-gradient-to-br from-primary-100 to-primary-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <FiClock className="w-8 h-8 text-primary-600" />
                     </div>
                     <p className="text-gray-500 font-medium">You haven't borrowed any books yet.</p>
                     <p className="text-gray-400 text-sm mt-2">
