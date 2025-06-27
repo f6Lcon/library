@@ -2,467 +2,395 @@
 
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
-import { motion } from "framer-motion"
 import { useAuth } from "../context/AuthContext"
-import { bookService } from "../services/bookService"
-import { userService } from "../services/userService"
-import { borrowService } from "../services/borrowService"
-import BookCard from "../components/BookCard"
+import { motion } from "framer-motion"
 import {
-  FiBook,
-  FiUsers,
-  FiTrendingUp,
-  FiArrowRight,
-  FiStar,
-  FiBookOpen,
-  FiSearch,
-  FiHeart,
-  FiAward,
-  FiGlobe,
-} from "react-icons/fi"
-import { HiSparkles } from "react-icons/hi2"
+  MdLibraryBooks,
+  MdSearch,
+  MdAutoStories,
+  MdGroups,
+  MdEmojiEvents,
+  MdStar,
+  MdArrowForward,
+  MdMenuBook,
+  MdLocationOn,
+} from "react-icons/md"
+import { FaUsers, FaBookOpen, FaGraduationCap, FaHeart } from "react-icons/fa"
 
 const Homepage = () => {
   const { user } = useAuth()
   const [stats, setStats] = useState({
     totalBooks: 0,
-    totalUsers: 0,
-    totalBorrows: 0,
-    availableBooks: 0,
+    totalMembers: 0,
+    activeLoans: 0,
+    branches: 0,
   })
-  const [featuredBooks, setFeaturedBooks] = useState([])
-  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetchData()
+    // Fetch stats from API
+    const fetchStats = async () => {
+      try {
+        const response = await fetch("/api/stats")
+        if (response.ok) {
+          const data = await response.json()
+          setStats(data)
+        }
+      } catch (error) {
+        console.error("Error fetching stats:", error)
+        // Set dummy data for demo
+        setStats({
+          totalBooks: 15420,
+          totalMembers: 3250,
+          activeLoans: 890,
+          branches: 8,
+        })
+      }
+    }
+
+    fetchStats()
   }, [])
 
-  const fetchData = async () => {
-    try {
-      setLoading(true)
-
-      const results = await Promise.allSettled([
-        bookService.getAllBooks({ limit: 8 }),
-        userService.getAllUsers(),
-        borrowService.getAllBorrows ? borrowService.getAllBorrows() : Promise.resolve({ borrows: [] }),
-      ])
-
-      // Handle books
-      if (results[0].status === "fulfilled") {
-        const booksData = results[0].value
-        setFeaturedBooks(booksData.books || [])
-        setStats((prev) => ({
-          ...prev,
-          totalBooks: booksData.totalBooks || booksData.books?.length || 0,
-          availableBooks: (booksData.books || []).filter((book) => book.availableCopies > 0).length,
-        }))
-      }
-
-      // Handle users
-      if (results[1].status === "fulfilled") {
-        const usersData = results[1].value
-        setStats((prev) => ({
-          ...prev,
-          totalUsers: usersData.totalUsers || usersData.users?.length || 0,
-        }))
-      }
-
-      // Handle borrows
-      if (results[2].status === "fulfilled") {
-        const borrowsData = results[2].value
-        setStats((prev) => ({
-          ...prev,
-          totalBorrows: borrowsData.totalBorrows || borrowsData.borrows?.length || 0,
-        }))
-      }
-    } catch (err) {
-      console.error("Error fetching homepage data:", err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
+  const features = [
+    {
+      icon: MdLibraryBooks,
+      title: "Vast Collection",
+      description: "Access thousands of books across all genres and subjects",
+      color: "from-primary-500 to-primary-600",
     },
-  }
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6,
-        ease: "easeOut",
-      },
+    {
+      icon: MdSearch,
+      title: "Smart Search",
+      description: "Find exactly what you need with our advanced search system",
+      color: "from-accent-500 to-accent-600",
     },
-  }
+    {
+      icon: MdAutoStories,
+      title: "Digital Reading",
+      description: "Enjoy e-books and digital resources anytime, anywhere",
+      color: "from-success-500 to-success-600",
+    },
+    {
+      icon: MdGroups,
+      title: "Community Hub",
+      description: "Connect with fellow readers and join book clubs",
+      color: "from-secondary-500 to-secondary-600",
+    },
+  ]
+
+  const testimonials = [
+    {
+      name: "Sarah Johnson",
+      role: "Student",
+      content:
+        "The KEY Library has been instrumental in my academic journey. The vast collection and helpful staff make studying a pleasure.",
+      rating: 5,
+    },
+    {
+      name: "Michael Chen",
+      role: "Community Member",
+      content: "I love the community programs here. The book clubs and workshops have enriched my life tremendously.",
+      rating: 5,
+    },
+    {
+      name: "Emily Davis",
+      role: "Teacher",
+      content: "As an educator, I appreciate the educational resources and the supportive environment for learning.",
+      rating: 5,
+    },
+  ]
+
+  const quickActions = [
+    { icon: MdSearch, label: "Search Books", href: "/books", color: "primary" },
+    { icon: MdMenuBook, label: "My Dashboard", href: "/dashboard", color: "accent", requiresAuth: true },
+    { icon: MdLocationOn, label: "Find Branches", href: "#branches", color: "success" },
+    { icon: MdEmojiEvents, label: "Events", href: "#events", color: "secondary" },
+  ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-100">
+    <div className="min-h-screen bg-cream-300 pt-16 lg:pt-18">
       {/* Hero Section */}
-      <section className="relative pt-20 pb-16 overflow-hidden">
-        {/* Background Elements */}
-        <div className="absolute top-0 left-0 w-full h-full">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-primary-500/10 rounded-full blur-3xl animate-float"></div>
-          <div
-            className="absolute bottom-20 right-10 w-96 h-96 bg-primary-600/10 rounded-full blur-3xl animate-float"
-            style={{ animationDelay: "2s" }}
-          ></div>
-          <div
-            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-accent-500/5 rounded-full blur-3xl animate-float"
-            style={{ animationDelay: "4s" }}
-          ></div>
-        </div>
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-500/10 via-accent-500/5 to-success-500/10"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
+          <div className="text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="space-y-6"
+            >
+              <div className="flex justify-center mb-8">
+                <motion.div
+                  className="relative"
+                  animate={{ rotate: [0, 5, -5, 0] }}
+                  transition={{ duration: 6, repeat: Number.POSITIVE_INFINITY }}
+                >
+                  <div className="w-24 h-24 lg:w-32 lg:h-32 bg-gradient-to-br from-primary-500 to-primary-600 rounded-3xl flex items-center justify-center shadow-large">
+                    <MdLibraryBooks className="w-12 h-12 lg:w-16 lg:h-16 text-white" />
+                  </div>
+                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-accent-500 rounded-full flex items-center justify-center shadow-medium">
+                    <MdStar className="w-4 h-4 text-white" />
+                  </div>
+                </motion.div>
+              </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={containerVariants}
-            className="text-center max-w-4xl mx-auto"
-          >
-            <motion.div variants={itemVariants} className="mb-8">
-              <div className="inline-flex items-center bg-gradient-to-r from-primary-100 to-primary-200 rounded-full px-6 py-3 mb-6">
-                <HiSparkles className="w-5 h-5 text-primary-600 mr-2" />
-                <span className="text-sm font-semibold text-primary-700">Welcome to KEY Library System</span>
+              <h1 className="text-4xl lg:text-7xl font-bold text-secondary-800 leading-tight font-display">
+                Welcome to{" "}
+                <span className="bg-gradient-to-r from-primary-500 to-primary-600 bg-clip-text text-transparent">
+                  KEY Library
+                </span>
+              </h1>
+
+              <p className="text-xl lg:text-2xl text-secondary-600 max-w-3xl mx-auto leading-relaxed">
+                Knowledge Empowering Youth - Your gateway to infinite learning and discovery
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-12">
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Link
+                    to="/books"
+                    className="inline-flex items-center space-x-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white px-8 py-4 rounded-2xl font-semibold text-lg shadow-large hover:shadow-glow-lg transition-all duration-300 group"
+                  >
+                    <MdSearch className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
+                    <span>Explore Books</span>
+                    <MdArrowForward className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                  </Link>
+                </motion.div>
+
+                {!user && (
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Link
+                      to="/login"
+                      className="inline-flex items-center space-x-3 bg-white text-primary-600 px-8 py-4 rounded-2xl font-semibold text-lg shadow-medium hover:shadow-large transition-all duration-300 border-2 border-primary-100 hover:border-primary-200"
+                    >
+                      <FaUsers className="w-5 h-5" />
+                      <span>Join Community</span>
+                    </Link>
+                  </motion.div>
+                )}
               </div>
             </motion.div>
-
-            <motion.h1
-              variants={itemVariants}
-              className="text-4xl md:text-5xl lg:text-6xl font-bold text-secondary-900 mb-6 font-display leading-tight"
-            >
-              Knowledge{" "}
-              <span className="bg-gradient-to-r from-primary-500 to-primary-600 bg-clip-text text-transparent">
-                Empowering
-              </span>{" "}
-              Youth
-            </motion.h1>
-
-            <motion.p
-              variants={itemVariants}
-              className="text-lg md:text-xl text-secondary-600 mb-8 max-w-3xl mx-auto leading-relaxed"
-            >
-              Discover, learn, and grow with our comprehensive digital library system. Access thousands of books, manage
-              your reading journey, and connect with knowledge like never before.
-            </motion.p>
-
-            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              {!user ? (
-                <>
-                  <Link to="/login">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-8 py-4 rounded-2xl font-semibold text-lg hover:shadow-large transition-all duration-300 flex items-center space-x-2 group"
-                    >
-                      <span>Get Started</span>
-                      <FiArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                    </motion.button>
-                  </Link>
-                  <Link to="/books">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="bg-white text-primary-600 px-8 py-4 rounded-2xl font-semibold text-lg border-2 border-primary-200 hover:border-primary-300 hover:shadow-medium transition-all duration-300 flex items-center space-x-2"
-                    >
-                      <FiSearch className="w-5 h-5" />
-                      <span>Browse Books</span>
-                    </motion.button>
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <Link to="/dashboard">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-8 py-4 rounded-2xl font-semibold text-lg hover:shadow-large transition-all duration-300 flex items-center space-x-2 group"
-                    >
-                      <span>Go to Dashboard</span>
-                      <FiArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                    </motion.button>
-                  </Link>
-                  <Link to="/books">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="bg-white text-primary-600 px-8 py-4 rounded-2xl font-semibold text-lg border-2 border-primary-200 hover:border-primary-300 hover:shadow-medium transition-all duration-300 flex items-center space-x-2"
-                    >
-                      <FiBookOpen className="w-5 h-5" />
-                      <span>Explore Books</span>
-                    </motion.button>
-                  </Link>
-                </>
-              )}
-            </motion.div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-white/50 backdrop-blur-sm">
+      <section className="py-16 lg:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={containerVariants}
-            className="grid grid-cols-1 md:grid-cols-4 gap-8"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="grid grid-cols-2 lg:grid-cols-4 gap-6"
           >
             {[
               {
-                icon: FiBook,
-                label: "Total Books",
-                value: stats.totalBooks,
+                icon: MdLibraryBooks,
+                label: "Books Available",
+                value: stats.totalBooks.toLocaleString(),
                 color: "primary",
-                description: "Books in collection",
               },
               {
-                icon: FiUsers,
-                label: "Active Users",
-                value: stats.totalUsers,
-                color: "success",
-                description: "Registered members",
-              },
-              {
-                icon: FiTrendingUp,
-                label: "Books Borrowed",
-                value: stats.totalBorrows,
+                icon: FaUsers,
+                label: "Community Members",
+                value: stats.totalMembers.toLocaleString(),
                 color: "accent",
-                description: "Total borrows",
               },
-              {
-                icon: FiBookOpen,
-                label: "Available Now",
-                value: stats.availableBooks,
-                color: "warning",
-                description: "Ready to borrow",
-              },
+              { icon: FaBookOpen, label: "Active Loans", value: stats.activeLoans.toLocaleString(), color: "success" },
+              { icon: MdLocationOn, label: "Branches", value: stats.branches, color: "secondary" },
             ].map((stat, index) => (
               <motion.div
                 key={stat.label}
-                variants={itemVariants}
-                className="bg-white rounded-2xl p-6 shadow-soft hover:shadow-medium transition-all duration-300 border border-secondary-200 group"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                whileHover={{ scale: 1.05 }}
+                className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 lg:p-8 text-center shadow-medium hover:shadow-large transition-all duration-300 border border-white/50"
               >
-                <div className="flex items-center justify-between mb-4">
-                  <div
-                    className={`p-3 bg-${stat.color}-100 rounded-xl group-hover:scale-110 transition-transform duration-300`}
-                  >
-                    <stat.icon className={`w-6 h-6 text-${stat.color}-600`} />
-                  </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-bold text-secondary-900">{loading ? "..." : stat.value}</div>
-                    <div className="text-sm text-secondary-500">{stat.description}</div>
-                  </div>
+                <div
+                  className={`w-16 h-16 lg:w-20 lg:h-20 bg-gradient-to-br from-${stat.color}-500 to-${stat.color}-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-soft`}
+                >
+                  <stat.icon className="w-8 h-8 lg:w-10 lg:h-10 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold text-secondary-900">{stat.label}</h3>
+                <div className="text-3xl lg:text-4xl font-bold text-secondary-800 mb-2">{stat.value}</div>
+                <div className="text-secondary-600 font-medium text-sm lg:text-base">{stat.label}</div>
               </motion.div>
             ))}
           </motion.div>
         </div>
       </section>
 
-      {/* Featured Books Section */}
-      <section className="py-16">
+      {/* Quick Actions */}
+      <section className="py-16 lg:py-20 bg-white/30 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={containerVariants}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
             className="text-center mb-12"
           >
-            <motion.div variants={itemVariants} className="mb-4">
-              <div className="inline-flex items-center bg-gradient-to-r from-primary-100 to-primary-200 rounded-full px-4 py-2">
-                <FiStar className="w-4 h-4 text-primary-600 mr-2" />
-                <span className="text-sm font-semibold text-primary-700">Featured Collection</span>
-              </div>
-            </motion.div>
-            <motion.h2
-              variants={itemVariants}
-              className="text-3xl md:text-4xl font-bold text-secondary-900 mb-4 font-display"
-            >
-              Discover Amazing Books
-            </motion.h2>
-            <motion.p variants={itemVariants} className="text-lg text-secondary-600 max-w-2xl mx-auto">
-              Explore our curated selection of popular and trending books across various categories
-            </motion.p>
+            <h2 className="text-3xl lg:text-4xl font-bold text-secondary-800 mb-4 font-display">Quick Actions</h2>
+            <p className="text-secondary-600 text-lg max-w-2xl mx-auto">
+              Get started with our most popular features and services
+            </p>
           </motion.div>
 
-          {featuredBooks.length > 0 ? (
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={containerVariants}
-              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6 mb-12"
-            >
-              {featuredBooks.slice(0, 8).map((book, index) => (
-                <BookCard key={book._id} book={book} index={index} showActions={false} variant="grid" />
-              ))}
-            </motion.div>
-          ) : (
-            <div className="text-center py-12">
-              <div className="w-20 h-20 bg-gradient-to-br from-primary-100 to-primary-200 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                <FiBook className="w-10 h-10 text-primary-500" />
-              </div>
-              <h3 className="text-xl font-semibold text-secondary-900 mb-2">No books available</h3>
-              <p className="text-secondary-600">Check back later for featured books</p>
-            </div>
-          )}
-
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={itemVariants}
-            className="text-center"
-          >
-            <Link to="/books">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-8 py-4 rounded-2xl font-semibold hover:shadow-large transition-all duration-300 flex items-center space-x-2 mx-auto group"
-              >
-                <span>View All Books</span>
-                <FiArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </motion.button>
-            </Link>
-          </motion.div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+            {quickActions.map((action, index) => {
+              if (action.requiresAuth && !user) return null
+              return (
+                <motion.div
+                  key={action.label}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Link
+                    to={action.href}
+                    className={`block bg-gradient-to-br from-${action.color}-500 to-${action.color}-600 text-white p-6 rounded-3xl text-center shadow-medium hover:shadow-large transition-all duration-300 group`}
+                  >
+                    <action.icon className="w-8 h-8 mx-auto mb-3 group-hover:scale-110 transition-transform duration-300" />
+                    <div className="font-semibold text-sm lg:text-base">{action.label}</div>
+                  </Link>
+                </motion.div>
+              )
+            })}
+          </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-16 bg-white/50 backdrop-blur-sm">
+      <section className="py-16 lg:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={containerVariants}
-            className="text-center mb-12"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-16"
           >
-            <motion.h2
-              variants={itemVariants}
-              className="text-3xl md:text-4xl font-bold text-secondary-900 mb-4 font-display"
-            >
+            <h2 className="text-3xl lg:text-4xl font-bold text-secondary-800 mb-4 font-display">
               Why Choose KEY Library?
-            </motion.h2>
-            <motion.p variants={itemVariants} className="text-lg text-secondary-600 max-w-2xl mx-auto">
-              Experience the future of library management with our comprehensive digital platform
-            </motion.p>
+            </h2>
+            <p className="text-secondary-600 text-lg max-w-3xl mx-auto">
+              We're more than just a library - we're your partner in learning and growth
+            </p>
           </motion.div>
 
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={containerVariants}
-            className="grid grid-cols-1 md:grid-cols-3 gap-8"
-          >
-            {[
-              {
-                icon: FiSearch,
-                title: "Smart Search",
-                description: "Find books instantly with our advanced search and filtering system",
-                color: "primary",
-              },
-              {
-                icon: FiHeart,
-                title: "Personal Library",
-                description: "Track your reading history, favorites, and personalized recommendations",
-                color: "error",
-              },
-              {
-                icon: FiGlobe,
-                title: "Multi-Branch Access",
-                description: "Access books from multiple library branches in one unified system",
-                color: "success",
-              },
-            ].map((feature, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => (
               <motion.div
                 key={feature.title}
-                variants={itemVariants}
-                className="bg-white rounded-2xl p-8 shadow-soft hover:shadow-medium transition-all duration-300 border border-secondary-200 group text-center"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                whileHover={{ scale: 1.05 }}
+                className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 text-center shadow-medium hover:shadow-large transition-all duration-300 border border-white/50 group"
               >
                 <div
-                  className={`w-16 h-16 bg-${feature.color}-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300`}
+                  className={`w-16 h-16 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-soft group-hover:scale-110 transition-transform duration-300`}
                 >
-                  <feature.icon className={`w-8 h-8 text-${feature.color}-600`} />
+                  <feature.icon className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold text-secondary-900 mb-4">{feature.title}</h3>
+                <h3 className="text-xl font-semibold text-secondary-800 mb-3">{feature.title}</h3>
                 <p className="text-secondary-600 leading-relaxed">{feature.description}</p>
               </motion.div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-16 lg:py-20 bg-white/30 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl lg:text-4xl font-bold text-secondary-800 mb-4 font-display">
+              What Our Community Says
+            </h2>
+            <p className="text-secondary-600 text-lg max-w-2xl mx-auto">
+              Hear from our valued members about their experiences
+            </p>
           </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, index) => (
+              <motion.div
+                key={testimonial.name}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                whileHover={{ scale: 1.02 }}
+                className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-medium hover:shadow-large transition-all duration-300 border border-white/50"
+              >
+                <div className="flex items-center space-x-1 mb-4">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <MdStar key={i} className="w-5 h-5 text-accent-500" />
+                  ))}
+                </div>
+                <p className="text-secondary-700 mb-6 leading-relaxed italic">"{testimonial.content}"</p>
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center shadow-soft">
+                    <span className="text-white font-semibold text-lg">{testimonial.name.charAt(0)}</span>
+                  </div>
+                  <div>
+                    <div className="font-semibold text-secondary-800">{testimonial.name}</div>
+                    <div className="text-secondary-600 text-sm">{testimonial.role}</div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-16">
+      <section className="py-16 lg:py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={containerVariants}
-            className="bg-gradient-to-r from-primary-500 to-primary-600 rounded-3xl p-8 md:p-12 text-white relative overflow-hidden"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="bg-gradient-to-br from-primary-500 to-primary-600 rounded-4xl p-12 lg:p-16 text-white shadow-large relative overflow-hidden"
           >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
-            <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12"></div>
-
-            <motion.div variants={itemVariants} className="relative z-10">
-              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <FiAward className="w-8 h-8 text-white" />
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
+            <div className="relative">
+              <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-3xl flex items-center justify-center mx-auto mb-8">
+                <FaHeart className="w-10 h-10 text-white" />
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 font-display">Ready to Start Reading?</h2>
-              <p className="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
-                Join thousands of readers who have discovered the joy of learning with KEY Library System
+              <h2 className="text-3xl lg:text-4xl font-bold mb-6 font-display">Ready to Start Your Journey?</h2>
+              <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto leading-relaxed">
+                Join thousands of learners who have discovered the joy of reading and learning with us
               </p>
               {!user ? (
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Link to="/login">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="bg-white text-primary-600 px-8 py-4 rounded-2xl font-semibold text-lg hover:shadow-large transition-all duration-300 flex items-center space-x-2"
-                    >
-                      <span>Sign In Now</span>
-                      <FiArrowRight className="w-5 h-5" />
-                    </motion.button>
-                  </Link>
-                  <Link to="/books">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="bg-primary-700 text-white px-8 py-4 rounded-2xl font-semibold text-lg border-2 border-primary-400 hover:bg-primary-800 transition-all duration-300 flex items-center space-x-2"
-                    >
-                      <FiBookOpen className="w-5 h-5" />
-                      <span>Browse First</span>
-                    </motion.button>
-                  </Link>
-                </div>
-              ) : (
-                <Link to="/dashboard">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="bg-white text-primary-600 px-8 py-4 rounded-2xl font-semibold text-lg hover:shadow-large transition-all duration-300 flex items-center space-x-2 mx-auto"
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Link
+                    to="/login"
+                    className="inline-flex items-center space-x-3 bg-white text-primary-600 px-8 py-4 rounded-2xl font-semibold text-lg shadow-large hover:shadow-warm transition-all duration-300"
                   >
-                    <span>Go to Your Dashboard</span>
-                    <FiArrowRight className="w-5 h-5" />
-                  </motion.button>
-                </Link>
+                    <FaGraduationCap className="w-6 h-6" />
+                    <span>Get Started Today</span>
+                    <MdArrowForward className="w-5 h-5" />
+                  </Link>
+                </motion.div>
+              ) : (
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Link
+                    to="/dashboard"
+                    className="inline-flex items-center space-x-3 bg-white text-primary-600 px-8 py-4 rounded-2xl font-semibold text-lg shadow-large hover:shadow-warm transition-all duration-300"
+                  >
+                    <MdMenuBook className="w-6 h-6" />
+                    <span>Go to Dashboard</span>
+                    <MdArrowForward className="w-5 h-5" />
+                  </Link>
+                </motion.div>
               )}
-            </motion.div>
+            </div>
           </motion.div>
         </div>
       </section>

@@ -54,7 +54,7 @@ const Footer = () => {
   ]
 
   return (
-    <footer className="bg-gradient-to-br from-gray-900 via-gray-800 to-teal-900 text-white">
+    <footer className="bg-primary-500 text-white">
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
@@ -79,7 +79,7 @@ const Footer = () => {
                     }}
                   />
                   <div
-                    className="w-full h-full bg-teal-500 text-white font-bold text-lg items-center justify-center hidden"
+                    className="w-full h-full bg-primary-500 text-white font-bold text-lg items-center justify-center hidden"
                     style={{ display: "none" }}
                   >
                     KEY
@@ -87,11 +87,11 @@ const Footer = () => {
                 </div>
                 <div>
                   <h3 className="text-lg font-bold font-display">KEY Library</h3>
-                  <p className="text-xs text-gray-300">Knowledge Empowering Youth</p>
+                  <p className="text-xs text-white/80">Knowledge Empowering Youth</p>
                 </div>
               </div>
 
-              <p className="text-gray-300 text-sm leading-relaxed">
+              <p className="text-white/80 text-sm leading-relaxed">
                 Empowering communities through knowledge, fostering learning, and connecting people with resources.
               </p>
 
@@ -103,7 +103,7 @@ const Footer = () => {
                     href={social.href}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className={`w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center transition-all duration-300 hover:bg-gray-700 ${social.color}`}
+                    className={`w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center transition-all duration-300 hover:bg-primary-400 ${social.color}`}
                     aria-label={social.name}
                   >
                     <social.icon className="w-4 h-4" />
@@ -120,13 +120,13 @@ const Footer = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
             >
-              <h4 className="text-base font-semibold mb-4 text-teal-400">Library Services</h4>
+              <h4 className="text-base font-semibold mb-4 text-white">Library Services</h4>
               <ul className="space-y-2">
                 {footerLinks.library.map((link) => (
                   <li key={link.name}>
                     <Link
                       to={link.href}
-                      className="flex items-center space-x-2 text-gray-300 hover:text-teal-400 transition-colors duration-300 group text-sm"
+                      className="flex items-center space-x-2 text-white/80 hover:text-white transition-colors duration-300 group text-sm"
                     >
                       <link.icon className="w-3.5 h-3.5 group-hover:scale-105 transition-transform duration-300" />
                       <span>{link.name}</span>
@@ -144,13 +144,13 @@ const Footer = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              <h4 className="text-base font-semibold mb-4 text-teal-400">Community Services</h4>
+              <h4 className="text-base font-semibold mb-4 text-white">Community Services</h4>
               <ul className="space-y-2">
                 {footerLinks.services.map((link) => (
                   <li key={link.name}>
                     <Link
                       to={link.href}
-                      className="flex items-center space-x-2 text-gray-300 hover:text-teal-400 transition-colors duration-300 group text-sm"
+                      className="flex items-center space-x-2 text-white/80 hover:text-white transition-colors duration-300 group text-sm"
                     >
                       <link.icon className="w-3.5 h-3.5 group-hover:scale-105 transition-transform duration-300" />
                       <span>{link.name}</span>
@@ -168,13 +168,13 @@ const Footer = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
             >
-              <h4 className="text-base font-semibold mb-4 text-teal-400">Contact & Support</h4>
+              <h4 className="text-base font-semibold mb-4 text-white">Contact & Support</h4>
               <ul className="space-y-2 mb-4">
                 {footerLinks.support.map((link) => (
                   <li key={link.name}>
                     <Link
                       to={link.href}
-                      className="flex items-center space-x-2 text-gray-300 hover:text-teal-400 transition-colors duration-300 group text-sm"
+                      className="flex items-center space-x-2 text-white/80 hover:text-white transition-colors duration-300 group text-sm"
                     >
                       <link.icon className="w-3.5 h-3.5 group-hover:scale-105 transition-transform duration-300" />
                       <span>{link.name}</span>
@@ -185,12 +185,12 @@ const Footer = () => {
 
               {/* Contact Details */}
               <div className="space-y-2">
-                <div className="flex items-center space-x-2 text-gray-300">
-                  <MdEmail className="w-3.5 h-3.5 text-teal-400" />
+                <div className="flex items-center space-x-2 text-white/80">
+                  <MdEmail className="w-3.5 h-3.5 text-white" />
                   <span className="text-sm">info@keylibraries.org</span>
                 </div>
-                <div className="flex items-center space-x-2 text-gray-300">
-                  <MdPhone className="w-3.5 h-3.5 text-teal-400" />
+                <div className="flex items-center space-x-2 text-white/80">
+                  <MdPhone className="w-3.5 h-3.5 text-white" />
                   <span className="text-sm">(555) 123-KEYS</span>
                 </div>
               </div>
@@ -203,23 +203,23 @@ const Footer = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="mt-8 pt-6 border-t border-gray-700"
+          className="mt-8 pt-6 border-t border-white/20"
         >
-          <h4 className="text-base font-semibold mb-4 text-teal-400 text-center">Our Locations</h4>
+          <h4 className="text-base font-semibold mb-4 text-white text-center">Our Locations</h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {branches.map((branch, index) => (
               <div
                 key={branch.name}
-                className="bg-gray-800/50 rounded-lg p-3 backdrop-blur-sm border border-gray-700 hover:border-teal-500/50 transition-all duration-300"
+                className="bg-primary-600/50 rounded-lg p-3 backdrop-blur-sm border border-white/10 hover:border-white/30 transition-all duration-300"
               >
                 <h5 className="font-semibold text-white mb-2 text-sm">{branch.name}</h5>
                 <div className="space-y-1.5">
-                  <div className="flex items-start space-x-2 text-gray-300">
-                    <MdLocationOn className="w-3.5 h-3.5 text-teal-400 mt-0.5 flex-shrink-0" />
+                  <div className="flex items-start space-x-2 text-white/80">
+                    <MdLocationOn className="w-3.5 h-3.5 text-white mt-0.5 flex-shrink-0" />
                     <span className="text-xs">{branch.address}</span>
                   </div>
-                  <div className="flex items-center space-x-2 text-gray-300">
-                    <MdPhone className="w-3.5 h-3.5 text-teal-400" />
+                  <div className="flex items-center space-x-2 text-white/80">
+                    <MdPhone className="w-3.5 h-3.5 text-white" />
                     <span className="text-xs">{branch.phone}</span>
                   </div>
                 </div>
@@ -230,26 +230,26 @@ const Footer = () => {
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-gray-700 bg-gray-900/50">
+      <div className="border-t border-white/20 bg-primary-600/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
-            <div className="flex items-center space-x-2 text-gray-400 text-xs">
+            <div className="flex items-center space-x-2 text-white/80 text-xs">
               <span>© {currentYear} KEY Libraries. All rights reserved.</span>
             </div>
 
-            <div className="flex items-center space-x-4 text-xs text-gray-400">
-              <Link to="#" className="hover:text-teal-400 transition-colors duration-300">
+            <div className="flex items-center space-x-4 text-xs text-white/80">
+              <Link to="#" className="hover:text-white transition-colors duration-300">
                 Privacy Policy
               </Link>
-              <Link to="#" className="hover:text-teal-400 transition-colors duration-300">
+              <Link to="#" className="hover:text-white transition-colors duration-300">
                 Terms of Service
               </Link>
-              <Link to="#" className="hover:text-teal-400 transition-colors duration-300">
+              <Link to="#" className="hover:text-white transition-colors duration-300">
                 Accessibility
               </Link>
             </div>
 
-            <div className="flex items-center space-x-1.5 text-gray-400 text-xs">
+            <div className="flex items-center space-x-1.5 text-white/80 text-xs">
               <span>Made with</span>
               <MdFavorite className="w-3.5 h-3.5 text-red-400" />
               <span>for our community</span>

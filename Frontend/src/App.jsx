@@ -58,13 +58,13 @@ const DashboardRoute = () => {
 
 // Unauthorized Component
 const Unauthorized = () => (
-  <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-secondary-50">
-    <div className="text-center bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border border-white/50">
-      <div className="w-20 h-20 bg-gradient-to-br from-red-500 to-red-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
+  <div className="min-h-screen flex items-center justify-center bg-cream-300">
+    <div className="text-center bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border border-white/50">
+      <div className="w-20 h-20 bg-gradient-to-br from-error-500 to-error-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
         <span className="text-white text-2xl font-bold">403</span>
       </div>
-      <h1 className="text-4xl font-bold text-red-600 mb-4">Access Denied</h1>
-      <p className="text-gray-600 mb-6">You don't have permission to access this resource.</p>
+      <h1 className="text-4xl font-bold text-error-600 mb-4">Access Denied</h1>
+      <p className="text-secondary-600 mb-6">You don't have permission to access this resource.</p>
       <button
         onClick={() => window.history.back()}
         className="inline-flex items-center space-x-2 text-primary-600 hover:text-primary-500 font-semibold"
@@ -83,7 +83,7 @@ function App() {
       }}
     >
       <AuthProvider>
-        <div className="App">
+        <div className="App min-h-screen bg-cream-300">
           <Navbar />
           <Routes>
             <Route path="/" element={<Homepage />} />

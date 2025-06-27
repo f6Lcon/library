@@ -76,9 +76,7 @@ const Navbar = () => {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-gradient-to-r from-primary-600/95 via-primary-500/95 to-primary-700/95 backdrop-blur-lg shadow-large"
-          : "bg-gradient-to-r from-primary-600 via-primary-500 to-primary-700"
+        scrolled ? "bg-primary-500/95 backdrop-blur-lg shadow-large" : "bg-primary-500"
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -149,7 +147,7 @@ const Navbar = () => {
                   className="flex items-center space-x-3 bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-2 border border-white/20"
                   whileHover={{ scale: 1.01 }}
                 >
-                  <div className="w-8 h-8 bg-gradient-to-br from-white to-primary-100 rounded-xl flex items-center justify-center shadow-soft">
+                  <div className="w-8 h-8 bg-gradient-to-br from-white to-cream-100 rounded-xl flex items-center justify-center shadow-soft">
                     <MdPerson className="w-4 h-4 text-primary-600" />
                   </div>
                   <div className="flex flex-col">
@@ -169,7 +167,7 @@ const Navbar = () => {
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <Link
                     to="/register"
-                    className="bg-white text-primary-600 px-6 py-2 rounded-2xl text-sm font-semibold hover:bg-primary-50 transition-all duration-300 shadow-soft hover:shadow-medium flex items-center space-x-2"
+                    className="bg-white text-primary-600 px-6 py-2 rounded-2xl text-sm font-semibold hover:bg-cream-50 transition-all duration-300 shadow-soft hover:shadow-medium flex items-center space-x-2"
                   >
                     <MdPersonAdd className="w-4 h-4" />
                     <span>Join</span>
@@ -230,7 +228,7 @@ const Navbar = () => {
                   <>
                     <div className="px-4 py-3 bg-white/10 rounded-2xl mx-2 my-3">
                       <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-white to-primary-100 rounded-xl flex items-center justify-center shadow-soft">
+                        <div className="w-10 h-10 bg-gradient-to-br from-white to-cream-100 rounded-xl flex items-center justify-center shadow-soft">
                           <MdPerson className="w-5 h-5 text-primary-600" />
                         </div>
                         <div>

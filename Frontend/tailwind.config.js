@@ -4,6 +4,19 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Background cream color from the image
+        cream: {
+          50: "#fefdfb",
+          100: "#fdfbf7",
+          200: "#fbf7ef",
+          300: "#f8f2e5", // Main cream background color
+          400: "#f5eddb",
+          500: "#f2e8d1",
+          600: "#ede0c3",
+          700: "#e6d4b0",
+          800: "#dfc89d",
+          900: "#d4b882",
+        },
         // Primary Brand Color - #278585 and variations
         primary: {
           50: "#f0fdfd",
@@ -18,19 +31,19 @@ export default {
           900: "#134144",
           950: "#042a2d",
         },
-        // Secondary colors - complementary grays
+        // Secondary colors - warm grays that complement cream
         secondary: {
-          50: "#f8fafc",
-          100: "#f1f5f9",
-          200: "#e2e8f0",
-          300: "#cbd5e1",
-          400: "#94a3b8",
-          500: "#64748b",
-          600: "#475569",
-          700: "#334155",
-          800: "#1e293b",
-          900: "#0f172a",
-          950: "#020617",
+          50: "#faf9f7",
+          100: "#f4f2ef",
+          200: "#e8e4df",
+          300: "#d6d0c9",
+          400: "#b8b0a7",
+          500: "#9a8f84",
+          600: "#7d7066",
+          700: "#665c52",
+          800: "#524a42",
+          900: "#433c36",
+          950: "#2a2520",
         },
         // Accent color - warm orange for contrast
         accent: {
@@ -121,6 +134,7 @@ export default {
         large: "0 10px 40px -10px rgba(39, 133, 133, 0.15), 0 20px 25px -5px rgba(39, 133, 133, 0.1)",
         glow: "0 0 20px rgba(39, 133, 133, 0.15)",
         "glow-lg": "0 0 40px rgba(39, 133, 133, 0.2)",
+        warm: "0 4px 25px -5px rgba(243, 115, 32, 0.1), 0 10px 10px -5px rgba(243, 115, 32, 0.04)",
       },
       animation: {
         "fade-in": "fadeIn 0.5s ease-in-out",
