@@ -37,9 +37,22 @@ export const bookService = {
   async getAllBooks(params = {}) {
     try {
       const response = await api.get("/books", { params })
-      return response.data
+
+      // Check if response has the expected structure
+      if (response.data && response.data.success) {
+        return {
+          books: response.data.books || [],
+          totalPages: response.data.totalPages || 1,
+          currentPage: response.data.currentPage || 1,
+          total: response.data.total || 0,
+          categories: response.data.categories || [],
+        }
+      }
+
+      // If API response doesn't have expected structure, throw error to use fallback
+      throw new Error("Invalid API response structure")
     } catch (error) {
-      console.log("API not available, using dummy data")
+      console.log("API not available, using dummy data:", error.message)
 
       // Fallback to dummy data
       await delay(500)
@@ -52,6 +65,7 @@ export const bookService = {
         totalPages: paginatedResult.totalPages,
         currentPage: paginatedResult.currentPage,
         total: paginatedResult.total,
+        categories: dummyCategories,
       }
     }
   },
@@ -59,7 +73,12 @@ export const bookService = {
   async getBookById(id) {
     try {
       const response = await api.get(`/books/${id}`)
-      return response.data
+
+      if (response.data && response.data.success) {
+        return { book: response.data.book }
+      }
+
+      throw new Error("Invalid API response structure")
     } catch (error) {
       console.log("API not available, using dummy data")
 
@@ -106,7 +125,12 @@ export const bookService = {
   async getCategories() {
     try {
       const response = await api.get("/books/categories")
-      return response.data
+
+      if (response.data && response.data.success) {
+        return { categories: response.data.categories || [] }
+      }
+
+      throw new Error("Invalid API response structure")
     } catch (error) {
       console.log("API not available, using dummy data")
 
