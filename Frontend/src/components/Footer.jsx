@@ -14,7 +14,7 @@ import {
   MdSchedule,
   MdPolicy,
 } from "react-icons/md"
-import { FaFacebookF, FaTwitter, FaInstagram, FaGithub } from "react-icons/fa"
+import { FaFacebookF, FaTwitter, FaInstagram, FaYoutube } from "react-icons/fa"
 
 const Footer = () => {
   const currentYear = new Date().getFullYear()
@@ -44,13 +44,13 @@ const Footer = () => {
     { name: "Facebook", icon: FaFacebookF, href: "#", color: "hover:text-blue-400" },
     { name: "Twitter", icon: FaTwitter, href: "#", color: "hover:text-sky-400" },
     { name: "Instagram", icon: FaInstagram, href: "#", color: "hover:text-pink-400" },
-    { name: "GitHub", icon: FaGithub, href: "#", color: "hover:text-gray-400" },
+    { name: "Youtube", icon: FaYoutube, href: "#", color: "hover:text-red-400" },
   ]
 
   const branches = [
-    { name: "Main Branch", address: "123 Library Street, City Center", phone: "(555) 123-4567" },
-    { name: "Community Branch", address: "456 Community Ave, Suburb", phone: "(555) 234-5678" },
-    { name: "University Branch", address: "789 Campus Drive, University", phone: "(555) 345-6789" },
+    { name: "Lewa Primary Library", address: "256, Timau", phone: "+254112345555" },
+    { name: "Community Branch", address: "122, meru", phone: "+2541123456789" },
+    { name: "University Branch", address: "789 Campus Drive, University", phone: "+254123123232" },
   ]
 
   return (
@@ -191,7 +191,7 @@ const Footer = () => {
                 </div>
                 <div className="flex items-center space-x-2 text-white/80">
                   <MdPhone className="w-3.5 h-3.5 text-white" />
-                  <span className="text-sm">(555) 123-KEYS</span>
+                  <span className="text-sm">+254 707665778</span>
                 </div>
               </div>
             </motion.div>

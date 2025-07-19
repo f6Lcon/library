@@ -79,20 +79,20 @@ const Homepage = () => {
 
   const testimonials = [
     {
-      name: "Sarah Johnson",
+      name: "Martin Kimiri",
       role: "Student",
       content:
         "The KEY Library has been instrumental in my academic journey. The vast collection and helpful staff make studying a pleasure.",
       rating: 5,
     },
     {
-      name: "Michael Chen",
+      name: "Omar Hassan",
       role: "Community Member",
       content: "I love the community programs here. The book clubs and workshops have enriched my life tremendously.",
       rating: 5,
     },
     {
-      name: "Emily Davis",
+      name: "Miriam Gerlad",
       role: "Teacher",
       content: "As an educator, I appreciate the educational resources and the supportive environment for learning.",
       rating: 5,

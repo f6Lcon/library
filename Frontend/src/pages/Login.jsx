@@ -166,27 +166,6 @@ const Login = () => {
             </motion.button>
           </form>
 
-          {/* Demo Accounts */}
-          <div className="mt-8 p-6 bg-cream-100/50 rounded-2xl border border-cream-200">
-            <h3 className="text-sm font-semibold text-secondary-700 mb-3">Demo Accounts</h3>
-            <div className="space-y-2 text-xs text-secondary-600">
-              <div className="flex items-center justify-between">
-                <span className="flex items-center space-x-2">
-                  <MdPerson className="w-3 h-3" />
-                  <span>Admin:</span>
-                </span>
-                <span className="font-mono">admin@keylib.com / admin123</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="flex items-center space-x-2">
-                  <MdPerson className="w-3 h-3" />
-                  <span>Student:</span>
-                </span>
-                <span className="font-mono">student@keylib.com / student123</span>
-              </div>
-            </div>
-          </div>
-
           {/* Footer Links */}
           <div className="mt-8 text-center space-y-4">
             <Link
