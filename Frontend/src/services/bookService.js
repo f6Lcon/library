@@ -35,11 +35,17 @@ const paginateResults = (items, page = 1, limit = 10) => {
 
 export const bookService = {
   async getAllBooks(params = {}) {
+    console.log("bookService.getAllBooks called with params:", params)
+
     try {
+      console.log("Making API request to /books with params:", params)
       const response = await api.get("/books", { params })
+      console.log("API response received:", response)
+      console.log("Response data:", response.data)
 
       // Check if response has the expected structure
       if (response.data && response.data.success) {
+        console.log("API response successful, returning data")
         return {
           books: response.data.books || [],
           totalPages: response.data.totalPages || 1,
@@ -50,9 +56,22 @@ export const bookService = {
       }
 
       // If API response doesn't have expected structure, throw error to use fallback
+      console.warn("API response doesn't have expected structure, using fallback")
       throw new Error("Invalid API response structure")
     } catch (error) {
-      console.log("API not available, using dummy data:", error.message)
+      console.log("API error occurred:", error.message)
+      console.log("Full error:", error)
+
+      // Check if it's a network error or server error
+      if (error.response) {
+        console.log("Server responded with error:", error.response.status, error.response.data)
+      } else if (error.request) {
+        console.log("No response received from server")
+      } else {
+        console.log("Error setting up request:", error.message)
+      }
+
+      console.log("Using dummy data as fallback")
 
       // Fallback to dummy data
       await delay(500)
@@ -71,8 +90,11 @@ export const bookService = {
   },
 
   async getBookById(id) {
+    console.log("bookService.getBookById called with id:", id)
+
     try {
       const response = await api.get(`/books/${id}`)
+      console.log("Book details API response:", response.data)
 
       if (response.data && response.data.success) {
         return { book: response.data.book }
@@ -80,7 +102,7 @@ export const bookService = {
 
       throw new Error("Invalid API response structure")
     } catch (error) {
-      console.log("API not available, using dummy data")
+      console.log("API not available for book details, using dummy data")
 
       // Fallback to dummy data
       await delay(300)
@@ -123,8 +145,11 @@ export const bookService = {
   },
 
   async getCategories() {
+    console.log("bookService.getCategories called")
+
     try {
       const response = await api.get("/books/categories")
+      console.log("Categories API response:", response.data)
 
       if (response.data && response.data.success) {
         return { categories: response.data.categories || [] }
@@ -132,7 +157,7 @@ export const bookService = {
 
       throw new Error("Invalid API response structure")
     } catch (error) {
-      console.log("API not available, using dummy data")
+      console.log("API not available for categories, using dummy data")
 
       // Fallback to dummy data
       await delay(200)

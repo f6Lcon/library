@@ -1,344 +1,450 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
+import { bookService } from "../services/bookService"
 import BookCard from "../components/BookCard"
 import LoadingSpinner from "../components/LoadingSpinner"
-import { bookService } from "../services/bookService"
-import { MdSearch, MdFilterList, MdClose, MdLibraryBooks, MdViewModule, MdViewList } from "react-icons/md"
+import { MdSearch, MdFilterList, MdGridView, MdViewList, MdLibraryBooks, MdRefresh } from "react-icons/md"
 
 const BooksPage = () => {
   const [books, setBooks] = useState([])
-  const [filteredBooks, setFilteredBooks] = useState([])
+  const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
+  const [searchLoading, setSearchLoading] = useState(false)
   const [error, setError] = useState("")
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedGenre, setSelectedGenre] = useState("")
-  const [selectedAvailability, setSelectedAvailability] = useState("")
-  const [selectedBranch, setSelectedBranch] = useState("")
-  const [sortBy, setSortBy] = useState("title")
   const [viewMode, setViewMode] = useState("grid")
   const [showFilters, setShowFilters] = useState(false)
 
-  const genres = ["Fiction", "Non-Fiction", "Science", "History", "Biography", "Children", "Reference", "Technology"]
-  const sortOptions = [
-    { value: "title", label: "Title (A-Z)" },
-    { value: "author", label: "Author" },
-    { value: "year", label: "Publication Year" },
-    { value: "genre", label: "Genre" },
-  ]
+  // Search and filter states
+  const [searchQuery, setSearchQuery] = useState("")
+  const [selectedCategory, setSelectedCategory] = useState("")
+  const [sortBy, setSortBy] = useState("title")
+  const [sortOrder, setSortOrder] = useState("asc")
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalBooks, setTotalBooks] = useState(0)
+  const booksPerPage = 12
 
   useEffect(() => {
-    fetchBooks()
+    console.log("BooksPage mounted, fetching categories...")
+    fetchCategories()
   }, [])
 
   useEffect(() => {
-    filterAndSortBooks()
-  }, [books, searchTerm, selectedGenre, selectedAvailability, selectedBranch, sortBy])
+    console.log("Fetching books with params:", {
+      currentPage,
+      selectedCategory,
+      sortBy,
+      sortOrder,
+      searchQuery,
+    })
+    fetchBooks()
+  }, [currentPage, selectedCategory, sortBy, sortOrder])
+
+  useEffect(() => {
+    const delayedSearch = setTimeout(() => {
+      if (searchQuery !== "") {
+        console.log("Searching for:", searchQuery)
+        setCurrentPage(1)
+        fetchBooks()
+      } else if (searchQuery === "") {
+        console.log("Search cleared, fetching all books")
+        fetchBooks()
+      }
+    }, 500)
+
+    return () => clearTimeout(delayedSearch)
+  }, [searchQuery])
 
   const fetchBooks = async () => {
     try {
-      setLoading(true)
-      const response = await bookService.getAllBooks()
-      setBooks(response.data || [])
+      setSearchLoading(true)
+      console.log("Calling bookService.getAllBooks with params:", {
+        page: currentPage,
+        limit: booksPerPage,
+        search: searchQuery,
+        category: selectedCategory,
+        sortBy,
+        sortOrder,
+      })
+
+      const response = await bookService.getAllBooks({
+        page: currentPage,
+        limit: booksPerPage,
+        search: searchQuery,
+        category: selectedCategory,
+        sortBy,
+        sortOrder,
+      })
+
+      console.log("Book service response:", response)
+
+      if (response && response.books) {
+        setBooks(response.books)
+        setTotalPages(response.totalPages || 1)
+        setTotalBooks(response.total || 0)
+        console.log(`Fetched ${response.books.length} books out of ${response.total} total`)
+      } else {
+        console.warn("Invalid response structure:", response)
+        setBooks([])
+        setTotalPages(1)
+        setTotalBooks(0)
+      }
+      setError("")
     } catch (error) {
-      setError("Failed to fetch books. Please try again later.")
       console.error("Error fetching books:", error)
+      setError("Failed to load books. Please try again.")
+      setBooks([])
     } finally {
       setLoading(false)
+      setSearchLoading(false)
     }
   }
 
-  const filterAndSortBooks = () => {
-    let filtered = [...books]
+  const fetchCategories = async () => {
+    try {
+      console.log("Fetching categories...")
+      const response = await bookService.getCategories()
+      console.log("Categories response:", response)
 
-    // Apply search filter
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (book) =>
-          book.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          book.author?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          book.isbn?.toLowerCase().includes(searchTerm.toLowerCase()),
-      )
-    }
-
-    // Apply genre filter
-    if (selectedGenre) {
-      filtered = filtered.filter((book) => book.genre === selectedGenre)
-    }
-
-    // Apply availability filter
-    if (selectedAvailability) {
-      if (selectedAvailability === "available") {
-        filtered = filtered.filter((book) => book.availableCopies > 0)
-      } else if (selectedAvailability === "unavailable") {
-        filtered = filtered.filter((book) => book.availableCopies === 0)
+      if (response && response.categories) {
+        setCategories(response.categories)
+        console.log(`Fetched ${response.categories.length} categories`)
+      } else {
+        console.warn("Invalid categories response:", response)
+        setCategories([])
       }
+    } catch (error) {
+      console.error("Error fetching categories:", error)
+      setCategories([])
     }
+  }
 
-    // Apply branch filter
-    if (selectedBranch) {
-      filtered = filtered.filter((book) => book.branch === selectedBranch)
+  const handleSearch = (e) => {
+    const value = e.target.value
+    console.log("Search input changed:", value)
+    setSearchQuery(value)
+    setCurrentPage(1)
+  }
+
+  const handleCategoryChange = (category) => {
+    console.log("Category changed:", category)
+    setSelectedCategory(category)
+    setCurrentPage(1)
+  }
+
+  const handleSortChange = (newSortBy) => {
+    console.log("Sort changed:", newSortBy)
+    if (sortBy === newSortBy) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc")
+    } else {
+      setSortBy(newSortBy)
+      setSortOrder("asc")
     }
-
-    // Apply sorting
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case "title":
-          return a.title?.localeCompare(b.title) || 0
-        case "author":
-          return a.author?.localeCompare(b.author) || 0
-        case "year":
-          return (b.publicationYear || 0) - (a.publicationYear || 0)
-        case "genre":
-          return a.genre?.localeCompare(b.genre) || 0
-        default:
-          return 0
-      }
-    })
-
-    setFilteredBooks(filtered)
+    setCurrentPage(1)
   }
 
   const clearFilters = () => {
-    setSearchTerm("")
-    setSelectedGenre("")
-    setSelectedAvailability("")
-    setSelectedBranch("")
+    console.log("Clearing all filters")
+    setSearchQuery("")
+    setSelectedCategory("")
     setSortBy("title")
+    setSortOrder("asc")
+    setCurrentPage(1)
   }
 
-  const activeFiltersCount = [searchTerm, selectedGenre, selectedAvailability, selectedBranch].filter(Boolean).length
+  const renderPagination = () => {
+    if (totalPages <= 1) return null
 
-  if (loading) return <LoadingSpinner />
+    const pages = []
+    const maxVisiblePages = 5
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2))
+    const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1)
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1)
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i)
+    }
+
+    return (
+      <div className="flex items-center justify-center space-x-2 mt-12">
+        <button
+          onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+          disabled={currentPage === 1}
+          className="px-4 py-2 rounded-xl bg-white/80 backdrop-blur-sm border border-white/50 text-gray-700 hover:bg-teal-50 hover:text-teal-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+        >
+          Previous
+        </button>
+
+        {pages.map((page) => (
+          <button
+            key={page}
+            onClick={() => setCurrentPage(page)}
+            className={`px-4 py-2 rounded-xl transition-all duration-300 ${
+              currentPage === page
+                ? "bg-teal-500 text-white shadow-lg"
+                : "bg-white/80 backdrop-blur-sm border border-white/50 text-gray-700 hover:bg-teal-50 hover:text-teal-600"
+            }`}
+          >
+            {page}
+          </button>
+        ))}
+
+        <button
+          onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+          disabled={currentPage === totalPages}
+          className="px-4 py-2 rounded-xl bg-white/80 backdrop-blur-sm border border-white/50 text-gray-700 hover:bg-teal-50 hover:text-teal-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+        >
+          Next
+        </button>
+      </div>
+    )
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-cream-300 pt-16 lg:pt-18 flex items-center justify-center">
+        <div className="text-center">
+          <LoadingSpinner size="xl" />
+          <p className="mt-4 text-gray-600">Loading books...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-cream-300 pt-16 lg:pt-18">
-      {/* Header */}
-      <section className="bg-gradient-to-r from-primary-500/10 to-primary-600/10 py-12 lg:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center"
-          >
-            <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center shadow-medium">
-                <MdLibraryBooks className="w-8 h-8 text-white" />
-              </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-12"
+        >
+          <div className="flex justify-center mb-6">
+            <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-teal-600 rounded-3xl flex items-center justify-center shadow-lg">
+              <MdLibraryBooks className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-4xl lg:text-5xl font-bold text-secondary-800 mb-4 font-display">Our Book Collection</h1>
-            <p className="text-xl text-secondary-600 max-w-2xl mx-auto">
-              Discover thousands of books across all genres and subjects
-            </p>
-          </motion.div>
-        </div>
-      </section>
+          </div>
+          <h1 className="text-4xl lg:text-5xl font-bold text-gray-800 mb-4 font-display">
+            Explore Our{" "}
+            <span className="bg-gradient-to-r from-teal-600 to-teal-500 bg-clip-text text-transparent">Collection</span>
+          </h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Discover thousands of books across all genres and subjects
+          </p>
+        </motion.div>
 
-      {/* Search and Filters */}
-      <section className="py-8 bg-white/30 backdrop-blur-sm sticky top-16 lg:top-18 z-40 border-b border-white/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+        {/* Search and Filters */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-white/50 mb-8"
+        >
+          <div className="flex flex-col lg:flex-row gap-4">
             {/* Search Bar */}
-            <div className="flex-1 max-w-2xl">
-              <div className="relative">
-                <MdSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-secondary-400 w-5 h-5" />
-                <input
-                  type="text"
-                  placeholder="Search books by title, author, or ISBN..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-white/80 backdrop-blur-sm border border-secondary-200 rounded-2xl text-secondary-900 placeholder-secondary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300"
-                />
-              </div>
+            <div className="flex-1 relative">
+              <MdSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={handleSearch}
+                placeholder="Search books by title, author, or ISBN..."
+                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm"
+              />
+              {searchLoading && (
+                <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                  <LoadingSpinner size="sm" />
+                </div>
+              )}
             </div>
 
-            {/* Controls */}
-            <div className="flex items-center space-x-3">
-              {/* Filter Toggle */}
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setShowFilters(!showFilters)}
-                className="relative flex items-center space-x-2 px-4 py-2 bg-white/80 backdrop-blur-sm border border-secondary-200 rounded-xl text-secondary-700 hover:bg-white hover:text-primary-600 transition-all duration-300"
+            {/* Filter Toggle */}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="px-6 py-3 bg-gray-100 text-gray-700 rounded-2xl hover:bg-gray-200 transition-colors duration-300 flex items-center space-x-2"
+            >
+              <MdFilterList className="w-5 h-5" />
+              <span>Filters</span>
+            </button>
+
+            {/* View Mode Toggle */}
+            <div className="flex bg-gray-100 rounded-2xl p-1">
+              <button
+                onClick={() => setViewMode("grid")}
+                className={`p-2 rounded-xl transition-all duration-300 ${
+                  viewMode === "grid" ? "bg-white shadow-lg text-teal-600" : "text-gray-600"
+                }`}
               >
-                <MdFilterList className="w-5 h-5" />
-                <span className="hidden sm:inline">Filters</span>
-                {activeFiltersCount > 0 && (
-                  <span className="absolute -top-2 -right-2 w-5 h-5 bg-primary-500 text-white text-xs rounded-full flex items-center justify-center">
-                    {activeFiltersCount}
-                  </span>
-                )}
-              </motion.button>
-
-              {/* View Mode */}
-              <div className="flex bg-white/80 backdrop-blur-sm border border-secondary-200 rounded-xl p-1">
-                <button
-                  onClick={() => setViewMode("grid")}
-                  className={`p-2 rounded-lg transition-all duration-200 ${
-                    viewMode === "grid" ? "bg-primary-500 text-white" : "text-secondary-600 hover:text-primary-600"
-                  }`}
-                >
-                  <MdViewModule className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setViewMode("list")}
-                  className={`p-2 rounded-lg transition-all duration-200 ${
-                    viewMode === "list" ? "bg-primary-500 text-white" : "text-secondary-600 hover:text-primary-600"
-                  }`}
-                >
-                  <MdViewList className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Results Count */}
-              <div className="text-sm text-secondary-600 font-medium">
-                {filteredBooks.length} book{filteredBooks.length !== 1 ? "s" : ""}
-              </div>
+                <MdGridView className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setViewMode("list")}
+                className={`p-2 rounded-xl transition-all duration-300 ${
+                  viewMode === "list" ? "bg-white shadow-lg text-teal-600" : "text-gray-600"
+                }`}
+              >
+                <MdViewList className="w-5 h-5" />
+              </button>
             </div>
           </div>
 
-          {/* Filters Panel */}
-          <AnimatePresence>
-            {showFilters && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3 }}
-                className="mt-6 overflow-hidden"
-              >
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white/50">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {/* Genre Filter */}
-                    <div>
-                      <label className="block text-sm font-semibold text-secondary-700 mb-2">Genre</label>
-                      <select
-                        value={selectedGenre}
-                        onChange={(e) => setSelectedGenre(e.target.value)}
-                        className="w-full px-3 py-2 bg-white border border-secondary-200 rounded-xl text-secondary-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300"
-                      >
-                        <option value="">All Genres</option>
-                        {genres.map((genre) => (
-                          <option key={genre} value={genre}>
-                            {genre}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Availability Filter */}
-                    <div>
-                      <label className="block text-sm font-semibold text-secondary-700 mb-2">Availability</label>
-                      <select
-                        value={selectedAvailability}
-                        onChange={(e) => setSelectedAvailability(e.target.value)}
-                        className="w-full px-3 py-2 bg-white border border-secondary-200 rounded-xl text-secondary-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300"
-                      >
-                        <option value="">All Books</option>
-                        <option value="available">Available</option>
-                        <option value="unavailable">Unavailable</option>
-                      </select>
-                    </div>
-
-                    {/* Sort By */}
-                    <div>
-                      <label className="block text-sm font-semibold text-secondary-700 mb-2">Sort By</label>
-                      <select
-                        value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value)}
-                        className="w-full px-3 py-2 bg-white border border-secondary-200 rounded-xl text-secondary-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300"
-                      >
-                        {sortOptions.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Clear Filters */}
-                    <div className="flex items-end">
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={clearFilters}
-                        className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-secondary-100 text-secondary-700 rounded-xl hover:bg-secondary-200 transition-all duration-300"
-                      >
-                        <MdClose className="w-4 h-4" />
-                        <span>Clear</span>
-                      </motion.button>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </section>
-
-      {/* Books Grid/List */}
-      <section className="py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {error && (
+          {/* Expanded Filters */}
+          {showFilters && (
             <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-error-50 border border-error-200 text-error-700 px-6 py-4 rounded-2xl mb-8"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mt-6 pt-6 border-t border-gray-200"
             >
-              {error}
-            </motion.div>
-          )}
-
-          {filteredBooks.length === 0 ? (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-16">
-              <div className="w-24 h-24 bg-secondary-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                <MdLibraryBooks className="w-12 h-12 text-secondary-400" />
-              </div>
-              <h3 className="text-2xl font-semibold text-secondary-700 mb-4">No books found</h3>
-              <p className="text-secondary-500 mb-6">
-                {searchTerm || selectedGenre || selectedAvailability || selectedBranch
-                  ? "Try adjusting your search criteria or filters"
-                  : "No books are available in the library"}
-              </p>
-              {(searchTerm || selectedGenre || selectedAvailability || selectedBranch) && (
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={clearFilters}
-                  className="inline-flex items-center space-x-2 px-6 py-3 bg-primary-500 text-white rounded-2xl font-semibold hover:bg-primary-600 transition-all duration-300"
-                >
-                  <MdClose className="w-4 h-4" />
-                  <span>Clear Filters</span>
-                </motion.button>
-              )}
-            </motion.div>
-          ) : (
-            <motion.div
-              layout
-              className={`grid gap-6 ${
-                viewMode === "grid" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "grid-cols-1"
-              }`}
-            >
-              <AnimatePresence>
-                {filteredBooks.map((book, index) => (
-                  <motion.div
-                    key={book._id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.4, delay: index * 0.05 }}
-                    layout
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Category Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                  <select
+                    value={selectedCategory}
+                    onChange={(e) => handleCategoryChange(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm"
                   >
-                    <BookCard book={book} viewMode={viewMode} />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
+                    <option value="">All Categories</option>
+                    {categories.map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Sort By */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm"
+                  >
+                    <option value="title">Title</option>
+                    <option value="author">Author</option>
+                    <option value="publishedYear">Year</option>
+                    <option value="createdAt">Date Added</option>
+                  </select>
+                </div>
+
+                {/* Sort Order */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Order</label>
+                  <select
+                    value={sortOrder}
+                    onChange={(e) => setSortOrder(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm"
+                  >
+                    <option value="asc">Ascending</option>
+                    <option value="desc">Descending</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center mt-4">
+                <button
+                  onClick={clearFilters}
+                  className="text-gray-600 hover:text-gray-800 transition-colors duration-300 text-sm"
+                >
+                  Clear all filters
+                </button>
+                <button
+                  onClick={fetchBooks}
+                  className="flex items-center space-x-2 px-4 py-2 bg-teal-500 text-white rounded-xl hover:bg-teal-600 transition-colors duration-300"
+                >
+                  <MdRefresh className="w-4 h-4" />
+                  <span>Refresh</span>
+                </button>
+              </div>
             </motion.div>
           )}
+        </motion.div>
+
+        {/* Results Summary */}
+        <div className="flex justify-between items-center mb-6">
+          <p className="text-gray-600">
+            Showing {books.length} of {totalBooks} books
+            {searchQuery && ` for "${searchQuery}"`}
+            {selectedCategory && ` in ${selectedCategory}`}
+          </p>
         </div>
-      </section>
+
+     
+
+        {/* Error State */}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-red-50 border border-red-200 rounded-2xl p-6 mb-8"
+          >
+            <p className="text-red-700">{error}</p>
+            <button
+              onClick={fetchBooks}
+              className="mt-3 text-red-600 hover:text-red-800 transition-colors duration-300 text-sm font-medium"
+            >
+              Try again
+            </button>
+          </motion.div>
+        )}
+
+        {/* Books Grid/List */}
+        {books.length > 0 ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className={
+              viewMode === "grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" : "space-y-4"
+            }
+          >
+            {books.map((book, index) => (
+              <motion.div
+                key={book._id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+              >
+                <BookCard book={book} viewMode={viewMode} />
+              </motion.div>
+            ))}
+          </motion.div>
+        ) : (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-16">
+            <div className="w-24 h-24 bg-gray-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
+              <MdLibraryBooks className="w-12 h-12 text-gray-400" />
+            </div>
+            <h3 className="text-2xl font-semibold text-gray-800 mb-2">No books found</h3>
+            <p className="text-gray-600 mb-6">
+              {searchQuery || selectedCategory
+                ? "Try adjusting your search criteria or filters"
+                : "No books are available in the library"}
+            </p>
+            {(searchQuery || selectedCategory) && (
+              <button
+                onClick={clearFilters}
+                className="px-6 py-3 bg-teal-500 text-white rounded-xl hover:bg-teal-600 transition-colors duration-300"
+              >
+                Clear filters
+              </button>
+            )}
+          </motion.div>
+        )}
+
+        {/* Pagination */}
+        {renderPagination()}
+      </div>
     </div>
   )
 }
