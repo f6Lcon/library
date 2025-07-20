@@ -149,7 +149,7 @@ const AdminDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-100">
+      <div className="min-h-screen bg-cream-300">
         <div className="flex justify-center items-center h-64">
           <LoadingSpinner size="lg" color="primary" text="Loading admin dashboard..." />
         </div>
@@ -158,14 +158,14 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-100">
+    <div className="min-h-screen bg-cream-300">
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           {/* Header */}
           <div className="flex justify-between items-center mb-8">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                <MdDashboard className="text-primary-600" />
+                <MdDashboard className="text-teal-600" />
                 Admin Dashboard
               </h1>
               <p className="text-gray-600 mt-2">Manage users, books, and system settings</p>
@@ -180,7 +180,7 @@ const AdminDashboard = () => {
               </button>
               <Link
                 to="/register"
-                className="bg-primary-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary-700 transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center gap-2"
+                className="bg-teal-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-teal-700 transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center gap-2"
               >
                 <MdPersonAdd className="w-4 h-4" />
                 Register New User
@@ -222,7 +222,7 @@ const AdminDashboard = () => {
                     onClick={() => setActiveTab(tab.key)}
                     className={`flex items-center gap-3 px-6 py-4 font-medium text-sm transition-all duration-200 ${
                       activeTab === tab.key
-                        ? "border-b-2 border-primary-500 text-primary-600 bg-primary-50"
+                        ? "border-b-2 border-teal-500 text-teal-600 bg-teal-50"
                         : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
                     }`}
                   >
@@ -242,12 +242,12 @@ const AdminDashboard = () => {
             <div className="space-y-8">
               {/* Main Statistics */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-gradient-to-r from-primary-500 to-primary-600 rounded-2xl p-6 text-white shadow-xl">
+                <div className="bg-gradient-to-r from-teal-500 to-teal-600 rounded-2xl p-6 text-white shadow-xl">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-primary-100 text-sm font-medium">Total Users</p>
+                      <p className="text-teal-100 text-sm font-medium">Total Users</p>
                       <p className="text-3xl font-bold">{stats.totalUsers}</p>
-                      <p className="text-primary-200 text-xs mt-1">System-wide</p>
+                      <p className="text-teal-200 text-xs mt-1">System-wide</p>
                     </div>
                     <div className="bg-white/20 p-3 rounded-xl">
                       <MdPeople className="w-8 h-8" />
@@ -268,12 +268,12 @@ const AdminDashboard = () => {
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-r from-teal-500 to-teal-600 rounded-2xl p-6 text-white shadow-xl">
+                <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-xl">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-teal-100 text-sm font-medium">Active Borrows</p>
+                      <p className="text-blue-100 text-sm font-medium">Active Borrows</p>
                       <p className="text-3xl font-bold">{stats.activeBorrows}</p>
-                      <p className="text-teal-200 text-xs mt-1">Currently borrowed</p>
+                      <p className="text-blue-200 text-xs mt-1">Currently borrowed</p>
                     </div>
                     <div className="bg-white/20 p-3 rounded-xl">
                       <MdSchedule className="w-8 h-8" />
@@ -300,16 +300,16 @@ const AdminDashboard = () => {
                 <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold text-gray-900">Students</h3>
-                    <div className="bg-primary-100 p-2 rounded-xl">
-                      <MdSchool className="w-6 h-6 text-primary-600" />
+                    <div className="bg-teal-100 p-2 rounded-xl">
+                      <MdSchool className="w-6 h-6 text-teal-600" />
                     </div>
                   </div>
-                  <div className="text-3xl font-bold text-primary-600 mb-2">{stats.totalStudents}</div>
+                  <div className="text-3xl font-bold text-teal-600 mb-2">{stats.totalStudents}</div>
                   <div className="text-sm text-gray-500">Registered students</div>
-                  <div className="mt-4 bg-primary-50 rounded-lg p-3">
+                  <div className="mt-4 bg-teal-50 rounded-lg p-3">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Percentage</span>
-                      <span className="font-medium text-primary-600">
+                      <span className="font-medium text-teal-600">
                         {stats.totalUsers > 0 ? Math.round((stats.totalStudents / stats.totalUsers) * 100) : 0}%
                       </span>
                     </div>
@@ -338,16 +338,16 @@ const AdminDashboard = () => {
                 <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold text-gray-900">Community</h3>
-                    <div className="bg-teal-100 p-2 rounded-xl">
-                      <MdGroup className="w-6 h-6 text-teal-600" />
+                    <div className="bg-blue-100 p-2 rounded-xl">
+                      <MdGroup className="w-6 h-6 text-blue-600" />
                     </div>
                   </div>
-                  <div className="text-3xl font-bold text-teal-600 mb-2">{stats.totalCommunity}</div>
+                  <div className="text-3xl font-bold text-blue-600 mb-2">{stats.totalCommunity}</div>
                   <div className="text-sm text-gray-500">Community members</div>
-                  <div className="mt-4 bg-teal-50 rounded-lg p-3">
+                  <div className="mt-4 bg-blue-50 rounded-lg p-3">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Percentage</span>
-                      <span className="font-medium text-teal-600">
+                      <span className="font-medium text-blue-600">
                         {stats.totalUsers > 0 ? Math.round((stats.totalCommunity / stats.totalUsers) * 100) : 0}%
                       </span>
                     </div>
@@ -358,7 +358,7 @@ const AdminDashboard = () => {
               {/* System Health */}
               <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <MdTrendingUp className="text-primary-600" />
+                  <MdTrendingUp className="text-teal-600" />
                   System Health
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -369,7 +369,7 @@ const AdminDashboard = () => {
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">Active Borrows</span>
-                      <span className="font-semibold text-primary-600">{stats.activeBorrows}</span>
+                      <span className="font-semibold text-teal-600">{stats.activeBorrows}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">Overdue Items</span>
@@ -379,14 +379,14 @@ const AdminDashboard = () => {
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">System Status</span>
-                      <span className="flex items-center gap-1 text-primary-600 font-semibold">
+                      <span className="flex items-center gap-1 text-teal-600 font-semibold">
                         <MdCheckCircle className="w-4 h-4" />
                         Operational
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">Database</span>
-                      <span className="flex items-center gap-1 text-primary-600 font-semibold">
+                      <span className="flex items-center gap-1 text-teal-600 font-semibold">
                         <MdCheckCircle className="w-4 h-4" />
                         Connected
                       </span>
@@ -408,7 +408,7 @@ const AdminDashboard = () => {
               <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
                 <div className="px-6 py-4 border-b border-gray-200">
                   <h3 className="text-lg font-semibold flex items-center gap-2">
-                    <MdPeople className="text-primary-600" />
+                    <MdPeople className="text-teal-600" />
                     User Management
                   </h3>
                   <p className="text-gray-600 text-sm mt-1">Manage user roles and permissions</p>
@@ -455,7 +455,7 @@ const AdminDashboard = () => {
                                 </div>
                                 <div className="text-sm text-gray-500">{user.email}</div>
                                 {user.studentId && (
-                                  <div className="text-xs text-primary-600 flex items-center gap-1">
+                                  <div className="text-xs text-teal-600 flex items-center gap-1">
                                     <MdSchool className="w-3 h-3" />
                                     Student ID: {user.studentId}
                                   </div>
@@ -466,7 +466,7 @@ const AdminDashboard = () => {
                               <select
                                 value={user.role}
                                 onChange={(e) => handleRoleChange(user._id, e.target.value)}
-                                className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                               >
                                 <option value="community">Community</option>
                                 <option value="student">Student</option>
@@ -481,7 +481,7 @@ const AdminDashboard = () => {
                             <td className="px-6 py-4 whitespace-nowrap">
                               <span
                                 className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-full ${
-                                  user.isActive ? "bg-primary-100 text-primary-800" : "bg-red-100 text-red-800"
+                                  user.isActive ? "bg-teal-100 text-teal-800" : "bg-red-100 text-red-800"
                                 }`}
                               >
                                 {user.isActive ? (
@@ -498,7 +498,7 @@ const AdminDashboard = () => {
                                 className={`${
                                   user.isActive
                                     ? "text-red-600 hover:text-red-900"
-                                    : "text-primary-600 hover:text-primary-900"
+                                    : "text-teal-600 hover:text-teal-900"
                                 } transition-colors duration-200`}
                               >
                                 {user.isActive ? "Deactivate" : "Activate"}
@@ -516,7 +516,7 @@ const AdminDashboard = () => {
                     <p className="text-gray-500 mb-6">Start by registering your first user.</p>
                     <Link
                       to="/register"
-                      className="bg-primary-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary-700 transition-all duration-200 inline-flex items-center gap-2"
+                      className="bg-teal-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-teal-700 transition-all duration-200 inline-flex items-center gap-2"
                     >
                       <MdPersonAdd className="w-4 h-4" />
                       Register First User

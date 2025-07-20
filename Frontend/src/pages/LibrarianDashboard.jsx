@@ -148,14 +148,14 @@ const LibrarianDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-100 flex items-center justify-center">
+      <div className="min-h-screen bg-cream-300 flex items-center justify-center">
         <LoadingSpinner />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-100 py-8">
+    <div className="min-h-screen bg-cream-300 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -167,7 +167,7 @@ const LibrarianDashboard = () => {
             <h1 className="text-3xl font-bold text-gray-900 font-display">Librarian Dashboard</h1>
             <p className="text-gray-600 mt-1">Welcome back, {user?.firstName || "Librarian"}!</p>
             {user?.branch && (
-              <p className="text-sm text-primary-600 font-medium">
+              <p className="text-sm text-teal-600 font-medium">
                 Managing {user.branch.name} ({user.branch.code})
               </p>
             )}
@@ -177,7 +177,7 @@ const LibrarianDashboard = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={fetchData}
-              className="bg-white text-primary-600 px-4 py-2 rounded-xl font-semibold hover:bg-primary-50 transition-all duration-200 shadow-lg border border-primary-200 flex items-center space-x-2"
+              className="bg-white text-teal-600 px-4 py-2 rounded-xl font-semibold hover:bg-teal-50 transition-all duration-200 shadow-lg border border-teal-200 flex items-center space-x-2"
             >
               <FiRefreshCw className="w-4 h-4" />
               <span>Refresh</span>
@@ -186,7 +186,7 @@ const LibrarianDashboard = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-6 py-2 rounded-xl font-semibold hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
+                className="bg-gradient-to-r from-teal-500 to-teal-600 text-white px-6 py-2 rounded-xl font-semibold hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
               >
                 <FiUserPlus className="w-4 h-4" />
                 <span>Register User</span>
@@ -244,7 +244,7 @@ const LibrarianDashboard = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 + index * 0.05 }}
-              className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-primary-100 hover:shadow-xl transition-all duration-300"
+              className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300"
             >
               <div className="flex items-center justify-between">
                 <div>
@@ -279,7 +279,7 @@ const LibrarianDashboard = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg mb-6 border border-primary-100"
+          className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg mb-6 border border-gray-100"
         >
           <div className="border-b border-gray-200">
             <nav className="flex space-x-8 px-6">
@@ -294,7 +294,7 @@ const LibrarianDashboard = () => {
                   onClick={() => setActiveTab(tab.key)}
                   className={`py-4 px-2 border-b-2 font-medium text-sm transition-colors duration-200 flex items-center space-x-2 ${
                     activeTab === tab.key
-                      ? "border-primary-500 text-primary-600"
+                      ? "border-teal-500 text-teal-600"
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                   }`}
                 >
@@ -303,7 +303,7 @@ const LibrarianDashboard = () => {
                   {tab.count > 0 && (
                     <span
                       className={`px-2 py-1 text-xs rounded-full ${
-                        activeTab === tab.key ? "bg-primary-100 text-primary-800" : "bg-gray-100 text-gray-600"
+                        activeTab === tab.key ? "bg-teal-100 text-teal-800" : "bg-gray-100 text-gray-600"
                       }`}
                     >
                       {tab.count}
@@ -325,7 +325,7 @@ const LibrarianDashboard = () => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setShowBookForm(true)}
-                    className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-4 py-2 rounded-xl hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
+                    className="bg-gradient-to-r from-teal-500 to-teal-600 text-white px-4 py-2 rounded-xl hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
                   >
                     <FiPlus className="w-4 h-4" />
                     <span>Add New Book</span>
@@ -334,8 +334,8 @@ const LibrarianDashboard = () => {
 
                 {books.length === 0 ? (
                   <div className="text-center py-12">
-                    <div className="w-20 h-20 bg-gradient-to-br from-primary-100 to-secondary-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                      <FiBook className="w-10 h-10 text-primary-500" />
+                    <div className="w-20 h-20 bg-gradient-to-br from-teal-100 to-teal-200 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                      <FiBook className="w-10 h-10 text-teal-500" />
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 mb-2">No books found</h3>
                     <p className="text-gray-600 mb-6">Start by adding your first book to the library.</p>
@@ -343,7 +343,7 @@ const LibrarianDashboard = () => {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setShowBookForm(true)}
-                      className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-6 py-3 rounded-xl hover:shadow-lg transition-all duration-200"
+                      className="bg-gradient-to-r from-teal-500 to-teal-600 text-white px-6 py-3 rounded-xl hover:shadow-lg transition-all duration-200"
                     >
                       Add First Book
                     </motion.button>
@@ -381,7 +381,7 @@ const LibrarianDashboard = () => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setShowBorrowForm(true)}
-                    className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-4 py-2 rounded-xl hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
+                    className="bg-gradient-to-r from-teal-500 to-teal-600 text-white px-4 py-2 rounded-xl hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
                   >
                     <FiBookOpen className="w-4 h-4" />
                     <span>Issue Book</span>
@@ -390,8 +390,8 @@ const LibrarianDashboard = () => {
 
                 {borrows.length === 0 ? (
                   <div className="text-center py-12">
-                    <div className="w-20 h-20 bg-gradient-to-br from-primary-100 to-primary-200 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                      <FiClock className="w-10 h-10 text-primary-500" />
+                    <div className="w-20 h-20 bg-gradient-to-br from-teal-100 to-teal-200 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                      <FiClock className="w-10 h-10 text-teal-500" />
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 mb-2">No active borrows</h3>
                     <p className="text-gray-600">No books are currently borrowed.</p>
@@ -450,7 +450,7 @@ const LibrarianDashboard = () => {
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                               <button
                                 onClick={() => handleReturnBook(borrow._id)}
-                                className="text-primary-600 hover:text-primary-900 font-semibold"
+                                className="text-teal-600 hover:text-teal-900 font-semibold"
                               >
                                 Return Book
                               </button>
@@ -471,8 +471,8 @@ const LibrarianDashboard = () => {
 
                 {overdueBooks.length === 0 ? (
                   <div className="text-center py-12">
-                    <div className="w-20 h-20 bg-gradient-to-br from-primary-100 to-primary-200 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                      <FiBookOpen className="w-10 h-10 text-primary-500" />
+                    <div className="w-20 h-20 bg-gradient-to-br from-teal-100 to-teal-200 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                      <FiBookOpen className="w-10 h-10 text-teal-500" />
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 mb-2">No overdue books</h3>
                     <p className="text-gray-600">All books are returned on time!</p>
@@ -535,7 +535,7 @@ const LibrarianDashboard = () => {
                               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <button
                                   onClick={() => handleReturnBook(borrow._id)}
-                                  className="text-primary-600 hover:text-primary-900 mr-3 font-semibold"
+                                  className="text-teal-600 hover:text-teal-900 mr-3 font-semibold"
                                 >
                                   Return Book
                                 </button>
@@ -566,7 +566,7 @@ const LibrarianDashboard = () => {
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-6 py-3 rounded-xl hover:shadow-lg transition-all duration-200 inline-block"
+                        className="bg-gradient-to-r from-teal-500 to-teal-600 text-white px-6 py-3 rounded-xl hover:shadow-lg transition-all duration-200 inline-block"
                       >
                         Register First User
                       </motion.button>
