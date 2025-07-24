@@ -114,7 +114,7 @@ const Navbar = () => {
                 </motion.div>
               </div>
               <div className="hidden sm:flex flex-col">
-                <span className="text-xl lg:text-2xl font-bold text-white leading-tight font-display">KEY Library</span>
+                <span className="text-xl lg:text-2xl font-bold text-white leading-tight font-display">KEY Libraries</span>
                 <span className="text-xs text-white/80 leading-tight font-medium">Knowledge Empowering Youth</span>
               </div>
             </Link>

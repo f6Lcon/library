@@ -31,7 +31,7 @@ const Footer = () => {
       { name: "Community Programs", href: "#", icon: MdPeople },
       { name: "Educational Workshops", href: "#", icon: MdLibraryBooks },
       { name: "Digital Literacy", href: "#", icon: MdOpenInNew },
-    ],
+   ],
     support: [
       { name: "Help Center", href: "#", icon: MdHelp },
       { name: "Contact Us", href: "#", icon: MdEmail },

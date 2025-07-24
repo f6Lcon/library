@@ -66,13 +66,13 @@ const Homepage = () => {
     {
       icon: MdAutoStories,
       title: "Digital Reading",
-      description: "Enjoy e-books and digital resources anytime, anywhere",
+      description: "Enjoy large volume of books, cutting edge technology through our system",
       color: "from-success-500 to-success-600",
     },
     {
       icon: MdGroups,
       title: "Community Hub",
-      description: "Connect with fellow readers and join book clubs",
+      description: "Connect with fellow readers, join book clubs and enjoy information litracy",
       color: "from-secondary-500 to-secondary-600",
     },
   ]
